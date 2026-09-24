@@ -91,3 +91,15 @@ Die Abnahme prüft Markdown/Whitespace, die exakte vorgemerkte Dateiliste, Aussc
 Eine gezielte Inhaltsprüfung der vorgesehenen Dokumentation ist keine Garantie gegen jede Art sensibler Daten. Vor einer späteren Veröffentlichung sind unter anderem lokale Pfade, organisatorische Angaben und Lizenzentscheidung erneut zu prüfen. Es werden keine Netzwerkdienste oder Sicherungsziele eingerichtet.
 
 Flutter-Analyse und Anwendungstests werden in diesem Schritt nicht erneut ausgeführt: Es wird kein Dart-Code geändert. Deren letzter geprüfter Stand steht in [setup.md](setup.md).
+
+## Durchgeführte Abnahme am 24.09.2026
+
+- Erster lokaler Commit: `bb448bb` (`docs: establish local project foundation`), genau sechs bewusst ausgewählte Dateien.
+- Autorenangaben ausschließlich pro Commit: `Community Access <development@example.invalid>`. Keine globale Git-Konfiguration geändert.
+- Ausschlüsse bestanden: 22 synthetische Pfade ignoriert; neun erwartete Projekt-/Vorlagenpfade einschließlich App-Lockdatei und SQL-Migration blieben versionierbar.
+- Die angelegte synthetische lokale Konfiguration blieb ignoriert und außerhalb des Index.
+- Markdown-/Whitespace-Prüfung sowie gezielte Suche nach privaten Schlüsseln und typischen Zugangstoken-Mustern bestanden; keine Werte ausgegeben.
+- Bestehende Produkt- und Setup-Dokumentation unverändert übernommen.
+- Auf `learn/git-revert`: Übungs-Commit `e6aefa6`, Gegen-Commit `36f0756`. Der Git-Dateibaum nach der Rücknahme war identisch zum Ausgangsstand; die Wegwerfdatei war entfernt.
+- Anschließend zu `main` zurückgekehrt. Der Übungsbranch bleibt erhalten; für eine Wiederholung einen neuen Branch-Namen wählen.
+- Kein Remote angelegt, kein Push, kein Backend und keine Cloud-Ressource eingerichtet. Eine externe Sicherung bleibt noch offen.
