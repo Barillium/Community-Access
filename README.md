@@ -7,6 +7,7 @@ Eine kleine Zugangslösung für bestehende Kollektive in Aachen. Einladungen fü
 - [Produktspezifikation](docs/product-spec.md): Rollen, Abläufe, Schutzgrenzen und offene Entscheidungen.
 - [Lokales Setup](docs/setup.md): getestete Flutter-Web-Umgebung auf macOS ARM64.
 - [Git-Arbeitsablauf](docs/workflow.md): Änderungen prüfen, gezielt sichern und eine Rücknahme üben.
+- [Projektanweisungen](AGENTS.md) und [Codex-Arbeitsablauf](docs/codex-workflow.md): kleine Aufgaben, Freigaben und geprüfte Schutzgrenzen.
 
 Die Werkzeuge sind eingerichtet; App und Backend sind noch nicht implementiert. Die separate Flutter-Test-App liegt außerhalb dieses Repositorys unter `~/develop/community_access_setup_check`.
 
@@ -15,6 +16,7 @@ Die Werkzeuge sind eingerichtet; App und Backend sind noch nicht implementiert. 
 ```text
 Scene Access/              bestehender Projektstamm; kein Umbenennen erforderlich
   README.md
+  AGENTS.md
   .gitignore
   docs/                    Produkt, Setup und Arbeitsablauf
   scripts/                 reserviert für spätere Hilfsskripte
