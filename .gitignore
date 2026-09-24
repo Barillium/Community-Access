@@ -1,0 +1,77 @@
+# Local secrets and configuration, at any depth.
+.env
+.env.*
+*.env
+*.env.*
+.envrc
+# Only this exact root template may be staged, after content review.
+!/.env.example
+config.json
+config.*.json
+!/config.example.json
+*.local
+*.local.*
+.local/
+secrets/
+private/
+personal/
+credentials.json
+service-account*.json
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Database exports, private exports, backups and local storage.
+dumps/
+backups/
+exports/
+*.dump
+*.backup
+*.bak
+*.sql.gz
+*.sql.zip
+*.sql.xz
+*.sql.bz2
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+# Plain SQL migrations and synthetic seeds must remain versionable.
+/supabase/.temp/
+/supabase/.branches/
+/supabase/.env*
+/supabase/volumes/
+/supabase/data/
+
+# Flutter/Dart build output and tool caches.
+.dart_tool/
+.pub/
+.pub-cache/
+build/
+coverage/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+**/doc/api/
+**/ios/Flutter/ephemeral/
+**/macos/Flutter/ephemeral/
+**/linux/flutter/ephemeral/
+**/windows/flutter/ephemeral/
+**/android/local.properties
+**/android/key.properties
+*.jks
+*.keystore
+# App lockfiles such as app/pubspec.lock are intentionally NOT ignored.
+
+# Local editor, OS and diagnostic output.
+.DS_Store
+._*
+.idea/
+.vscode/
+*.iml
+*.log
+*.swp
+*.swo
