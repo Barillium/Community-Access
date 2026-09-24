@@ -25,7 +25,7 @@ void main() {
   check(ApplicationStatus.pending, ApplicationStatus.approved, true);
   check(ApplicationStatus.pending, ApplicationStatus.rejected, true);
   check(ApplicationStatus.pending, ApplicationStatus.pending, false);
-  check(ApplicationStatus.approved, ApplicationStatus.pending, false);
+  check(ApplicationStatus.approved, ApplicationStatus.pending, true);
   check(ApplicationStatus.rejected, ApplicationStatus.approved, false);
   check(ApplicationStatus.approved, ApplicationStatus.rejected, false);
   check(ApplicationStatus.approved, ApplicationStatus.approved, false);

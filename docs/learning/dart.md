@@ -4,7 +4,7 @@
 
 Diese erste Übung lebt unter `exercises/dart_basics/`, getrennt von der späteren App. Sie verwendet Dart 3.13.4 aus dem vorhandenen Flutter-SDK und keine zusätzlichen Pakete. `publish_to: none` verhindert eine versehentliche Paketveröffentlichung über Pub.
 
-Die Regel ist bewusst vereinfacht: Nur `pending` darf zu `approved` oder `rejected` wechseln. Alle anderen Übergänge sind verboten. Das ist keine Backend-Autorisierung und noch kein vollständiges Produktmodell; insbesondere Rückzug, Community-Rechte und Eventbestätigung sind nicht implementiert.
+Die Regel ist bewusst vereinfacht: `pending` darf zu `approved` oder `rejected` wechseln. Als gemeinsam gewählte Erweiterung darf außerdem `approved → pending` zur erneuten Prüfung wechseln. Alle anderen Übergänge sind verboten. Das ist keine Backend-Autorisierung und noch kein vollständiges Produktmodell; insbesondere Rückzug, Community-Rechte und Eventbestätigung sind nicht implementiert.
 
 ## Erst vorhersagen, dann ausführen
 
@@ -42,7 +42,7 @@ dart test/application_status_test.dart
 
 Der erste Befehl prüft Formatierung ohne Quelldateien umzuschreiben, der zweite sucht statisch nach Problemen, der dritte führt unseren kleinen Prüfcode aus. Erwartet werden keine Formatänderungen, `No issues found!` und `9 Pruefungen, 0 Fehler.`
 
-Die [Prüfdatei](../../exercises/dart_basics/test/application_status_test.dart) deckt alle neun Kombinationen der drei Statuswerte ab: zwei erlaubte und sieben verbotene. Sie verwendet kein externes Testpaket. Deshalb ist der Aufruf ausdrücklich `dart test/application_status_test.dart`, nicht `dart test`. Fehler setzen den Prozess-Exitcode auf 1; sie bleiben auch bei abgeschalteten Dart-Assertions sichtbar. Die Zähler und die kleine Hilfsfunktion darin sind Prüfwerkzeug, nicht zusätzliche Produktlogik.
+Die [Prüfdatei](../../exercises/dart_basics/test/application_status_test.dart) deckt alle neun Kombinationen der drei Statuswerte ab: drei erlaubte und sechs verbotene. Sie verwendet kein externes Testpaket. Deshalb ist der Aufruf ausdrücklich `dart test/application_status_test.dart`, nicht `dart test`. Fehler setzen den Prozess-Exitcode auf 1; sie bleiben auch bei abgeschalteten Dart-Assertions sichtbar. Die Zähler und die kleine Hilfsfunktion darin sind Prüfwerkzeug, nicht zusätzliche Produktlogik.
 
 `dart pub get --offline` erzeugt bei Bedarf die lokale Paketkonfiguration ausschließlich aus lokal verfügbaren Informationen. Es gibt keine Paketabhängigkeiten. Die dabei erzeugte Lockdatei wird versioniert; `.dart_tool/` bleibt ignoriert. Analyse und Ausführung dürfen lokale Werkzeug-Caches schreiben, benötigen aber keine Administratorrechte.
 
@@ -55,13 +55,20 @@ Die [Prüfdatei](../../exercises/dart_basics/test/application_status_test.dart) 
 - Konsolenbeispiel: `pending -> approved: true` beobachtet.
 - Keine Browser-, Backend-, Transaktions- oder Konkurrenztests ausgeführt: Diese reine Funktion greift auf keinen gemeinsamen Zustand zu und ersetzt solche späteren Tests nicht.
 
-## Dein eigener Versuch – noch offen
+## Gemeinsam gewählte Regeländerung
 
-Zuerst ändere im Konsolenbeispiel nur `currentStatus` auf `ApplicationStatus.rejected`. Sage das Ergebnis voraus und starte die Demo. Die Ausgabe sollte `false` sein, während die Funktion unverändert bleibt.
+Du hast `approved → pending` gewählt: Eine angenommene Bewerbung darf in dieser Lernübung erneut geöffnet werden. Codex hat die Codeänderung ausgeführt; eine selbstständig von dir geschriebene Änderung wird damit nicht als bestanden gewertet. Die Produktanforderungen bleiben unverändert.
 
-Danach wähle selbst **eine** zusätzliche erlaubte Kombination, nur für diese Lernübung. Ändere zuerst den erwarteten Wert im passenden Test und führe ihn aus: Er muss zunächst fehlschlagen. Passe anschließend die Funktion an und führe Formatprüfung, Analyse und Prüfdatei erneut aus. Zum Formatieren einer absichtlich geänderten Quelldatei kannst du `dart format lib/application_status.dart` verwenden; dieser Befehl schreibt die Datei.
+Zuerst wurde nur die Testerwartung von `false` auf `true` geändert. Der beobachtete Fehler lautete `approved -> pending: erwartet true, erhalten false`; genau eine von neun Prüfungen schlug fehl (Exitcode 1). Das zeigt, dass der Test die neue Anforderung erkennt. Nach der Funktionsergänzung bestanden alle neun Prüfungen wieder (Exitcode 0); Formatprüfung und Analyse waren ebenfalls erfolgreich.
 
-Erkläre danach in eigenen Worten, welche Regel du geändert hast und weshalb der Test zuerst rot und danach grün war. Diese selbstständige Änderung ist noch nicht durchgeführt und wird nicht von Codex als deine Lernleistung übernommen. Die Änderung einer Übungsregel ändert keine freigegebene Produktanforderung.
+Die Funktion unterscheidet jetzt zwei benannte Bedingungen:
+
+- `isInitialDecision`: Eine offene Bewerbung wird angenommen oder abgelehnt.
+- `isReopening`: Eine angenommene Bewerbung wird erneut geöffnet.
+
+`return isInitialDecision || isReopening;` liefert `true`, sobald eine dieser Bedingungen erfüllt ist. Die Funktion prüft weiterhin nur und verändert keine Bewerbung.
+
+**Dein nächster eigener Versuch:** Erkläre, weshalb `approved → pending` jetzt erlaubt ist, `rejected → pending` aber weiterhin verboten bleibt. Ändere anschließend selbst im Konsolenbeispiel `currentStatus` auf `approved` und `requestedStatus` auf `pending` und starte `dart bin/main.dart`. Erwartet wird `true`. Dieser eigene Dateiversuch ist noch nicht nachgewiesen.
 
 ## Danach
 
