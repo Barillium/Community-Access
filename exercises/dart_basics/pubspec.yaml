@@ -1,0 +1,7 @@
+name: dart_basics
+description: Lokale Lernuebung fuer Bewerbungsstatuswechsel.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: '>=3.13.0 <4.0.0'

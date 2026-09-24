@@ -9,6 +9,8 @@ Eine kleine Zugangslösung für bestehende Kollektive in Aachen. Einladungen fü
 - [Git-Arbeitsablauf](docs/workflow.md): Änderungen prüfen, gezielt sichern und eine Rücknahme üben.
 - [Projektanweisungen](AGENTS.md) und [Codex-Arbeitsablauf](docs/codex-workflow.md): kleine Aufgaben, Freigaben und geprüfte Schutzgrenzen.
 
+Die erste [Dart-Lernübung](docs/learning/dart.md) übt erlaubte Bewerbungsstatuswechsel, getrennt von der späteren Anwendung.
+
 Die Werkzeuge sind eingerichtet; App und Backend sind noch nicht implementiert. Die separate Flutter-Test-App liegt außerhalb dieses Repositorys unter `~/develop/community_access_setup_check`.
 
 ## Projektstruktur
