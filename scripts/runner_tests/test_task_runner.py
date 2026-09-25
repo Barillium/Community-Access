@@ -34,6 +34,31 @@ def baseline():
 
 
 class PolicyTests(unittest.TestCase):
+    def test_login_auxiliary_dirs_do_not_grant_extra_reads(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            (home / 'auth.json').write_text('synthetic')
+            for name in ('log', 'tmp'):
+                (home / name).mkdir()
+            with patch.object(Path, 'read_text', side_effect=AssertionError('No content reads')):
+                self.assertEqual(r.auth_read_paths(home), [home / 'auth.json'])
+
+    def test_login_rejects_config_and_auxiliary_symlinks(self):
+        with tempfile.TemporaryDirectory() as d:
+            home = Path(d)
+            (home / 'auth.json').write_text('synthetic')
+            (home / 'config.toml').write_text('synthetic')
+            with self.assertRaises(r.Blocked):
+                r.auth_read_paths(home)
+            (home / 'config.toml').unlink()
+            (home / 'log').symlink_to(home)
+            with self.assertRaises(r.Blocked):
+                r.auth_read_paths(home)
+            (home / 'log').unlink()
+            (home / 'tmp').write_text('not a directory')
+            with self.assertRaises(r.Blocked):
+                r.auth_read_paths(home)
+
     def test_sensitive_baseline_names_rejected_before_content_read(self):
         for name in ['auth.json', 'credentials.json', 'config.json',
                      'personal/note.md', 'service-account-demo.json']:
@@ -139,6 +164,33 @@ class PolicyTests(unittest.TestCase):
 
 @unittest.skipUnless(sys.platform=='darwin', 'Actual macOS Seatbelt required; not an execution proof elsewhere')
 class SandboxTests(unittest.TestCase):
+    def test_login_file_readable_but_auxiliary_contents_denied(self):
+        with tempfile.TemporaryDirectory() as d:
+            parent = Path(d).resolve()
+            home = parent / 'auth'
+            home.mkdir()
+            (home / 'auth.json').write_text('synthetic-only')
+            for name in ('log', 'tmp'):
+                (home / name).mkdir()
+                (home / name / 'canary').write_text('synthetic-hidden')
+            exe = Path(sys.executable).resolve()
+            scratch = parent / 'scratch'
+            policy = r.seatbelt([Path(sys.base_prefix), *r.auth_read_paths(home)], [scratch], [exe])
+            code = """from pathlib import Path
+import sys
+home=Path(sys.argv[1])
+assert (home/'auth.json').read_text()=='synthetic-only'
+for name in ('log','tmp'):
+ try: (home/name/'canary').read_text()
+ except PermissionError: pass
+ else: raise SystemExit(3)
+print('auth-boundary-ok')
+"""
+            status, out, err = r.command([exe, '-I', '-c', code, home], parent, scratch,
+                                        time.monotonic()+15, policy)
+            self.assertEqual(status, 0, err)
+            self.assertEqual(out.strip(), 'auth-boundary-ok')
+
     def test_read_write_network_boundary(self):
         with tempfile.TemporaryDirectory() as d:
             p=Path(d); w=p/'work'; w.mkdir(); (w/'README.md').write_text('# Example\n')

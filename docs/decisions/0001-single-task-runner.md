@@ -32,3 +32,9 @@ Vor jedem Lauf prüft ein synthetischer Grenztest die Lese-, Schreib- und Netzwe
 ## Spätere Erweiterungen
 
 App-, Datenbank- oder Berechtigungsaufgaben bleiben gesperrt, bis tatsächliche App-, Datenbank- und Rollentests samt synthetischer Umgebung vorhanden und die Prüfregeln separat freigegeben sind. Auch Wiederholung, Transaktionen, Entzug und Konkurrenz um den letzten Eventplatz gehören dann zwingend zur Abnahme. Keine dieser Produktentscheidungen wird durch den Runner vorweggenommen.
+
+## Nachtrag: tatsächlich erzeugtes Anmeldeverzeichnis
+
+Der Nutzer hat Kontrollstand `5c86c25` freigegeben und sich separat angemeldet. Die CLI erzeugte neben `auth.json` die Ordner `log` und `tmp`; das wurde ausschließlich anhand der Namen und Dateitypen festgestellt. Die ursprüngliche Ein-Datei-Prüfung blockierte dieses Layout.
+
+Die Korrektur auf `fix/runner-login-layout` toleriert genau diese beiden regulären Ordner, gibt jedoch nur die Anmeldedatei zum Lesen frei. Konfigurationen, weitere Einträge und Symlinks bleiben abgelehnt. Schreibrechte oder Netzwerkrechte werden nicht erweitert. Echte Anmeldedaten und Log-Inhalte werden dafür weder gelesen noch verschoben. Der neue Kontrollstand benötigt vor einem echten Modelllauf einen eigenen menschlichen Review. Ein Modelllauf sowie mögliche weitere CLI-Laufzeitanforderungen bleiben ungeprüft.

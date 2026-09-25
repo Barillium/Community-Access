@@ -357,13 +357,25 @@ def codex_argv(executable, work, output, schema, model, prompt):
     return argv
 
 
-def live_proposal(task, work, scratch, auth_home, model, deadline, feedback):
+def auth_read_paths(auth_home):
+    """Validate names/types only; never inspect credential or log contents."""
     require(auth_home is not None and auth_home.is_dir() and not auth_home.is_symlink(),
             'Dedicated development-only Codex home required; no host credentials copied')
-    require((auth_home / 'auth.json').is_file() and not (auth_home / 'auth.json').is_symlink(),
+    auth_file = auth_home / 'auth.json'
+    require(auth_file.is_file() and not auth_file.is_symlink(),
             'Separate Codex login not configured; perform manual login first')
-    require(set(p.name for p in auth_home.iterdir()) <= {'auth.json'},
-            'Auth home must contain only auth.json; no settings/plugins/MCPs')
+    require(set(p.name for p in auth_home.iterdir()) <= {'auth.json', 'log', 'tmp'},
+            'Unexpected auth home entry; settings/plugins/MCPs forbidden')
+    for name in ('log', 'tmp'):
+        p = auth_home / name
+        require(not p.is_symlink() and (not p.exists() or p.is_dir()),
+                'Login auxiliary paths must be ordinary directories')
+    # Login creates log/tmp. Their contents are neither inspected nor granted.
+    return [auth_file]
+
+
+def live_proposal(task, work, scratch, auth_home, model, deadline, feedback):
+    auth_paths = auth_read_paths(auth_home)
     require(CODEX.is_file() and model, 'Codex executable and explicit model required')
     scratch.mkdir(parents=True, exist_ok=True)
     schema = scratch / 'proposal.schema.json'
@@ -381,7 +393,7 @@ def live_proposal(task, work, scratch, auth_home, model, deadline, feedback):
               canonical(context) + '\nLAST CHECKS:\n' + canonical(feedback))
     env = environment(scratch)
     env['CODEX_HOME'] = str(auth_home)
-    policy = seatbelt([work, CODEX.parent, auth_home], [scratch], [CODEX], network=True)
+    policy = seatbelt([work, CODEX.parent, *auth_paths], [scratch], [CODEX], network=True)
     code, _, _ = command(codex_argv(CODEX, work, output, schema, model, prompt),
                           work, scratch, deadline, policy, env)
     require(code == 0 and output.is_file() and not output.is_symlink(), 'Codex failed; raw output kept separate, not a passed check')
