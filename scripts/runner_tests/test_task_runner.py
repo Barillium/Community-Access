@@ -1,4 +1,4 @@
-"""Runner tests use synthetic fixtures. Live Codex is never called here."""
+"""Runner tests use synthetic fixtures and offline CLI startup; no model calls."""
 import importlib.util
 import json
 import os
@@ -34,6 +34,20 @@ def baseline():
 
 
 class PolicyTests(unittest.TestCase):
+    def test_runtime_home_links_only_explicit_development_login(self):
+        with tempfile.TemporaryDirectory() as d:
+            parent = Path(d).resolve()
+            auth = parent / 'synthetic-auth.json'
+            auth.write_text('synthetic-only')
+            scratch = parent / 'scratch'
+            scratch.mkdir()
+            home = r.prepare_codex_home(scratch, auth)
+            self.assertTrue((home / 'auth.json').is_symlink())
+            self.assertEqual((home / 'auth.json').resolve(), auth)
+            self.assertEqual(auth.read_text(), 'synthetic-only')
+            with self.assertRaises(FileExistsError):
+                r.prepare_codex_home(scratch, auth)
+
     def test_login_auxiliary_dirs_do_not_grant_extra_reads(self):
         with tempfile.TemporaryDirectory() as d:
             home = Path(d)
@@ -164,6 +178,59 @@ class PolicyTests(unittest.TestCase):
 
 @unittest.skipUnless(sys.platform=='darwin', 'Actual macOS Seatbelt required; not an execution proof elsewhere')
 class SandboxTests(unittest.TestCase):
+    def test_runtime_state_writable_original_auth_readonly(self):
+        with tempfile.TemporaryDirectory() as d:
+            parent = Path(d).resolve()
+            auth = parent / 'synthetic-auth.json'
+            auth.write_text('synthetic-only')
+            scratch = parent / 'scratch'
+            scratch.mkdir()
+            home = r.prepare_codex_home(scratch, auth)
+            exe = Path(sys.executable).resolve()
+            policy = r.seatbelt([Path(sys.base_prefix), auth], [scratch], [exe])
+            code = """from pathlib import Path
+import sys
+home=Path(sys.argv[1])
+assert (home/'auth.json').read_text()=='synthetic-only'
+try: (home/'auth.json').write_text('tamper')
+except PermissionError: pass
+else: raise SystemExit(3)
+(home/'synthetic-state').write_bytes(b'x'*2_000_000)
+print('runtime-isolated')
+"""
+            status, out, err = r.command([exe, '-I', '-c', code, home], parent, scratch,
+                time.monotonic()+15, policy, max_file_bytes=r.CODEX_STATE_FILE_LIMIT)
+            self.assertEqual(status, 0, err)
+            self.assertEqual(out.strip(), 'runtime-isolated')
+            self.assertEqual(auth.read_text(), 'synthetic-only')
+            self.assertEqual((home/'synthetic-state').stat().st_size, 2_000_000)
+
+    def test_actual_codex_initializes_offline_runtime_without_credentials(self):
+        with tempfile.TemporaryDirectory() as d:
+            parent = Path(d).resolve()
+            work = parent / 'work'
+            work.mkdir()
+            scratch = parent / 'scratch'
+            scratch.mkdir()
+            # No real login and no network: prove startup, never a model result.
+            auth = parent / 'absent-auth.json'
+            home = r.prepare_codex_home(scratch, auth)
+            schema = scratch / 'schema.json'
+            schema.write_text(json.dumps({'type':'object', 'properties':{'text':{'type':'string'}},
+                'required':['text'], 'additionalProperties':False}))
+            env = r.environment(scratch)
+            env['CODEX_HOME'] = str(home)
+            policy = r.seatbelt([work, r.CODEX.parent], [scratch], [r.CODEX])
+            with self.assertRaisesRegex(r.Blocked, 'Runtime limit reached'):
+                r.command(r.codex_argv(r.CODEX, work, scratch/'proposal.json', schema,
+                    'gpt-6-sol', 'Synthetic offline startup probe. No tools.'), work, scratch,
+                    time.monotonic()+5, policy, env, max_file_bytes=r.CODEX_STATE_FILE_LIMIT)
+            stderr = (scratch/'stderr.txt').read_text()
+            self.assertIn('OpenAI Codex', stderr)
+            self.assertNotIn('failed to initialize in-process app-server client', stderr)
+            self.assertTrue((home/'state_5.sqlite').is_file())
+            self.assertFalse(auth.exists())
+
     def test_login_file_readable_but_auxiliary_contents_denied(self):
         with tempfile.TemporaryDirectory() as d:
             parent = Path(d).resolve()

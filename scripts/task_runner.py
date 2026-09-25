@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = 'scripts/task_runner.py'
 MAX_BYTES = 256_000
 MAX_OUTPUT = 1_000_000
+CODEX_STATE_FILE_LIMIT = 16 * 1024 * 1024
 SCOPES = {'docs', 'dart-learning'}
 PROTECTED_TEST = 'exercises/dart_basics/test/application_status_test.dart'
 RUNTIME = Path('/Users/stanynyssen/develop/flutter/bin/cache/dart-sdk')
@@ -191,13 +192,14 @@ def seatbelt(reads, writes, executables, network=False):
     return '\n'.join(lines)
 
 
-def command(argv, cwd, scratch, deadline, policy, env=None):
+def command(argv, cwd, scratch, deadline, policy, env=None, max_file_bytes=MAX_OUTPUT):
+    require(MAX_OUTPUT <= max_file_bytes <= CODEX_STATE_FILE_LIMIT, 'Invalid file-size limit')
     remaining = deadline - time.monotonic()
     require(remaining > 0, 'Runtime limit reached')
     scratch.mkdir(parents=True, exist_ok=True)
     out, err = scratch / 'stdout.txt', scratch / 'stderr.txt'
     def limits():
-        resource.setrlimit(resource.RLIMIT_FSIZE, (MAX_OUTPUT, MAX_OUTPUT))
+        resource.setrlimit(resource.RLIMIT_FSIZE, (max_file_bytes, max_file_bytes))
         resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
     wrapped = ['/usr/bin/sandbox-exec', '-p', policy, *map(str, argv)]
     with out.open('wb') as stdout, err.open('wb') as stderr:
@@ -374,6 +376,14 @@ def auth_read_paths(auth_home):
     return [auth_file]
 
 
+def prepare_codex_home(scratch, auth_file):
+    """Fresh writable runtime state; the original credential remains read-only."""
+    runtime_home = scratch / 'codex-home'
+    runtime_home.mkdir(exist_ok=False, mode=0o700)
+    (runtime_home / 'auth.json').symlink_to(auth_file.resolve())
+    return runtime_home
+
+
 def live_proposal(task, work, scratch, auth_home, model, deadline, feedback):
     auth_paths = auth_read_paths(auth_home)
     require(CODEX.is_file() and model, 'Codex executable and explicit model required')
@@ -392,11 +402,11 @@ def live_proposal(task, work, scratch, auth_home, model, deadline, feedback):
               'Acceptance is evaluated independently.\n' + canonical(task) + '\nSOURCE:\n' +
               canonical(context) + '\nLAST CHECKS:\n' + canonical(feedback))
     env = environment(scratch)
-    env['CODEX_HOME'] = str(auth_home)
+    env['CODEX_HOME'] = str(prepare_codex_home(scratch, auth_paths[0]))
     policy = seatbelt([work, CODEX.parent, *auth_paths], [scratch], [CODEX], network=True)
     code, _, _ = command(codex_argv(CODEX, work, output, schema, model, prompt),
-                          work, scratch, deadline, policy, env)
-    require(code == 0 and output.is_file() and not output.is_symlink(), 'Codex failed; raw output kept separate, not a passed check')
+                          work, scratch, deadline, policy, env, max_file_bytes=CODEX_STATE_FILE_LIMIT)
+    require(code == 0 and output.is_file() and not output.is_symlink(), 'Codex failed (exit ' + str(code) + '); raw output kept separate, not a passed check')
     require(output.stat().st_size <= MAX_OUTPUT, 'Oversized Codex response')
     return json.loads(output.read_text())
 
