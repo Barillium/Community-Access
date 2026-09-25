@@ -105,6 +105,8 @@ class _DemoPageState extends State<DemoPage> {
                 const Text(
                   'Keine Anmeldung, Speicherung oder Verbindung zu einem Backend.',
                 ),
+                const SizedBox(height: 8),
+                const Text('Synthetische Demo'),
               ],
             ),
           ),
