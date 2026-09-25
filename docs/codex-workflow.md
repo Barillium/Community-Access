@@ -50,7 +50,7 @@ Flutter-Formatierung, Analyse und Anwendungstests werden für diese reine Dokume
 
 ## Manueller Einzelaufgaben-Runner
 
-Ergänzung vom 25.09.2026. Der Runner bereitet überprüfbare Änderungen an Dokumentation und Dart-Lerncode vor. Er ist noch keine Automatisierung einer Flutter-/Supabase-App. [Architektur und Grenzen](decisions/0001-single-task-runner.md), [Prüfungen und Bestandsaufnahme](verification.md), [Aufgabenvorlage](tasks/README.md) und [Designregeln](design-rules.md) ergänzen die vorhandene Produktgrundlage.
+Ergänzung vom 25.09.2026. Der Runner bereitet überprüfbare Änderungen an Dokumentation, Dart-Lerncode und begrenzten App-Oberflächenaufgaben gemäß ADR 0003 vor. Backend-Aufgaben bleiben gesperrt. [Architektur und Grenzen](decisions/0001-single-task-runner.md), [Prüfungen und Bestandsaufnahme](verification.md), [Aufgabenvorlage](tasks/README.md) und [Designregeln](design-rules.md) ergänzen die vorhandene Produktgrundlage.
 
 ### Vor dem ersten echten Lauf
 
@@ -91,7 +91,7 @@ Das Zeitbudget beträgt hier 600 Sekunden, maximal erlaubt sind 1800. Es gilt ge
 
 Erwartete Ausgabe: JSON mit `status` und Pfad zu `report.json`. `ready_for_review` bedeutet nur: die implementierten Pflichtprüfungen bestanden. `failed` bedeutet ausgeschöpfte Reparaturen, `blocked` eine fehlende Voraussetzung oder Schutzverletzung. Rückgabecode 0 gilt nur für ein prüfbares Ergebnis; Fehler und Blockaden liefern ungleich 0. Bericht, `changes.patch` und `candidate/` bleiben lokal zur Prüfung erhalten. Die interne Codex-Laufzeitablage ist privat und darf nicht mit dem Patch geteilt werden. Bei früher Blockade kann der Patch fehlen.
 
-Die Codex-CLI läuft nicht interaktiv, mit `-a never`, ignorierter Benutzerkonfiguration und Regeln, ohne vererbte Shell-/Cloud-Umgebung und mit deaktivierten Shell-, App-, Plugin- und weiteren Werkzeugfunktionen. Ein zusätzliches OS-Profil ist die eigentliche Grenze. Im Gegensatz zum vorhandenen interaktiven Tutorial darf dieser Coding-Agent weder Freigaben erzeugen noch seine Prüfvorgaben ändern. Die Optionen wurden an der vorhandenen CLI geprüft; der echte Anmelde- und Modellpfad bleibt ungeprüft. Siehe auch die [offizielle Dokumentation zu Agent-Freigaben](https://learn.chatgpt.com/docs/agent-approvals-security).
+Die Codex-CLI läuft nicht interaktiv, mit `-a never`, ignorierter Benutzerkonfiguration und Regeln, ohne vererbte Shell-/Cloud-Umgebung und mit deaktivierten Shell-, App-, Plugin- und weiteren Werkzeugfunktionen. Ein zusätzliches OS-Profil ist die eigentliche Grenze. Im Gegensatz zum vorhandenen interaktiven Tutorial darf dieser Coding-Agent weder Freigaben erzeugen noch seine Prüfvorgaben ändern. Die Optionen wurden an der vorhandenen CLI geprüft; ein echter Dokumentationslauf ist nachgewiesen. Ein App-Modelllauf mit den erweiterten Prüfungen steht aus. Siehe auch die [offizielle Dokumentation zu Agent-Freigaben](https://learn.chatgpt.com/docs/agent-approvals-security).
 
 ### Modellfreie Demonstration
 
@@ -114,13 +114,29 @@ Zuerst Bericht, vollständigen Patch und Kandidatendateien lesen. Fachliche Rich
 | Höchstens ein Lauf / zwei Reparaturen | Dateilock je Repository und feste Schleifengrenze im übergeordneten Runner. Andere Repository-Kopien und Prozesse des Kontoinhabers sind nicht global gesperrt. |
 | Laufzeit / Aufräumen | Gemeinsame Deadline, Beendigung der Prozessgruppe, begrenztes Warten; bei unbestätigtem Ende Sperrdatei. Kein harter Kernel- oder VM-Watchdog. |
 | Keine Produktionszugänge | Bereinigte Umgebung, keine geerbten Anmeldedateien und eingeschränkte Datei-Leserechte. Entwicklungsanmeldung und rein synthetischer Quelleninhalt bleiben menschlich zu kontrollieren. |
-| Keine Veröffentlichung | Kein solcher Schritt im Runner; Tests ohne Netz, Modellprozess ohne Deployment-Werkzeuge. Modellnetzwerk ist nicht domainbeschränkt. |
+| Keine Veröffentlichung | Kein solcher Schritt im Runner; Dart-Tests ohne Netz, Flutter-Tests mit Loopback gemäß ADR 0003, Modellprozess ohne Deployment-Werkzeuge. Modellnetzwerk ist nicht domainbeschränkt. |
 | Produktqualität und Datenschutz | Produktvertrag, Designregeln und menschliches Review sind Anweisungen. Die vollständige App-/Backend-Durchsetzung ist noch nicht implementiert. |
 
 ### Laufzeitablage der CLI
 
-Die Korrektur auf `fix/runner-codex-state` ist zum Review vorbereitet: Codex benötigt neben der Anmeldung eine beschreibbare Zustandsdatenbank. Pro Versuch wird dafür ein frischer Ordner in der schon erlaubten temporären Ablage verwendet; ein interner Verweis bindet nur die separate Entwicklungsanmeldung lesbar ein. Das originale Anmeldeverzeichnis bleibt schreibgeschützt. Die Dateigröße des Codex-Prozesses ist auf 16 MiB je Datei begrenzt; Tester behalten ihr bisheriges Limit. Einzelheiten und verbleibende Grenzen stehen im [Architekturentscheid](decisions/0001-single-task-runner.md#nachtrag-getrennte-codex-laufzeitablage).
+Bereits übernommene Laufzeitkorrektur: Codex benötigt neben der Anmeldung eine beschreibbare Zustandsdatenbank. Pro Versuch wird dafür ein frischer Ordner in der schon erlaubten temporären Ablage verwendet; ein interner Verweis bindet nur die separate Entwicklungsanmeldung lesbar ein. Das originale Anmeldeverzeichnis bleibt schreibgeschützt. Die Dateigröße des Codex-Prozesses ist auf 16 MiB je Datei begrenzt; App-Prüfungen verwenden das in ADR 0003 dokumentierte eigene Dateilimit. Einzelheiten und verbleibende Grenzen stehen im [Architekturentscheid](decisions/0001-single-task-runner.md#nachtrag-getrennte-codex-laufzeitablage).
 
 ### TLS-Verbindung der CLI
 
-Die Korrektur auf `fix/runner-system-certificates` ist zum Review vorbereitet: Die bereinigte Codex-Umgebung erhält `SSL_CERT_FILE=/private/etc/ssl/cert.pem`, das vorhandene öffentliche macOS-CA-Bündel. Die Zertifikatsprüfung bleibt aktiv; fehlt die Datei, blockiert der Runner. Ein Test ohne Anmeldung erreichte damit eine HTTP-401-Antwort. Ein erfolgreicher angemeldeter Modelllauf ist damit noch nicht nachgewiesen. Es wird nichts installiert und kein globales Zertifikat oder Benutzerprofil verändert.
+Bereits übernommene TLS-Korrektur: Die bereinigte Codex-Umgebung erhält `SSL_CERT_FILE=/private/etc/ssl/cert.pem`, das vorhandene öffentliche macOS-CA-Bündel. Die Zertifikatsprüfung bleibt aktiv; fehlt die Datei, blockiert der Runner. Ein Test ohne Anmeldung erreichte damit eine HTTP-401-Antwort. Der TLS-Test allein belegte keinen Modelllauf; später bestand ein echter Dokumentationsauftrag. Es wird nichts installiert und kein globales Zertifikat oder Benutzerprofil verändert.
+
+### Erweiterung: App-Aufgaben und Kernprüfung
+
+Der neue `app-ui`-Scope erlaubt die beiden vorhandenen App-Lib-Dateien und verlangt die eingefrorenen App-Tests plus Web-Build vor und nach der Umsetzung. [App-Vorlage](tasks/app-ui.example.json) und [ADR 0003](decisions/0003-runner-app-gates.md) beschreiben Grenzen und Freigabe. Der Nutzer hat den Kontrollreview und die anschließende Freigabe beauftragt; die endgültige Commit-SHA wird nach bestandener Prüfung im Abschluss genannt. Keine neue Modellaufgabe gestartet.
+
+Manuelle Prüfung nach bewusster Aufnahme der neuen Dateien in Git:
+
+```sh
+python3 -I scripts/check_project.py --scope app
+# Nur bei bereits sicher lokal gestartetem Supabase:
+python3 -I scripts/check_project.py --scope core
+# Muss weiterhin blockieren:
+python3 -I scripts/check_project.py --scope product
+```
+
+Vor dem Commit können konkrete neue Dateien mit `--include-reviewed pfad/datei ...` ergänzt werden. Dies liest nur die angegebenen, durch die Quell-Whitelist erlaubten Dateien zusätzlich; es verändert weder Staging noch Freigaben. Ein Kernprüflauf ist kein automatischer Backend-Coding-Lauf und keine vollständige Produktabnahme. Die lokale Testumgebung anschließend gemäß Setup stoppen.

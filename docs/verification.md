@@ -2,6 +2,10 @@
 
 Stand: 25.09.2026. Umfang dieser Ausbaustufe: genau eine manuell freigegebene synthetische Aufgabe. Keine dauerhafte Ausführung, automatische Übernahme oder Veröffentlichung.
 
+## Aktueller Lesestand
+
+Die folgenden Abschnitte dokumentieren die Entwicklung chronologisch. Ältere Aussagen wie „App nicht vorhanden“ sind historische Befunde; maßgeblich sind die Nachträge „Supabase Auth/API und Rollen“, „Runner-Erweiterung“ und der abschließende Kontrollreview. App und lokaler Backend-Kern existieren; vollständige Produktabläufe und ein echter App-Modelllauf stehen weiter aus.
+
 ## Tatsächliches Repository
 
 Ausgangsstand war der saubere Branch `main`, Commit `68f3b149f565c48b2841455184019e30cca69b33`. Die Vorbereitung liegt auf `tooling/single-task-runner`. Vorhandene Änderungen mussten nicht umgeschrieben werden. Gelesene Anweisungsquellen: `~/.codex/AGENTS.md`, Root-`AGENTS.md` und die vom Nutzer bereitgestellten Projektregeln. Im Projekt wurde keine weitere AGENTS-Datei gefunden. Produkt-, Setup-, Git-, Codex- und Lern-Dokumentation wurden als Grundlage verwendet; keine privaten Notizen oder echten Anmeldedateien gelesen.
@@ -98,3 +102,47 @@ Die CLI startete nun, scheiterte aber wiederholt mit `invalid peer certificate: 
 Ein separater, auf 15 Sekunden begrenzter Test ohne Anmeldung verwendete ausschließlich das öffentliche vorhandene System-CA-Bündel. Danach trat HTTP `401 Unauthorized` statt `UnknownIssuer` auf. Der Test wurde durch sein Zeitlimit beendet; dies ist ein TLS-Verbindungsnachweis, kein erfolgreicher Aufgabenlauf und keine Modellantwort.
 
 Die daraus vorbereitete Korrektur bestand die Gesamtprüfung: 33 Runner-Tests ohne übersprungene Tests, neun Dart-Statusfälle, Formatierung, Analyse und Dokumentationsprüfungen. Zwei zusätzliche Tests prüfen die feste CA-Vorgabe statt geerbter Umgebungswerte und den blockierten Start bei fehlendem Bündel. Der vollständige Diff wurde geprüft. Die technische TLS-Prüfung bleibt aktiv. Review und Freigabe des neuen Kontrollstands sowie ein weiterer einzelner angemeldeter Versuch stehen noch aus; Produkt-App, Datenbank und Rollen bleiben ungeprüft und nicht implementiert.
+
+## Minimale Flutter-App (separater manueller Schritt)
+
+`app/` enthält nun eine synthetische Flutter-Web-Statusdemo. Der frühere Tabellenstand „App nicht vorhanden“ ist damit überholt; Backend und Berechtigungsmodell fehlen weiterhin. Es gibt keine Aufnahme- oder Eventmutationen, sondern ausdrücklich gekennzeichnete Beispielzustände. Daher keine Transaktions- oder Konkurrenztests für diese reine Anzeige.
+
+Ausgeführt: Offline-Auflösung der SDK-Pakete; Dart-Formatierung; Flutter-Analyse ohne Befund; fünf Tests (ein Logiktest, vier Widget-Tests); Web-Release-Build; sichtbare Startansicht und Wechsel zur Veranstalterbestätigung im lokalen Codex-Browser. Abgedeckt sind getrennte Eventzusage, Startzustand, alle vier Demozustände einschließlich Rückwechsel, schmale Ansicht mit großer Schrift sowie Auswahl per Tastatur. Ein fehlgeschlagener erster Paketaufruf im Projektstamm wurde im richtigen App-Verzeichnis erfolgreich wiederholt.
+
+Nicht ausgeführt: automatisierte Browserintegration, Backend-/Rollen-/Transaktionsprüfungen und native Plattformen. Die bestehende V1-Projektprüfung wird nicht als App-Prüfung verwendet: Sie exportiert nur bekannte Quelldateitypen und unterstützt unter anderem `app/web/index.html` noch nicht. Runner/Controller blieben unverändert; vor Aufnahme der App in dessen freigegebenen Kontrollstand ist ein eigener Ausbau samt Review nötig. `--scope product` bleibt gesperrt. Die neue App wurde unabhängig mit den im Setup dokumentierten Aufrufen geprüft. Keine automatische Übernahme in einen freigegebenen Runner-Stand und kein Commit in diesem Schritt.
+
+## Getrennte lokale Datenbank-Testumgebung
+
+Das manuelle Skript `scripts/check_database.py` wurde mit dem vorhandenen PostgreSQL 17.10 ausgeführt. Ein frischer Cluster unter `.local/database-tests/` bestand Isolation (eigener Datenpfad, kein TCP, privater Socket), synthetische SQL-Fixtures mit Rollback und Unique-Constraint sowie zwei konkurrierende Updates über unabhängige Verbindungen. Anschließend wurde der eigene Server bestätigt beendet. Der Bericht liegt im jeweiligen lokalen Laufverzeichnis als `report.json`.
+
+Das ist ausschließlich ein Infrastrukturtest. Die Fixture-Tabelle ist ausdrücklich kein Produktdatenmodell; der synthetische Administrator ersetzt keine Nutzerrollentests. Supabase, Produktmigrationen, Eventkapazität, Löschfristen und Rollenprüfungen bleiben offen. Die App-Arbeit aus dem vorherigen Schritt blieb uncommittet erhalten. Der V1-Runner wurde nicht erweitert und die vollständige Produktprüfung bleibt blockiert. Ausführungsdetails und Grenzen stehen im Setup.
+
+## Supabase Auth/API und Rollen: lokaler Kern
+
+CLI 2.117.0 und separate Colima-Test-VM eingerichtet. Finale Netzprüfung: Host und Container nur 127.0.0.1:55431/55432. Die vorausgegangene unerwartete Wildcard-Bindung wurde durch Stoppen und ein Loopback-Netz korrigiert; sie ist im [ADR 0002](decisions/0002-local-supabase-core.md) dokumentiert.
+
+47 Auth-/API-Prüfungen bestanden, einschließlich fünf echten synthetischen Kontoanmeldungen, fremder Community, eigener/fremder Bewerbung, Selbstaufnahmeverbot, verbotener direkter Schreibzugriffe, erzwungenem Transaktionsrollback, konkurrierender Aufnahme und letztem Eventplatz sowie Zugriffsentzug mit bestehendem JWT. Bericht: `.local/supabase-tests/c0e5c691128c4131ac5e67aadba70127.json`. `supabase db lint --local --schema public,access_private --fail-on warning` meldete keine Befunde.
+
+Noch offen: Einladungen, Kollektivaufnahme, Bewerbungsantworten/-rückzug, Löschfristen, vollständiger Entzugsablauf, Eventverwaltung und Flutter-Backend-Verbindung. Das Produktdatenmodell ist nur als Kern implementiert; keine vollständige Produktabnahme. Der V1-Runner und seine Produkt-Sperre bleiben unverändert. App-Tests wurden für diesen reinen Backend-Schritt nicht erneut ausgeführt; App-Dateien blieben unverändert.
+
+## Runner-Erweiterung: geprüfter App-Scope und manuelle Kernprüfung
+
+Auf `codex/runner-app-gates` implementiert, noch uncommittet und nicht als neuer Kontrollstand freigegeben. Grenzen und technische Ausnahmen stehen in [ADR 0003](decisions/0003-runner-app-gates.md).
+
+Der gemeinsame Aufruf `check_project.py --scope core` bestand mit expliziter Einbeziehung der neuen Dateien: Dokumentation, neun geschützte Dart-Lernfälle, Offline-Auflösung der Flutter-Abhängigkeiten, App-Formatierung/Analyse, fünf App-Tests, Web-Build, 47 echte lokale Auth-/API-Prüfungen, SQL-Analyse ohne Befund und 37 Runner-Tests ohne übersprungene Tests. Backend-Bericht: `.local/supabase-tests/c6babc3547e14f558eec609a2d0c97ad.json`.
+
+Ein vollständiger `app-ui`-Aufgabenlauf mit vorgegebenem Kommentarvorschlag bestand Ausgangs- und Kandidatenprüfungen und erzeugte einen Patch. Bericht: `.local/task-runner/app-proof-38d32392/report.json`, ausdrücklich `simulation_only`, `codex_executed: false`. Kein tatsächlicher App-Modellaufruf, keine Übernahme des Beispielpatches. Der reale frühere Dokumentationslauf ersetzt diesen ausstehenden App-Modellnachweis nicht.
+
+Negativnachweise: `--scope product` blockierte mit Exitcode 2. Der Backend-Prüfer blockierte bei gestoppter VM ebenfalls mit Exitcode 2. Fehlende/übersprungene/fehlgeschlagene App-Tests werden in neuen Kontrolltests abgewiesen. Supabase und Test-VM wurden nach der Prüfung beendet. Keine Veröffentlichung oder automatische Freigabe.
+
+Bei der Isolation wurden zuvor blockierte SDK-Cache-Schreibversuche, Compiler-Dateilimit, notwendige SDK-Hilfsprogramme sowie das Beenden eigener Flutter-Kindprozesse untersucht. Das schließlich geprüfte Profil lässt Quellcode/Tests/SDK schreibgeschützt und erlaubt nur begrenzte Build-Ausgaben, macOS-Systemdienstsuche, Kindprozesssignale und Loopback-Netzwerk. Keine Garantie gegen absichtlich bösartigen Code; keine Portisolierung gegenüber anderen lokalen Diensten. Historische fehlgeschlagene Diagnoseläufe gelten nicht als bestanden.
+
+## Kontrollreview und Freigabe auf Nutzerauftrag
+
+Der Nutzer hat ausdrücklich beauftragt: „Änderungen und den neuen Kontrollstand prüfen und freigeben“. Geprüft wurde der gesamte bisher uncommittete App-/Backend-/Runner-Stand auf `codex/runner-app-gates`, einschließlich neuer Dateien, erlaubter Dateiziele, eingefrorener Tests, Schutz der Steuerung, begrenzter Wiederholungen und dokumentierter Isolationsgrenzen. Keine neuen Produktrechte oder Testkriterien festgelegt. Überholte Statusangaben in README und Workflow wurden berichtigt; ältere Prüfabschnitte sind ausdrücklich als Historie eingeordnet.
+
+Erneut ausgeführt und bestanden: `check_project.py --scope app` mit den 17 explizit einbezogenen neuen Dateien, Dokument-/Linkprüfungen, neun Dart-Lernfälle, App-Formatierung/Analyse, fünf App-Tests, Web-Build und 37 Runner-Tests ohne übersprungene Tests. `check_database.py` bestand mit frischem Cluster, Rollback/Unique-Constraint und zwei konkurrierenden Updates; Serverende bestätigt. Bericht: `.local/database-tests/run-vx4vns34/report.json`. Die vollständige Produktprüfung blockierte weiterhin wie vorgesehen.
+
+Nicht erneut ausgeführt: Supabase Auth/API und SQL-Analyse, weil deren unveränderte lokale Umgebung gestoppt bleibt. Der vorhandene Bericht `.local/supabase-tests/c6babc3547e14f558eec609a2d0c97ad.json` wurde gezielt geprüft: 47 bestandene Aussagen. Dies ist ein früherer Nachweis, keine erneute Backend-Abnahme. Der frühere echte Dokumentationslauf (`run-explain-event-confirmation-retry2-aff86e86`) und die App-Simulation (`app-proof-38d32392`) wurden anhand ihrer Berichte bestätigt. Kein neuer Modellaufruf, Browserintegrationstest oder nativer Plattformtest.
+
+Die Nutzerfreigabe gilt für den nach dieser Prüfung lokal gesicherten Kontrollcommit; seine vollständige SHA wird im Abschlussbericht genannt. Keine konkrete Aufgabenfreigabe erzeugt und `approve` nicht ausgeführt. Der nächste App-Auftrag benötigt weiterhin eine eigene menschliche Aufgabenfreigabe. Bestehende Grenzen bleiben: Loopback-Zugriff anderer lokaler Dienste möglich, keine vollständige Isolation gegen absichtlich bösartigen Code, keine Gesamt-Diskquote, kein Backend-Coding-Scope und keine vollständige Produktabnahme. Kein Merge, Push oder Deployment.

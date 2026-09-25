@@ -40,7 +40,9 @@
 
 ## Prüfungen und aktueller Projektstand
 
-- `app/` und `supabase/` existieren noch nicht; kein Berechtigungsmodell oder Backend-Test als implementiert darstellen.
+- `app/` enthält eine synthetische Flutter-Statusdemo mit Logik- und Widget-Tests. `supabase/` enthält einen lokalen Teilumfang mit RLS und Auth-/API-Tests gemäß ADR 0002; keine vollständige Produktabnahme behaupten.
+- Eine getrennte PostgreSQL-Infrastrukturprüfung ist mit `python3 -I scripts/check_database.py` vorhanden; nur synthetische Fixtures, kein Supabase-/Produktrollen-Nachweis.
+- App-Prüfungen separat gemäß `docs/setup.md` ausführen. Der erweiterte Runner unterstützt den begrenzten Scope `app-ui` mit geschützten Tests; ADR 0003 beachten. Der neue Kontrollstand ist vor echten Läufen separat freizugeben.
 - Bei reinen Dokumentationsänderungen Links, Markdown, unbeabsichtigte sensible Inhalte und `git diff --check` prüfen; keine Installation eines Linters nur dafür.
 - Die separat geprüfte Flutter-Demo liegt unter `~/develop/community_access_setup_check`; dort wurden `dart format --output=none --set-exit-if-changed lib test`, `flutter analyze` und `flutter test` erfolgreich ausgeführt.
 - Diese Demo-Tests sind kein Nachweis für spätere Community-Access-Funktionen. App-Testbefehle hier erst nach tatsächlicher Einrichtung ergänzen.
@@ -61,5 +63,5 @@
 - Für manuelle Infrastrukturpflege gelten die obigen Regeln. Im Runner arbeitet der Coding-Agent ausschließlich an der freigegebenen Dateiliste und liefert strukturierte Dateivorschläge.
 - Der Coding-Agent darf `approve` nicht ausführen, keine Freigaben erzeugen, kein Risiko herabsetzen und keine Tests, Abnahme oder Kontrolllogik ändern. Er darf keine zusätzlichen Aufgaben anlegen.
 - Kontrollstand und Aufgabenbasis werden vorab durch den Menschen geprüft. Änderungen daran benötigen einen eigenen Review; erfolgreicher Lauf ist keine Merge-Freigabe.
-- `python3 -I scripts/check_project.py` prüft den vorhandenen Lernprojektumfang. `--scope product` muss derzeit blockieren. Fehlende oder übersprungene Pflichtprüfungen niemals als Erfolg darstellen.
+- `python3 -I scripts/check_project.py` prüft den Lernprojektumfang; `--scope app` ergänzt App-Prüfungen, `--scope core` zudem die bereits laufende lokale Backend-Testumgebung. `--scope product` muss derzeit blockieren. Fehlende oder übersprungene Pflichtprüfungen niemals als Erfolg darstellen.
 - Produktive Daten/Zugänge und Veröffentlichungsberechtigungen dürfen nicht in die Agent-/Testumgebung gelangen. V1 ist für kleine synthetische Dokumentations- und Lernaufgaben bestimmt; technische Grenzen stehen im Architekturentscheid.

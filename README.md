@@ -11,7 +11,7 @@ Eine kleine Zugangslösung für bestehende Kollektive in Aachen. Einladungen fü
 
 Die erste [Dart-Lernübung](docs/learning/dart.md) übt erlaubte Bewerbungsstatuswechsel, getrennt von der späteren Anwendung.
 
-Die Werkzeuge sind eingerichtet; App und Backend sind noch nicht implementiert. Die separate Flutter-Test-App liegt außerhalb dieses Repositorys unter `~/develop/community_access_setup_check`.
+Unter `app/` liegt eine minimale Flutter-Web-Demo mit vier synthetischen Statusanzeigen und fünf Tests. Sie speichert nichts und verbindet sich mit keinem Backend. Start und Prüfungen stehen im [Setup](docs/setup.md#projekt-app-starten-und-prüfen). Die separate frühere Werkzeugdemo bleibt unverändert.
 
 ## Projektstruktur
 
@@ -22,11 +22,13 @@ Scene Access/              bestehender Projektstamm; kein Umbenennen erforderlic
   .gitignore
   docs/                    Produkt, Setup und Arbeitsablauf
   scripts/                 manueller Einzelaufgaben-Runner und Prüfungen
-  app/                     später: Flutter-Anwendung mit eigenen Tests
-  supabase/                später: lokale Migrationen, Tests und synthetische Seeds
+  app/                     Flutter-Statusdemo mit eigenen Tests
+  supabase/                lokaler Auth-/API-Kern und Migration
 ```
 
-`app/` und `supabase/` werden erst beim jeweiligen Entwicklungsschritt angelegt. Ein einziges Git-Repository im Projektstamm umfasst später beide Bereiche. Kein verschachteltes Repository anlegen; die externe Setup-Demo wird nicht hierher kopiert.
+`app/` und der lokale Supabase-Kern sind angelegt. Ein einziges Git-Repository im Projektstamm umfasst beide Bereiche. Kein verschachteltes Repository anlegen; die externe Setup-Demo wird nicht hierher kopiert.
+
+Die getrennte lokale PostgreSQL-Testumgebung wird mit `python3 -I scripts/check_database.py` gestartet, geprüft und beendet. Sie verwendet nur synthetische Infrastruktur-Fixtures. Der zusätzliche lokale Supabase-Kern samt Auth-/API-Rollentests ist in [ADR 0002](docs/decisions/0002-local-supabase-core.md) beschrieben; das vollständige Produktmodell bleibt offen. Details stehen im [Setup](docs/setup.md#getrennte-lokale-postgresql-testdatenbank).
 
 ## Arbeitsregeln
 
@@ -44,7 +46,7 @@ Open-Source-orientiert beschreibt die Ausrichtung. Eine Lizenz für den eigenen 
 
 ## Eine Aufgabe kontrolliert vorbereiten
 
-Der [manuelle Einzelaufgaben-Runner](docs/codex-workflow.md#manueller-einzelaufgaben-runner) erzeugt isolierte Änderungsvorschläge mit Prüfbericht. V1 ist auf Dokumentation und die Dart-Lernübung beschränkt. Echte Codex-Modellläufe sind noch nicht abgenommen; keine automatischen Merges, Dauerläufe oder Deployments.
+Der [manuelle Einzelaufgaben-Runner](docs/codex-workflow.md#manueller-einzelaufgaben-runner) erzeugt isolierte Änderungsvorschläge mit Prüfbericht. Der Runner unterstützt Dokumentation, die Dart-Lernübung und eng begrenzte App-Oberflächenaufgaben gemäß [ADR 0003](docs/decisions/0003-runner-app-gates.md). Ein echter Dokumentationslauf und eine modellfreie App-Simulation sind nachgewiesen; der echte App-Modelllauf steht aus; keine automatischen Merges, Dauerläufe oder Deployments.
 
 [Bestandsaufnahme und Abnahmekriterien](docs/verification.md), [Architekturentscheidung](docs/decisions/0001-single-task-runner.md), [Designregeln](docs/design-rules.md) und [Aufgabenvorlage](docs/tasks/README.md) beschreiben den Stand und die Grenzen. Die bestehenden Produktentscheidungen bleiben unverändert.
 
@@ -52,4 +54,4 @@ Der [manuelle Einzelaufgaben-Runner](docs/codex-workflow.md#manueller-einzelaufg
 python3 -I scripts/check_project.py
 ```
 
-Dieser Aufruf prüft den bestehenden lokalen Lernumfang. Fehlende App-, Datenbank- und Rollentests werden ausdrücklich ausgewiesen; `--scope product` blockiert daher.
+Dieser Aufruf prüft den bestehenden lokalen Lernumfang und Runner. `--scope app` ergänzt die Flutter-Prüfungen; `--scope core` zusätzlich die bereits gestartete lokale Supabase-Testumgebung. Die vollständigen Produktabläufe fehlen weiterhin; deshalb blockiert `--scope product`.

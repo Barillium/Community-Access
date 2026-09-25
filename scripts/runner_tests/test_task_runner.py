@@ -34,6 +34,43 @@ def baseline():
 
 
 class PolicyTests(unittest.TestCase):
+    def test_app_targets_exclude_tests_dependencies_and_backend(self):
+        t = task(); t['scope'] = 'app-ui'
+        for name in ['app/lib/main.dart', 'app/lib/demo_status.dart']:
+            t['allowed_files'] = [name]; t['acceptance'][0]['path'] = name
+            self.assertEqual(r.validate_task(t)['scope'], 'app-ui')
+        for name in ['app/test/widget_test.dart', 'app/pubspec.yaml', 'app/pubspec.lock',
+                     'supabase/migrations/202609250001_core.sql', 'scripts/check_project.py']:
+            t['allowed_files'] = [name]; t['acceptance'][0]['path'] = name
+            with self.assertRaises(r.Blocked): r.validate_task(t)
+
+    def test_source_allowlist_is_narrow_for_new_formats(self):
+        for name in ['app/web/index.html', 'supabase/config.toml', 'supabase/.gitignore',
+                     'supabase/migrations/202609250001_core.sql']:
+            r.source_path(name)
+        for name in ['private.sql', 'supabase/dump.sql', 'app/web/other.html',
+                     'supabase/credentials.toml', '.local/report.json']:
+            with self.assertRaises(r.Blocked): r.source_path(name)
+
+    def test_missing_skipped_empty_or_failed_flutter_tests_never_pass(self):
+        def output(count=5, skipped=False, result='success'):
+            records=[]
+            for n in range(count):
+                records += [{'type':'testStart','test':{'id':n,'name':'case '+str(n)}},
+                            {'type':'testDone','testID':n,'hidden':False,'skipped':skipped,'result':result}]
+            records += [{'type':'done','success':True}]
+            return '\n'.join(map(json.dumps,records))
+        self.assertTrue(r.app_test_output(output()))
+        for text in ['', 'All tests passed!', output(0), output(4),
+                     output(skipped=True), output(result='failure')]:
+            self.assertFalse(r.app_test_output(text))
+
+    def test_app_missing_frozen_tests_blocks_before_execution(self):
+        with tempfile.TemporaryDirectory() as d:
+            p=Path(d)
+            with self.assertRaisesRegex(r.Blocked, 'frozen app tests missing'):
+                r.app_gates(p, {}, {}, p/'checks', time.monotonic()+1)
+
     def test_codex_uses_fixed_public_ca_not_inherited_overrides(self):
         with tempfile.TemporaryDirectory() as d:
             parent = Path(d)

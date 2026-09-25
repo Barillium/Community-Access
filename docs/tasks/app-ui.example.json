@@ -1,0 +1,10 @@
+{
+  "id": "clarify-demo-label",
+  "title": "Demohinweis verständlicher beschriften",
+  "instructions": "Ergänze am Ende der Statusansicht einen kurzen Hinweis Synthetische Demo. Bestehende Texte bleiben unverändert. Alle fachlichen Statusanzeigen und Funktionen müssen unverändert bleiben. Verwende keine neuen Pakete und keine Backend-Verbindung.",
+  "scope": "app-ui",
+  "risk": "low",
+  "synthetic_data_only": true,
+  "allowed_files": ["app/lib/main.dart"],
+  "acceptance": [{"path": "app/lib/main.dart", "contains": "Synthetische Demo"}]
+}

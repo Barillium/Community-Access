@@ -11,8 +11,12 @@ Vor der Freigabe gemeinsam festhalten:
 - Geprüfter Basis-Commit und separat freigegebener Kontroll-Commit mit vollständigen SHA-Werten. Ein Commit allein ist keine Freigabe.
 - Notwendige Tests, erwartete Ergebnisse und bereits bekannte Probleme. Fehlende Pflichtprüfungen bedeuten Blockade.
 
-`scope` ist in V1 `docs` oder `dart-learning`. Erlaubt sind README und Markdown unter `docs/learning/`; für `dart-learning` zusätzlich vorhandene Dart-Dateien unter `exercises/dart_basics/lib/` und `bin/`. Neue Dateien sind nur unter `docs/learning/` vorgesehen. Höchstens fünf Dateien, keine Löschungen, Umbenennungen, Binärdateien oder Abhängigkeiten.
+`scope` ist `docs`, `dart-learning` oder der unten beschriebene begrenzte Scope `app-ui`. Erlaubt sind README und Markdown unter `docs/learning/`; für `dart-learning` zusätzlich vorhandene Dart-Dateien unter `exercises/dart_basics/lib/` und `bin/`. Neue Dateien sind nur unter `docs/learning/` vorgesehen. Höchstens fünf Dateien, keine Löschungen, Umbenennungen, Binärdateien oder Abhängigkeiten.
 
 Tests, AGENTS, Produktvertrag, Architektur, Designregeln, Runner und diese Vorlage sind für den Coding-Agenten gesperrt. Deren Pflege bleibt eine eigene menschlich geprüfte Infrastrukturaufgabe. Erfordert eine Aufgabe neue Tests, ist die Testvorgabe zuerst separat zu prüfen und einzufrieren; der Runner darf die Lücke nicht durch unveränderte alte Tests als abgedeckt ausgeben.
 
 Eine Änderung der Aufgabe, ihrer Risikoeinstufung, Abnahmekriterien oder Basis benötigt eine neue Prüfung und Freigabe. Freigaben sind einmalig, auch nach Abbruch verbraucht. Keine Freigabe-ID wiederverwenden.
+
+## App-Erweiterung
+
+Zusätzlich ist `app-ui` implementiert: explizite Änderungen an `app/lib/main.dart` und `app/lib/demo_status.dart`, mit geschützten App-Tests und Web-Build. Die [Vorlage](app-ui.example.json) ist noch keine Freigabe. Alle Backend-, Test-, Abhängigkeits- und Controller-Dateien bleiben geschützte Ziele. Technische Grenzen, insbesondere Loopback-Zugriff im Flutter-Testprozess, stehen in [ADR 0003](../decisions/0003-runner-app-gates.md). Ein echter Lauf benötigt zuerst den Review und Commit des erweiterten Kontrollstands.

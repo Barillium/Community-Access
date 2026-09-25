@@ -132,3 +132,77 @@ Im Community-Access-Projekt wurde nur diese Setup-Dokumentation ergänzt; `docs/
 - [Flutter-CLI](https://docs.flutter.dev/reference/flutter-cli)
 - [Flutter-Lizenz](https://github.com/flutter/flutter/blob/master/LICENSE)
 - [VSCodium, Lizenz und Installation](https://vscodium.com/)
+
+## Projekt-App starten und prüfen
+
+Nachtrag: Die ursprünglichen Angaben oben beschreiben die separate Werkzeugdemo. Die neue App unter `app/` ist eine synthetische lokale Statusdemo, keine implementierte Aufnahmeverwaltung. Vier auswählbare Beispiele zeigen Bewerbung, Mitgliedschaft, Eventanfrage und Eventbestätigung. Ein Neuladen setzt die Anzeige zurück. Keine Anmeldung, Speicherung, privaten Locations oder Backend-Verbindung.
+
+Im Terminal:
+
+```sh
+cd "/Users/stanynyssen/Scene Access/app"
+flutter pub get --offline
+dart format --output=none --set-exit-if-changed lib test
+flutter analyze --no-pub
+flutter test --no-pub
+flutter build web --no-pub --no-web-resources-cdn
+flutter run --no-pub -d chrome --web-hostname=127.0.0.1 --web-port=53218
+```
+
+`pub get --offline` löst die SDK-Abhängigkeiten aus dem vorhandenen Cache auf; auf einem neuen Rechner kann dieser fehlen. Dann anhalten und notwendige Downloads separat freigeben. Die App verwendet Flutter und `flutter_test` aus dem vorhandenen BSD-3-Clause-lizenzierten SDK, keine zusätzlichen direkten Pakete oder kostenpflichtigen Dienste. Die aufgelösten transitiven Versionen stehen in `app/pubspec.lock`.
+
+Formatierung prüft die vier Dart-Dateien; Analyse meldet statische Fehler; `flutter test` führt fünf Logik-/Widget-Tests aus. Der Build erzeugt `build/web`, mit lokal gebündeltem Renderer statt CDN. Diese Befehle schreiben lokale Caches/Build-Ausgaben, benötigen keine Administratorrechte. `flutter run` startet Chrome auf dem eigenen Rechner; mit `q` im Terminal beenden. Dieser Startaufruf ist dokumentiert, für diese App wurde stattdessen der fertige Web-Build lokal im Codex-Browser geprüft.
+
+Bestanden: Formatierung, Analyse, fünf Tests, Web-Build sowie Sicht-/Klickprüfung des Release-Builds im Codex-Browser auf `127.0.0.1`. Der dabei gestartete Server wird nach der Prüfung beendet. Build-Hinweis: Cupertino-Font nicht eingebunden; die App verwendet Material-Komponenten, deren Darstellung sichtbar geprüft wurde. Keine zusätzliche Icon-Abhängigkeit dafür installiert.
+
+Nicht geprüft: automatisierter Browser-Integrationstest, vollständige Barrierefreiheit, andere Browser sowie iOS, Android, macOS-, Windows- und Linux-Builds. Der schmale Viewport mit doppelter Schrift und die Tastaturauswahl sind Widget-Tests, kein geräteübergreifender Browsernachweis.
+
+## Getrennte lokale PostgreSQL-Testdatenbank
+
+Voraussetzung geprüft: PostgreSQL 17.10 (Homebrew) einschließlich `initdb`, `pg_ctl` und `psql` ist bereits vorhanden unter `/opt/homebrew/opt/postgresql@17/bin`. Keine Installation und kein Download erforderlich. Die Supabase-CLI fehlt; diese Umgebung ist deshalb ausschließlich der PostgreSQL-Unterbau, kein vollständiges lokales Supabase. Der geplante Stack bleibt unverändert.
+
+Im Projektstamm:
+
+```sh
+python3 -I scripts/check_database.py
+```
+
+Der Aufruf erzeugt jedes Mal ein neues, ausschließlich synthetisches Datenverzeichnis unter `.local/database-tests/run-*/data`. Er startet genau diese Instanz, führt `tests/database/infrastructure.sql` und einen Test mit zwei gleichzeitigen Verbindungen aus und stoppt sie im abschließenden Aufräumschritt. Erwartet: `status: passed`, drei Prüfgruppen und `server_stopped: true`. Fehler liefern Exitcode 2 und einen Bericht statt Erfolg. Reguläres Testbudget: 90 Sekunden; das Stoppen erhält zusätzlich maximal 20 Sekunden. Ein harter Prozessabbruch oder Stromausfall kann das Aufräumen verhindern; der Berichtsstatus muss geprüft werden.
+
+Keine Administratorrechte, kein Netzwerkdownload, keine Cloud und keine Verbindung zu vorhandenen Datenbanken. Schreib-/Prozessrechte und lokale Unix-Sockets müssen in der Ausführungsumgebung erlaubt sein. Der Aufruf ignoriert geerbte PostgreSQL-Verbindungsvariablen, Benutzer-psql-Konfiguration und Passwortdateien. Er verwendet feste Programmdateien und explizit den frisch erzeugten Verbindungspfad.
+
+Technische Trennung: eigener PostgreSQL-Cluster; `listen_addresses` leer (kein TCP); zufälliger Socketordner unter `/tmp/ca-pg-*` mit Modus 0700; Socket ebenfalls 0700; TCP-Anmeldung abgewiesen. Innerhalb dieses privaten Ordners erlaubt lokale `trust`-Authentifizierung die synthetische Rolle `fixture_admin` ohne Passwort. Andere Prozesse desselben Betriebssystemkontos und Administratoren sind dadurch nicht ausgesperrt. Dies ist keine Sicherheits-Sandbox für ungeprüften Agentencode und kein Produkt-Berechtigungsmodell.
+
+Daten, ausschließlich synthetische Serverlogs und Bericht bleiben zur Prüfung lokal erhalten; das Skript löscht keine Daten und richtet keinen dauerhaften Dienst ein. Jeder Wiederholungslauf nutzt eine neue Instanz. Aufbewahrte Testverzeichnisse verbrauchen Speicher; Bereinigung nur nach bewusster Auswahl und Freigabe. Keine privaten Daten in diese Umgebung importieren. Der Verbindungspfad einer beendeten Instanz ist kein Zugang zu einer laufenden Datenbank.
+
+Geprüft: getrennte Instanz, deaktiviertes TCP, private Socketrechte, synthetische Tabelle, Rollback, Ablehnung doppelter Schlüssel und zwei konkurrierende Updates. Noch nicht vorhanden: Produktmigrationen, RLS/Nutzerrollen, Supabase Auth/API, pgTAP, Löschfristen und produktbezogene Transaktions-/Platzvergabetests. Keine App-Anbindung oder Änderung des freigegebenen Runners.
+
+Referenz: [PostgreSQL 17 – Verbindungen und Unix-Sockets](https://www.postgresql.org/docs/17/runtime-config-connection.html).
+
+## Lokales Supabase Auth/API
+
+Nachtrag: Die CLI ist inzwischen nach Freigabe als Version 2.117.0 installiert. Das separate native PostgreSQL-Testskript bleibt unabhängig erhalten. Supabase nutzt die eigene Colima-VM `community-access-test`, ausschließlich synthetische Konten und das Netz `community-access-loopback`.
+
+Vom Projektstamm aus (bestehende Installation):
+
+```sh
+colima start community-access-test --activate=false --ssh-config=false
+export DOCKER_HOST="unix://$HOME/.colima/community-access-test/docker.sock"
+# Das Loopback-Netz wurde bereits angelegt. Vor dem Start seine Option prüfen:
+docker network inspect community-access-loopback --format '{{json .Options}}'
+# Erwartet: com.docker.network.bridge.host_binding_ipv4 = 127.0.0.1
+supabase start --network-id community-access-loopback --exclude realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor > .local/supabase-start.log 2>&1
+lsof -nP -iTCP:55431 -iTCP:55432 -sTCP:LISTEN
+# Nur 127.0.0.1 zulässig, niemals * oder 0.0.0.0.
+python3 -I scripts/check_supabase.py
+supabase db lint --local --schema public,access_private --fail-on warning
+# Auch nach fehlgeschlagenen Tests stoppen; keine Datenlöschung:
+supabase stop
+colima stop community-access-test
+```
+
+Die Befehle starten lokale Prozesse/VMs und können bei fehlenden Images Downloads benötigen; neue Downloads weiterhin separat freigeben. Keine Administratorrechte, kein Login in Supabase Cloud nötig. Der Test erzeugt fünf neue synthetische Konten pro Lauf und verwendet echte Passwortanmeldung plus HTTP-API. Wiederholungen erzeugen eigene Fixture-IDs, setzen keinen bestehenden Datenbestand zurück und lassen synthetische Daten zur Prüfung erhalten. Berichte unter `.local/supabase-tests/` enthalten keine Tokens oder Passwörter. Datenvolumes und VM bleiben nach dem Stoppen erhalten; keine automatische Bereinigung.
+
+Der Test prüft die Containerbindung vor dem ersten Kontoaufbau. Die zusätzliche `lsof`-Prüfung bleibt erforderlich, weil VM-Portweiterleitung eine eigene Grenze ist. Bei einer falschen Bindung zuerst die eigene VM stoppen. Nicht ohne `--network-id community-access-loopback` starten. Die App nutzt weiterhin keine Authentifizierung und kein Backend. Dieser manuelle Testcontroller besitzt Fixture-Administratorrechte und ist kein freigegebener Coding-Agent-Runner.
+
+Einrichtung, Rechtematrix, Testergebnisse und offene Produktteile: [ADR 0002](decisions/0002-local-supabase-core.md). Lokale Supabase-Startausgaben nicht teilen; sie können synthetische Entwicklungsschlüssel enthalten.

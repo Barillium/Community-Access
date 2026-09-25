@@ -21,7 +21,8 @@ SCRIPT = 'scripts/task_runner.py'
 MAX_BYTES = 256_000
 MAX_OUTPUT = 1_000_000
 CODEX_STATE_FILE_LIMIT = 16 * 1024 * 1024
-SCOPES = {'docs', 'dart-learning'}
+APP_BUILD_FILE_LIMIT = 256 * 1024 * 1024
+SCOPES = {'docs', 'dart-learning', 'app-ui'}
 PROTECTED_TEST = 'exercises/dart_basics/test/application_status_test.dart'
 RUNTIME = Path('/Users/stanynyssen/develop/flutter/bin/cache/dart-sdk')
 CODEX = Path('/Applications/ChatGPT.app/Contents/Resources/codex')
@@ -74,7 +75,9 @@ def validate_task(task):
         docs = name == 'README.md' or (name.startswith('docs/learning/') and name.endswith('.md'))
         dart = (name.startswith('exercises/dart_basics/lib/') or
                 name.startswith('exercises/dart_basics/bin/')) and name.endswith('.dart')
-        require(docs or (task['scope'] == 'dart-learning' and dart), 'Protected or unsupported file')
+        app = name in {'app/lib/main.dart', 'app/lib/demo_status.dart'}
+        require(docs or (task['scope'] == 'dart-learning' and dart) or
+                (task['scope'] == 'app-ui' and app), 'Protected or unsupported file')
     require(isinstance(task['acceptance'], list) and 0 < len(task['acceptance']) <= 20,
             'Explicit acceptance checks required')
     for rule in task['acceptance']:
@@ -99,6 +102,22 @@ def clean_repo():
     require(not git('status', '--porcelain'), 'Uncommitted changes: refusing to start')
 
 
+def source_path(name):
+    """One shared allowlist, checked before reading source contents."""
+    exact = {'.gitignore', 'scripts/.gitkeep', 'supabase/.gitignore',
+             'supabase/config.toml', 'app/web/index.html'}
+    if name not in exact:
+        safe_path(name)
+        ordinary = Path(name).suffix in {'.md', '.dart', '.py', '.json', '.yaml', '.lock'}
+        migration = re.fullmatch(r'supabase/migrations/[0-9]+_[a-z0-9_]+\.sql', name)
+        sql_test = re.fullmatch(r'tests/database/[a-z0-9_]+\.sql', name)
+        require(ordinary or migration or sql_test, 'Unreviewed file type/path in baseline')
+    require(not re.search(r'(^|/)(secrets|private|personal|backups|dumps|exports)(/|$)', name),
+            'Sensitive data directory in baseline')
+    require(Path(name).name not in {'auth.json', 'credentials.json', 'config.json'}
+            and not Path(name).name.startswith('service-account'), 'Credential/config file in baseline')
+
+
 def committed_files(commit):
     require(re.fullmatch('[0-9a-f]{40}', commit) is not None, 'Full commit SHA required')
     files = {}
@@ -109,14 +128,7 @@ def committed_files(commit):
         mode, kind, oid = meta.split()
         name = raw_name.decode('utf-8')
         require(mode == b'100644' and kind == b'blob', 'Only regular non-executable source files supported')
-        require(name in {'.gitignore', 'scripts/.gitkeep'} or
-                (not any(x.startswith('.') for x in PurePosixPath(name).parts) and
-                 Path(name).suffix in {'.md', '.dart', '.py', '.json', '.yaml', '.lock'}),
-                'Unreviewed file type/path in baseline')
-        require(not re.search(r'(^|/)(secrets|private|personal|backups|dumps|exports)(/|$)', name),
-                'Sensitive data directory in baseline')
-        require(Path(name).name not in {'auth.json', 'credentials.json', 'config.json'}
-                and not Path(name).name.startswith('service-account'), 'Credential/config file in baseline')
+        source_path(name)
         data = git('cat-file', 'blob', oid.decode())
         require(len(data) <= MAX_BYTES and b'\0' not in data, 'Large/binary source file')
         data.decode('utf-8')
@@ -194,7 +206,7 @@ def seatbelt(reads, writes, executables, network=False):
 
 
 def command(argv, cwd, scratch, deadline, policy, env=None, max_file_bytes=MAX_OUTPUT):
-    require(MAX_OUTPUT <= max_file_bytes <= CODEX_STATE_FILE_LIMIT, 'Invalid file-size limit')
+    require(MAX_OUTPUT <= max_file_bytes <= APP_BUILD_FILE_LIMIT, 'Invalid file-size limit')
     remaining = deadline - time.monotonic()
     require(remaining > 0, 'Runtime limit reached')
     scratch.mkdir(parents=True, exist_ok=True)
@@ -217,6 +229,20 @@ def command(argv, cwd, scratch, deadline, policy, env=None, max_file_bytes=MAX_O
                 os.killpg(process.pid, signal.SIGKILL)
             except ProcessLookupError:
                 pass
+            except PermissionError:
+                # macOS may return EPERM for an already vanished process group.
+                # Accept only a successful independent inventory proving it absent.
+                absent = False
+                cleanup_deadline = time.monotonic() + 2
+                while time.monotonic() < cleanup_deadline:
+                    inventory = subprocess.run(['/bin/ps', '-axo', 'pgid='], capture_output=True,
+                        text=True, timeout=1, env={'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'})
+                    absent = inventory.returncode == 0 and str(process.pid) not in inventory.stdout.split()
+                    if absent:
+                        break
+                    time.sleep(0.05)
+                require(absent, 'Child cleanup failed; process-group termination denied for PID ' +
+                        str(process.pid) + '; inventory exit ' + str(inventory.returncode))
             try:
                 process.wait(timeout=2)
             except subprocess.TimeoutExpired:
@@ -343,8 +369,94 @@ def gates(work, baseline, task, scratch, deadline, dart_sdk):
         if name == 'dart-tests':
             passed = passed and '9 Pruefungen, 0 Fehler.' in out
         result(name, passed, (out + err)[-6000:])
+    if task.get('scope') == 'app-ui':
+        results.extend(app_gates(work, baseline, task, scratch/'flutter', deadline))
     integrity(work, baseline, task)
     return results
+
+
+FLUTTER = RUNTIME.parent.parent.parent
+PUB_CACHE = Path('/Users/stanynyssen/.pub-cache')
+APP_TESTS = {'app/test/demo_status_test.dart', 'app/test/widget_test.dart'}
+
+
+def app_gates(work, baseline, task, scratch, deadline):
+    """Run frozen Flutter tests in a read-only source copy with bounded build writes."""
+    require(APP_TESTS <= baseline.keys(), 'Required frozen app tests missing')
+    required = APP_TESTS | {'app/pubspec.yaml', 'app/pubspec.lock',
+                           'app/analysis_options.yaml', 'app/web/index.html'}
+    require(all((work / p).is_file() for p in required), 'Required app inputs missing')
+    dart = RUNTIME / 'bin/dart'
+    tool = FLUTTER / 'bin/cache/flutter_tools.snapshot'
+    require(tool.is_file() and PUB_CACHE.is_dir(), 'Flutter SDK/cache unavailable')
+    source = scratch / 'source'
+    source.mkdir(parents=True)
+    for name in baseline:
+        if name.startswith('app/'):
+            dest = source / name[4:]
+            dest.parent.mkdir(parents=True, exist_ok=True)
+            dest.write_bytes((work/name).read_bytes())
+    for name in ('.dart_tool', 'build'):
+        (source/name).mkdir()
+    runtime = scratch / 'runtime'
+    runtime.mkdir()
+    env = environment(runtime)
+    cache = runtime/'pub-cache'
+    cache.mkdir()
+    (cache/'hosted').symlink_to(PUB_CACHE/'hosted', target_is_directory=True)
+    (cache/'hosted-hashes').symlink_to(PUB_CACHE/'hosted-hashes', target_is_directory=True)
+    env.update({'FLUTTER_ROOT': str(FLUTTER), 'PUB_CACHE': str(cache),
+                'FLUTTER_ALREADY_LOCKED': 'true'})
+    exe = [dart, RUNTIME/'bin/dartvm', RUNTIME/'bin/dartaotruntime',
+           FLUTTER/'bin/cache/artifacts/engine/darwin-x64/flutter_tester',
+           FLUTTER/'bin/cache/artifacts/engine/darwin-x64/impellerc',
+           FLUTTER/'bin/cache/artifacts/engine/darwin-x64/font-subset',
+           '/usr/bin/git', '/usr/bin/xcrun', '/usr/bin/which', '/usr/bin/uname', '/usr/bin/sw_vers', '/usr/sbin/sysctl']
+    policy = seatbelt([source, FLUTTER, PUB_CACHE/'hosted', PUB_CACHE/'hosted-hashes', '/Library/Developer/CommandLineTools'],
+                      [runtime, source/'.dart_tool', source/'build'], exe)
+    # Flutter's test harness uses loopback sockets for the VM service only.
+    policy += '\n(allow network-inbound network-outbound (local ip "localhost:*"))'
+    policy += '\n(allow network-outbound (remote ip "localhost:*"))'
+    policy += '\n(allow mach-lookup)\n(allow signal (target children))'
+    commands = [
+        ('app-resolve', [dart, 'pub', 'get', '--offline', '--enforce-lockfile']),
+        ('app-format', [dart, 'format', '--output=none', '--set-exit-if-changed', 'lib', 'test']),
+        ('app-analyze', [dart, tool, '--suppress-analytics', 'analyze', '--no-pub']),
+        ('app-tests', [dart, tool, '--suppress-analytics', 'test', '--no-pub', '--machine']),
+        ('app-web-build', [dart, tool, '--suppress-analytics', 'build', 'web', '--no-pub', '--no-web-resources-cdn']),
+    ]
+    results = []
+    for name, argv in commands:
+        temp = runtime / name
+        code, out, err = command(argv, source, temp, deadline, policy, env,
+                                  max_file_bytes=APP_BUILD_FILE_LIMIT)
+        passed = code == 0 and "doesn't match" not in (out+err)
+        if name == 'app-tests':
+            passed = passed and app_test_output(out)
+        results.append({'check': name, 'status': 'passed' if passed else 'failed',
+                        'detail': (out+err)[-6000:]})
+        if not passed:
+            break
+    for name in baseline:
+        if name.startswith('app/'):
+            require((source/name[4:]).read_bytes() == (work/name).read_bytes(),
+                    'Protected app test copy modified')
+    return results
+
+
+def app_test_output(output):
+    try:
+        events = [json.loads(line) for line in output.splitlines() if line.startswith('{')]
+    except ValueError:
+        return False
+    starts = {e['test']['id']: e['test'] for e in events if e.get('type') == 'testStart'}
+    completed = [e for e in events if e.get('type') == 'testDone' and
+                 not e.get('hidden') and e.get('testID') in starts and
+                 not starts[e['testID']].get('name', '').startswith('loading ')]
+    return (len(completed) >= 5 and
+            all(e.get('result') == 'success' and e.get('skipped') is False for e in completed) and
+            any(e.get('type') == 'done' and e.get('success') is True for e in events) and
+            not any(e.get('type') == 'error' for e in events))
 
 
 def codex_argv(executable, work, output, schema, model, prompt):
@@ -436,10 +548,12 @@ def execute(task, baseline, run_dir, timeout, provider, dart_sdk=RUNTIME, max_re
     canary = run_dir / 'control-canary.txt'
     canary.write_text('synthetic controller boundary\n')
     report = {'status': 'blocked', 'attempts': [], 'scope': task['scope'],
-              'not_run': ['Flutter app tests: app absent/unsupported',
-                          'Database tests: backend absent/unsupported',
-                          'Actual-user-role tests: roles environment absent/unsupported'],
+              'not_run': ['Flutter browser integration and native platforms: not covered',
+                          'Database: separate core verification required; not a task gate',
+                          'Roles: separate core verification required; full product incomplete'],
               'automatic_merge': False, 'deployment': False}
+    if task['scope'] != 'app-ui':
+        report['not_run'].insert(0, 'App format/analyze/tests/build: not required for docs/Dart-only scope')
     try:
         probe(work, run_dir/'probe', canary, deadline)
         report['isolation_probe'] = 'passed'
@@ -534,7 +648,7 @@ def main():
                 'New files restricted to learning documentation in v1')
         plan = {'task': task, 'base_commit': args.base, 'control_commit': args.control,
                 'task_sha256': digest(task), 'checks': ['documents', 'frozen acceptance',
-                'dart-format', 'dart-analyze', 'nine protected Dart cases'], 'max_repairs': 2}
+                'dart-format', 'dart-analyze', 'nine protected Dart cases'] + (['app-format', 'app-analyze', 'app-tests', 'app-web-build'] if task['scope']=='app-ui' else []), 'max_repairs': 2}
         if args.mode == 'dry-run':
             print(json.dumps(dict(plan, status='dry_run_only'), indent=2, ensure_ascii=False))
             return 0

@@ -1,0 +1,12 @@
+analyzer:
+  errors:
+    unused_import: error
+    dead_code: error
+  exclude:
+    - build/**
+    - web/**
+linter:
+  rules:
+    - avoid_print
+    - prefer_const_constructors
+    - use_key_in_widget_constructors
