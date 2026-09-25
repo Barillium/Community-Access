@@ -54,3 +54,12 @@
 - Vor einem autorisierten Commit Dateiliste und Staging-Diff prüfen; globale Autorenkonfiguration nicht verändern.
 - Dokumentation bei Architektur- oder Berechtigungsänderungen pflegen.
 - Keine Veröffentlichung, erfolgreiche Prüfung oder technisch erzwungene Schutzgrenze behaupten, die nicht beobachtet wurde.
+
+## Einzelaufgaben-Automation
+
+- [Architekturentscheidung](docs/decisions/0001-single-task-runner.md), [Designregeln](docs/design-rules.md), [Abnahme und Nachweise](docs/verification.md) und [Aufgabenvorlage](docs/tasks/README.md) verwenden; keine zweite Produktspezifikation anlegen.
+- Für manuelle Infrastrukturpflege gelten die obigen Regeln. Im Runner arbeitet der Coding-Agent ausschließlich an der freigegebenen Dateiliste und liefert strukturierte Dateivorschläge.
+- Der Coding-Agent darf `approve` nicht ausführen, keine Freigaben erzeugen, kein Risiko herabsetzen und keine Tests, Abnahme oder Kontrolllogik ändern. Er darf keine zusätzlichen Aufgaben anlegen.
+- Kontrollstand und Aufgabenbasis werden vorab durch den Menschen geprüft. Änderungen daran benötigen einen eigenen Review; erfolgreicher Lauf ist keine Merge-Freigabe.
+- `python3 -I scripts/check_project.py` prüft den vorhandenen Lernprojektumfang. `--scope product` muss derzeit blockieren. Fehlende oder übersprungene Pflichtprüfungen niemals als Erfolg darstellen.
+- Produktive Daten/Zugänge und Veröffentlichungsberechtigungen dürfen nicht in die Agent-/Testumgebung gelangen. V1 ist für kleine synthetische Dokumentations- und Lernaufgaben bestimmt; technische Grenzen stehen im Architekturentscheid.

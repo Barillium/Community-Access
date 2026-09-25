@@ -21,7 +21,7 @@ Scene Access/              bestehender Projektstamm; kein Umbenennen erforderlic
   AGENTS.md
   .gitignore
   docs/                    Produkt, Setup und Arbeitsablauf
-  scripts/                 reserviert für spätere Hilfsskripte
+  scripts/                 manueller Einzelaufgaben-Runner und Prüfungen
   app/                     später: Flutter-Anwendung mit eigenen Tests
   supabase/                später: lokale Migrationen, Tests und synthetische Seeds
 ```
@@ -41,3 +41,15 @@ Vor Änderungen Status und relevante Dokumente lesen, Plan und Prüfungen nennen
 Es ist kein Remote eingerichtet und nichts veröffentlicht. Git speichert lokale Versionsstände, ersetzt aber keine separate Sicherung gegen Geräteverlust. Ein Backupziel ist noch nicht eingerichtet.
 
 Open-Source-orientiert beschreibt die Ausrichtung. Eine Lizenz für den eigenen Projektcode wurde noch nicht gewählt; aus diesem README folgt keine Lizenzfreigabe. Die Lizenzen der installierten Werkzeuge stehen in der Setup-Dokumentation.
+
+## Eine Aufgabe kontrolliert vorbereiten
+
+Der [manuelle Einzelaufgaben-Runner](docs/codex-workflow.md#manueller-einzelaufgaben-runner) erzeugt isolierte Änderungsvorschläge mit Prüfbericht. V1 ist auf Dokumentation und die Dart-Lernübung beschränkt. Echte Codex-Modellläufe sind noch nicht abgenommen; keine automatischen Merges, Dauerläufe oder Deployments.
+
+[Bestandsaufnahme und Abnahmekriterien](docs/verification.md), [Architekturentscheidung](docs/decisions/0001-single-task-runner.md), [Designregeln](docs/design-rules.md) und [Aufgabenvorlage](docs/tasks/README.md) beschreiben den Stand und die Grenzen. Die bestehenden Produktentscheidungen bleiben unverändert.
+
+```sh
+python3 -I scripts/check_project.py
+```
+
+Dieser Aufruf prüft den bestehenden lokalen Lernumfang. Fehlende App-, Datenbank- und Rollentests werden ausdrücklich ausgewiesen; `--scope product` blockiert daher.

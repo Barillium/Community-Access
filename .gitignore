@@ -75,3 +75,7 @@ coverage/
 *.log
 *.swp
 *.swo
+
+# Local Python runner caches.
+__pycache__/
+*.pyc

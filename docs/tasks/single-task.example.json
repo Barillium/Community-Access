@@ -1,0 +1,15 @@
+{
+  "id": "explain-event-confirmation",
+  "title": "Lernhinweis zur separaten Eventbestätigung",
+  "instructions": "Erstelle nur die erlaubte Lerndatei mit einer deutschen Überschrift und zwei kurzen Sätzen. Erläutere anhand eines erfundenen Kollektivs, dass Mitgliedschaft keine Eventbestätigung ist. Keine neue Produktentscheidung treffen.",
+  "scope": "docs",
+  "risk": "low",
+  "synthetic_data_only": true,
+  "allowed_files": ["docs/learning/event-confirmation.md"],
+  "acceptance": [
+    {
+      "path": "docs/learning/event-confirmation.md",
+      "contains": "Mitgliedschaft ist keine Eventbestätigung."
+    }
+  ]
+}
