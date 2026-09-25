@@ -34,6 +34,26 @@ def baseline():
 
 
 class PolicyTests(unittest.TestCase):
+    def test_codex_uses_fixed_public_ca_not_inherited_overrides(self):
+        with tempfile.TemporaryDirectory() as d:
+            parent = Path(d)
+            ca = parent / 'synthetic-public-ca.pem'
+            ca.write_text('synthetic test placeholder; not used for a connection')
+            with patch.object(r, 'SYSTEM_CA_FILE', ca), patch.dict(os.environ,
+                    {'SSL_CERT_FILE': '/untrusted-override', 'SSL_CERT_DIR': '/untrusted-dir'}):
+                env = r.codex_environment(parent, parent/'home')
+            self.assertEqual(env['SSL_CERT_FILE'], str(ca))
+            self.assertEqual(env['CODEX_HOME'], str(parent/'home'))
+            self.assertNotIn('SSL_CERT_DIR', env)
+            self.assertNotIn('NODE_TLS_REJECT_UNAUTHORIZED', env)
+
+    def test_missing_system_ca_blocks_codex_start(self):
+        with tempfile.TemporaryDirectory() as d:
+            parent = Path(d)
+            with patch.object(r, 'SYSTEM_CA_FILE', parent/'missing.pem'):
+                with self.assertRaisesRegex(r.Blocked, 'CA bundle unavailable'):
+                    r.codex_environment(parent, parent/'home')
+
     def test_runtime_home_links_only_explicit_development_login(self):
         with tempfile.TemporaryDirectory() as d:
             parent = Path(d).resolve()

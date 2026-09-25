@@ -120,3 +120,7 @@ Zuerst Bericht, vollständigen Patch und Kandidatendateien lesen. Fachliche Rich
 ### Laufzeitablage der CLI
 
 Die Korrektur auf `fix/runner-codex-state` ist zum Review vorbereitet: Codex benötigt neben der Anmeldung eine beschreibbare Zustandsdatenbank. Pro Versuch wird dafür ein frischer Ordner in der schon erlaubten temporären Ablage verwendet; ein interner Verweis bindet nur die separate Entwicklungsanmeldung lesbar ein. Das originale Anmeldeverzeichnis bleibt schreibgeschützt. Die Dateigröße des Codex-Prozesses ist auf 16 MiB je Datei begrenzt; Tester behalten ihr bisheriges Limit. Einzelheiten und verbleibende Grenzen stehen im [Architekturentscheid](decisions/0001-single-task-runner.md#nachtrag-getrennte-codex-laufzeitablage).
+
+### TLS-Verbindung der CLI
+
+Die Korrektur auf `fix/runner-system-certificates` ist zum Review vorbereitet: Die bereinigte Codex-Umgebung erhält `SSL_CERT_FILE=/private/etc/ssl/cert.pem`, das vorhandene öffentliche macOS-CA-Bündel. Die Zertifikatsprüfung bleibt aktiv; fehlt die Datei, blockiert der Runner. Ein Test ohne Anmeldung erreichte damit eine HTTP-401-Antwort. Ein erfolgreicher angemeldeter Modelllauf ist damit noch nicht nachgewiesen. Es wird nichts installiert und kein globales Zertifikat oder Benutzerprofil verändert.

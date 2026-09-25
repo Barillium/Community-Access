@@ -25,6 +25,7 @@ SCOPES = {'docs', 'dart-learning'}
 PROTECTED_TEST = 'exercises/dart_basics/test/application_status_test.dart'
 RUNTIME = Path('/Users/stanynyssen/develop/flutter/bin/cache/dart-sdk')
 CODEX = Path('/Applications/ChatGPT.app/Contents/Resources/codex')
+SYSTEM_CA_FILE = Path('/private/etc/ssl/cert.pem')
 
 
 class Blocked(Exception):
@@ -384,6 +385,15 @@ def prepare_codex_home(scratch, auth_file):
     return runtime_home
 
 
+def codex_environment(scratch, runtime_home):
+    require(SYSTEM_CA_FILE.is_file(), 'System public CA bundle unavailable')
+    env = environment(scratch)
+    env['CODEX_HOME'] = str(runtime_home)
+    # Public OS roots, already inside the read allowlist. Never disable TLS checks.
+    env['SSL_CERT_FILE'] = str(SYSTEM_CA_FILE)
+    return env
+
+
 def live_proposal(task, work, scratch, auth_home, model, deadline, feedback):
     auth_paths = auth_read_paths(auth_home)
     require(CODEX.is_file() and model, 'Codex executable and explicit model required')
@@ -401,8 +411,7 @@ def live_proposal(task, work, scratch, auth_home, model, deadline, feedback):
               'risk or create follow-up tasks. This is synthetic local development. '\
               'Acceptance is evaluated independently.\n' + canonical(task) + '\nSOURCE:\n' +
               canonical(context) + '\nLAST CHECKS:\n' + canonical(feedback))
-    env = environment(scratch)
-    env['CODEX_HOME'] = str(prepare_codex_home(scratch, auth_paths[0]))
+    env = codex_environment(scratch, prepare_codex_home(scratch, auth_paths[0]))
     policy = seatbelt([work, CODEX.parent, *auth_paths], [scratch], [CODEX], network=True)
     code, _, _ = command(codex_argv(CODEX, work, output, schema, model, prompt),
                           work, scratch, deadline, policy, env, max_file_bytes=CODEX_STATE_FILE_LIMIT)
