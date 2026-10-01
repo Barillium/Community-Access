@@ -4,20 +4,22 @@
 
 | Begriff | Beispiel in diesem Projekt |
 | --- | --- |
-| Arbeitskopie | Die Dateien im Ordner `Scene Access`, die du gerade bearbeitest. |
+| Arbeitskopie | Die Dateien im Ordner `Community Access`, die du gerade bearbeitest. |
 | Staging / Index | Die bewusst ausgewählten Dateiversionen für den nächsten Commit. Spätere Änderungen derselben Datei landen nicht automatisch darin. |
 | Commit | Ein lokaler Versionsstand mit Nachricht, Autor und Vorgänger. Er enthält nur die vorgemerkten Änderungen. |
 | Branch | Ein benannter Entwicklungszweig, etwa `main` oder `docs/clarify-invitations`. Neue Aufgaben beginnen auf einem eigenen Branch. |
 | Externe Sicherung | Eine zusätzliche Kopie außerhalb dieses Rechners. Lokale Commits schützen nicht vor Geräteverlust. |
 
-Es gibt keinen Remote und keinen Push. Autorenmetadaten werden vor dem ersten Commit bewusst gewählt; globale Git-Einstellungen werden nicht verändert. Synthetische Projektmetadaten sind keine persönliche Identitätsbestätigung.
+Seit dem 01.10.2026 ist das öffentliche GitHub-Repository [Barillium/Community-Access](https://github.com/Barillium/Community-Access) als `origin` verbunden. Der Nutzer hat den Upload des aktuellen, bereinigten Projektstands beauftragt. Nur bewusst geprüfte Quellen werden hochgeladen; `.local/`, Konfiguration, Datenbanken, Werkzeugcaches und Build-Ausgaben bleiben ausgeschlossen. Die folgenden Abnahmeprotokolle vom 24.09.2026 beschreiben den damaligen lokalen Stand.
+
+Autorenmetadaten werden bewusst gewählt; globale Git-Einstellungen werden nicht verändert. Synthetische Projektmetadaten sind keine persönliche Identitätsbestätigung. Ein Quellcode-Upload ist keine Freigabe für einen echten Aufgabenrunner, ein Deployment oder produktive Daten.
 
 ## Kleine Änderungen nachvollziehbar sichern
 
 Im Projektstamm starten:
 
 ```sh
-cd "/Users/stanynyssen/Scene Access"
+cd "/Users/stanynyssen/Documents/ChatGPT/Community Access"
 git status --short --branch
 git switch -c docs/clarify-invitations
 ```

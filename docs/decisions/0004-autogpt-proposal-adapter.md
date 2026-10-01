@@ -1,0 +1,31 @@
+# ADR 0004: AutoGPT als zusätzlicher Vorschlagsanbieter
+
+Stand: 30.09.2026. Lokale Implementierung zur Prüfung; kein freigegebener neuer Kontroll-Commit und kein echter AutoGPT-Modelllauf.
+
+## Entscheidung und Nutzen
+
+Der Nutzer hat die Integration von AutoGPT in den Community-Access-Aufgabenrunner beauftragt. Der bestehende [Runner](0001-single-task-runner.md) erhält die Auswahl `codex` oder `autogpt`. Beide liefern ausschließlich vollständige Dateivorschläge an denselben Controller. Dateiliste, menschliche Risikoeinstufung, eingefrorene Abnahme, unabhängige Tests, höchstens zwei Reparaturen, einmalige Freigabe und Patchreview bleiben erhalten. Backend-Coding und vollständige Produktabnahme bleiben gesperrt.
+
+Verwendet wird das Agent Protocol von **AutoGPT Classic**, nicht die neue AutoGPT Platform. Protokollgrundlage ist der am 30.09.2026 gelesene Commit `c035ab1f91b8556f86e87be26dcaf31677f64ba5` des [Originalrepositorys](https://github.com/Significant-Gravitas/AutoGPT/tree/c035ab1f91b8556f86e87be26dcaf31677f64ba5/classic). Classic steht unter MIT; `autogpt_platform/` unter PolyForm Shield, siehe [Lizenz](https://github.com/Significant-Gravitas/AutoGPT/blob/c035ab1f91b8556f86e87be26dcaf31677f64ba5/LICENSE). Der Adapter ist eigener Python-Code mit Standardbibliothek; kein Drittanbieter-Code wird kopiert oder installiert. Externe Modellnutzung kann Kosten verursachen.
+
+## Genau ein Vorschlag statt Werkzeugausführung
+
+Der geprüfte [Classic-Server](https://github.com/Significant-Gravitas/AutoGPT/blob/c035ab1f91b8556f86e87be26dcaf31677f64ba5/classic/original_autogpt/autogpt/app/agent_protocol_server.py) legt mit `POST /ap/v1/agent/tasks` eine neue Aufgabe an. Der erste `POST /ap/v1/agent/tasks/<UUID>/steps` schlägt eine Aktion vor. Ein weiterer leerer Schritt oder `y` kann die vorgeschlagene Aktion ausführen. Deshalb sendet der Adapter **niemals einen zweiten Schritt für diese Aufgabe** und genehmigt kein Werkzeug.
+
+AutoGPT soll unmittelbar `finish` vorschlagen. `additional_output.use_tool.arguments.reason` muss exaktes JSON der Form `{"files":[{"path":"…","content":"…"}]}` enthalten. Der Adapter liest diesen vorgeschlagenen Parameter, ohne `finish` auszuführen. Laufende Schritte, fremde Aufgaben-IDs, bereits vorhandene Artefakte, `last_action`, andere Werkzeuge, parallele Aktionen und ungültiges JSON blockieren. Auch eine beendete AutoGPT-Aufgabe ist hier kein Testnachweis. Ein gültiger Vorschlag kann nach fehlgeschlagener Kandidatenprüfung höchstens zwei neue Vorschlagsversuche erzeugen, jeweils in einer frischen AutoGPT-Aufgabe. Transport- und Protokollfehler werden nicht automatisch wiederholt.
+
+## Freigabe und technische Grenzen
+
+- Die Aufgabenfreigabe speichert zusätzlich Anbieter, Endpunkt, dokumentiertes Servermodell, erwarteten Upstream-Commit und Betriebsmodus. Für AutoGPT muss der Mensch neben dem Aufgabenhash auch den Anbieterhash bestätigen. Alte Codex-Freigaben werden nicht zu AutoGPT-Freigaben umgedeutet.
+- `--autogpt-runtime-reviewed` dokumentiert einen menschlichen Review von Serverisolation, Modell und Kosten. Es ist **keine technische Isolation oder Attestierung**. Modell und Upstream-Commit werden nicht vom Server kryptografisch nachgewiesen. Änderungen der Serverkonfiguration benötigen einen neuen Review und eine neue Freigabe; die Hashbindung allein erkennt solche Änderungen nicht.
+- Der Controller übergibt dem Transportprozess ausschließlich Aufgabe, erlaubte Quelldateien und Prüfrückmeldungen. Kein Git, keine Entwicklungsanmeldung und keine Umgebungs-Secrets werden eingebunden. Das bereinigte Python-Kind läuft mit `-I`, liest nur Laufzeitbibliotheken, Controllerdatei und eigene temporäre Ablage und darf nur diese Ablage schreiben.
+- macOS Seatbelt erlaubt ausgehendes Netz nur zu `localhost:<freigegebener Port>`; Seatbelt akzeptiert hier keine numerische IP. Der HTTP-Client selbst verwendet ausschließlich `127.0.0.1`, ohne DNS, Proxy, Authentifizierungsheader oder Weiterleitungen. Die bestehenden Testprofile erhalten dadurch keine neuen Netzrechte.
+- Anfragen und Antworten sind auf 1.000.000 Bytes begrenzt. Prozessdeadline, bestehende Dateigrößenbegrenzung und Aufräumlogik gelten auch für den Transportprozess. Serverantworten und rohe Modellgedanken werden nicht in den Bericht übernommen. Fehlermeldungen sind generisch; Adapterdiagnostik bleibt in der privaten Versuchablage.
+- Der externe AutoGPT-Server fällt **nicht** unter das Seatbelt-Profil des HTTP-Clients. Die gelesene `start`-Implementierung setzt abschließend `0.0.0.0:<port>` und zeigt in den gelesenen Routen keine Authentifizierung. Ein unveränderter Start auf dem Entwicklungsrechner ist daher nicht freigegeben. Er benötigt vorher eine getrennte technische Isolation ohne Repository-, Git-, Docker-Socket-, private Dateisystem- oder Produktionszugriffe und eine ausschließlich auf `127.0.0.1` erreichbare Portveröffentlichung. Promptregeln ersetzen das nicht.
+- Ein HTTP-Abbruch beendet nicht nachweislich eine laufende Server-Modellanfrage. Das Protokoll bietet in den gelesenen Routen keine Abbruchfunktion. Serverbudget, Ende noch laufender Anfragen und Aufbewahrung der synthetischen Aufgabe sind betrieblich gesondert zu prüfen. Ein Schrittlimit ist kein Geldlimit. Der Runner startet oder stoppt diesen extern verwalteten Server nicht und löscht keine Serverdaten.
+
+## Umfang der Drittanbieterprüfung
+
+Gelesen wurden die genaue Branch-SHA, Lizenz, Classic-Paketmanifest, Ausschnitte der Lockdatei, CLI, Server, API-Routen, Aufgabenmodelle, Aktionsmodell und Telemetriecode. Die Telemetrie kann bei Opt-in Sentry und Git-Nutzerinformationen verwenden. Der Runtime-Review muss deshalb auch Telemetrie und sonstige externe Verbindungen klären. Eine vollständige Archiv-, Hook-, Symlink-, Abhängigkeits- oder Advisoryprüfung wurde nicht durchgeführt; keine Sicherheitsfreigabe für AutoGPT als Ganzes. Entscheidung: eigener Protokolladapter implementierbar; Drittanbieterinstallation und Runtime bleiben für einen gesonderten Review zurückgestellt.
+
+Die [Integrationsanleitung](../autogpt-runner.md) beschreibt die spätere menschliche Freigabe. Lokale Adaptertests verwenden ausschließlich synthetische HTTP-Antworten; ein bestandenes Mock-Protokoll ist kein Nachweis einer echten AutoGPT-Modellantwort.

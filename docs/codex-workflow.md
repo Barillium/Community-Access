@@ -50,6 +50,8 @@ Flutter-Formatierung, Analyse und Anwendungstests werden für diese reine Dokume
 
 ## Manueller Einzelaufgaben-Runner
 
+Der zusätzlich implementierte AutoGPT-Classic-Adapter ist in der [Integrationsanleitung](autogpt-runner.md) und [ADR 0004](decisions/0004-autogpt-proposal-adapter.md) beschrieben. Sein neuer Kontrollstand und seine externe Runtime benötigen vor einem echten Lauf einen separaten menschlichen Review. Codex bleibt die Standardauswahl.
+
 Ergänzung vom 25.09.2026. Der Runner bereitet überprüfbare Änderungen an Dokumentation, Dart-Lerncode und begrenzten App-Oberflächenaufgaben gemäß ADR 0003 vor. Backend-Aufgaben bleiben gesperrt. [Architektur und Grenzen](decisions/0001-single-task-runner.md), [Prüfungen und Bestandsaufnahme](verification.md), [Aufgabenvorlage](tasks/README.md) und [Designregeln](design-rules.md) ergänzen die vorhandene Produktgrundlage.
 
 ### Vor dem ersten echten Lauf

@@ -13,16 +13,19 @@ Die erste [Dart-Lernübung](docs/learning/dart.md) übt erlaubte Bewerbungsstatu
 
 Unter `app/` liegt eine minimale Flutter-Web-Demo mit vier synthetischen Statusanzeigen und fünf Tests. Sie speichert nichts und verbindet sich mit keinem Backend. Start und Prüfungen stehen im [Setup](docs/setup.md#projekt-app-starten-und-prüfen). Die separate frühere Werkzeugdemo bleibt unverändert.
 
+Die ausgearbeitete [Flutter-Gastoberfläche](client/README.md) liegt seit dem 01.10.2026 separat unter `client/`. Das bisherige Laravel-Backend und seine zugehörige Struktur wurden aus dem aktiven Projekt entfernt. Die Umstellung auf Better Auth ist geplant, aber noch nicht implementiert; die Gastoberfläche besitzt derzeit kein lauffähiges Produkt-Backend.
+
 ## Projektstruktur
 
 ```text
-Scene Access/              bestehender Projektstamm; kein Umbenennen erforderlich
+Community Access/          Projektstamm
   README.md
   AGENTS.md
   .gitignore
   docs/                    Produkt, Setup und Arbeitsablauf
   scripts/                 manueller Einzelaufgaben-Runner und Prüfungen
   app/                     Flutter-Statusdemo mit eigenen Tests
+  client/                  erhaltene Flutter-Gastoberfläche mit eigenen Tests
   supabase/                lokaler Auth-/API-Kern und Migration
 ```
 
@@ -38,9 +41,9 @@ Keine Messenger-Synchronisierung, Zahlungen, KI-Kompatibilitätsbewertung, Trust
 
 Vor Änderungen Status und relevante Dokumente lesen, Plan und Prüfungen nennen und bestehende Arbeit erhalten. Installation, Netzwerkfreigaben, neue Dienste, Veröffentlichung, Server-/DNS-Eingriffe und destruktive Aktionen benötigen die entsprechende Nutzerfreigabe. Commits werden aus bewusst ausgewählten, geprüften Dateien erstellt.
 
-## Lokal bleiben und sichern
+## GitHub und lokale Entwicklung
 
-Es ist kein Remote eingerichtet und nichts veröffentlicht. Git speichert lokale Versionsstände, ersetzt aber keine separate Sicherung gegen Geräteverlust. Ein Backupziel ist noch nicht eingerichtet.
+Das öffentliche Repository [Barillium/Community-Access](https://github.com/Barillium/Community-Access) ist als `origin` verbunden. Es dient als Ziel für den ausdrücklich beauftragten Quellcode-Upload. Lokale Konfiguration, Datenbanken, Build-Ausgaben und das entfernte Laravel-Archiv unter `.local/` sind ausgeschlossen. Die Anwendung wird weiterhin lokal entwickelt; ein Quellcode-Upload ist kein Deployment und keine Produktabnahme. Git ersetzt keine gesonderte Sicherung lokaler Daten.
 
 Open-Source-orientiert beschreibt die Ausrichtung. Eine Lizenz für den eigenen Projektcode wurde noch nicht gewählt; aus diesem README folgt keine Lizenzfreigabe. Die Lizenzen der installierten Werkzeuge stehen in der Setup-Dokumentation.
 

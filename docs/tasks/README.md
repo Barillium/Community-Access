@@ -17,6 +17,8 @@ Tests, AGENTS, Produktvertrag, Architektur, Designregeln, Runner und diese Vorla
 
 Eine Änderung der Aufgabe, ihrer Risikoeinstufung, Abnahmekriterien oder Basis benötigt eine neue Prüfung und Freigabe. Freigaben sind einmalig, auch nach Abbruch verbraucht. Keine Freigabe-ID wiederverwenden.
 
+Für den zusätzlichen [AutoGPT-Adapter](../autogpt-runner.md) umfasst die Freigabe auch Anbieter, lokalen Endpunkt, dokumentiertes Servermodell und erwartete Serverrevision. Zusätzlich zum Aufgabenhash wird der Anbieterhash bestätigt. Der Server muss zuvor separat isoliert und geprüft werden; ein `finish`-Vorschlag gibt kein Werkzeug und keine Produktentscheidung frei.
+
 ## App-Erweiterung
 
 Zusätzlich ist `app-ui` implementiert: explizite Änderungen an `app/lib/main.dart` und `app/lib/demo_status.dart`, mit geschützten App-Tests und Web-Build. Die [Vorlage](app-ui.example.json) ist noch keine Freigabe. Alle Backend-, Test-, Abhängigkeits- und Controller-Dateien bleiben geschützte Ziele. Technische Grenzen, insbesondere Loopback-Zugriff im Flutter-Testprozess, stehen in [ADR 0003](../decisions/0003-runner-app-gates.md). Ein echter Lauf benötigt zuerst den Review und Commit des erweiterten Kontrollstands.

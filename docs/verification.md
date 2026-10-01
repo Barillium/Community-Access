@@ -1,5 +1,31 @@
 # Bestandsaufnahme, Abnahme und Nachweise
 
+## Laravel-Entfernung und erhaltener Flutter-Client am 01.10.2026
+
+Auf Nutzerauftrag wurde die Laravel-Struktur aus dem aktiven Projekt entfernt und die Flutter-Gastoberfläche separat unter `client/` erhalten. Das Paket heißt jetzt `community_access_client`; der bestehende HTTP-Adapter heißt `HttpAccessApi`. Sein API-Vertrag bleibt der bisherige Prototypvertrag und ist noch keine Better-Auth-Integration. Webkatalog- und Testpostfach-Schaltflächen öffnen keine Verweise auf den entfernten Server mehr.
+
+Backend, Composer-Dateien, Gastgeberansichten, Migrationen, synthetische Seeds, Backendtests, Startskripte, Auditmaterial und Prototypdokumentation liegen zur reversiblen Aufbewahrung unter der ignorierten lokalen Ablage `.local/archives/laravel-prototype-20261001/`. Auch vorhandene lokale Konfiguration und Daten wurden nur verschoben, nicht gelesen oder gelöscht. Diese Ablage darf nicht hochgeladen werden. Aktive Quellen unter `laravel-prototype/` existieren nicht mehr.
+
+Ausgeführt für `client/`: vorhandene Abhängigkeiten mit `flutter pub get --offline` aufgelöst; `dart format --output=none --set-exit-if-changed lib test` bestanden; `flutter analyze` ohne Befunde; `flutter test --no-pub` mit **39 bestandenen Tests**. Die Tests verwenden synthetische Fixtures und ersetzen keinen Auth-/API-Nachweis gegen ein echtes Backend. Die Prüfung der bisherigen Prototypports 8000, 8300 und 55442 zeigte keine TCP-Listener; es wurden keine Server gestartet oder beendet.
+
+`flutter build web --no-pub` erzeugte erfolgreich `client/build/web`; auch der Wasm-Probelauf bestand. Der Build meldete eine nicht gefundene `CupertinoIcons`-Schriftfamilie; dies wurde nicht durch eine neue Abhängigkeit verändert. Keine Browserabnahme und kein nativer Build. Relative Links der geänderten Dokumentation und `git diff --check` bestanden. 25 unveränderte Dateien einschließlich Statusdemo, Supabase, Lerncode und der vorhandenen AutoGPT-/Runner-Arbeit wurden zusätzlich anhand ihrer SHA-256-Fingerabdrücke bestätigt. Die lokale Archivablage und die Client-Build-/Werkzeugcaches sind von der normalen Git-Dateiauswahl ausgeschlossen.
+
+Better Auth wurde weder installiert noch konfiguriert. Anmeldung und Produktaktionen benötigen ein neues Backend; dessen Laufzeit und Anbindung sind noch offen. Kein Datenbankschema wurde verändert. Browser-, Backend-, Supabase- und Runner-Gesamtprüfungen wurden für diesen Strukturwechsel nicht ausgeführt. Der zuvor beauftragte GitHub-Upload wurde während dieser Umstellung pausiert; in dieser Aufgabe gab es keinen Upload.
+
+Die folgenden Abschnitte dokumentieren frühere Stände, einschließlich des inzwischen aus dem aktiven Projekt entfernten Vergleichsprototyps.
+
+## AutoGPT-Adapter: Implementierung vom 30.09.2026
+
+Auf `codex/autogpt-runner` ist der zusätzliche Classic-Vorschlagsadapter implementiert; kein Commit und keine Kontroll- oder Aufgabenfreigabe erzeugt. Die bestehende unversionierte Arbeit unter `laravel-prototype/` wurde nicht bearbeitet. [ADR 0004](decisions/0004-autogpt-proposal-adapter.md) und [Anleitung](autogpt-runner.md) dokumentieren Protokoll, Lizenzgrundlage, menschlichen Runtime-Review und die Grenze zwischen isoliertem HTTP-Kind und externem AutoGPT-Server.
+
+Ausgeführt: `python3 -I scripts/check_project.py --include-reviewed scripts/runner_tests/test_autogpt.py docs/autogpt-runner.md docs/decisions/0004-autogpt-proposal-adapter.md`. Dokument-/Linkprüfung, Dart-Formatierung, Analyse und neun geschützte Dart-Fälle bestanden. Von 52 Runner-Tests bestanden 51, ohne übersprungene Tests. Alle 15 neuen AutoGPT-Tests bestanden: synthetisches HTTP-Protokoll, genau ein erster Vorschlag ohne Werkzeugfreigabe, Anbieterhash, Ablehnung von Overrides und fremden Dateien, Antwortgrößen/Fehler, Deadline, OS-Sperre gegen fremde Dateien, externes Netz und einen anderen Loopback-Port sowie Durchlauf bis zum Kandidatenpatch mit den bestehenden Gates.
+
+**Gesamtprüfung fehlgeschlagen:** Der unveränderte bestehende Test `test_actual_codex_initializes_offline_runtime_without_credentials` scheitert, weil die fest konfigurierte Datei `/Applications/ChatGPT.app/Contents/Resources/codex` nicht existiert. Der fehlende Pfad wurde separat beobachtet. Das ist kein bestandener Codex-Startnachweis. Der Test und der bestehende Codex-Pfad wurden nicht herabgesetzt oder umgeschrieben. Vor Freigabe eines echten Laufs muss diese Werkzeugblockade separat behoben und die Gesamtprüfung wiederholt werden.
+
+Der erste neue OS-Test zeigte zunächst eine ungültige Seatbelt-Regel mit numerischer IP; korrigiert auf `localhost:<Port>`, während HTTP numerisch auf `127.0.0.1` bleibt. Ein anschließend durch die äußere Sandbox blockierter Grenztest wurde mit genehmigter Eskalation erfolgreich ausgeführt. Die abschließende Projektprüfung bestand diese OS-Tests ebenfalls. Diese früheren Fehlversuche gelten nicht als bestanden.
+
+Nicht ausgeführt: AutoGPT-Installation, Serverstart, Verbindung zum erlaubten Port, echte Modellantwort, Abhängigkeits-/Advisory-Vollprüfung und Isolation des externen Servers. Flutter-/Backend-Suites wurden für diesen Python-Adapter nicht erneut ausgeführt. Keine Veröffentlichung, automatische Übernahme oder Änderung an Produktrollen. Der vollständige Änderungsumfang wurde geprüft; Markdown und `git diff --check` bestanden.
+
 Stand: 25.09.2026. Umfang dieser Ausbaustufe: genau eine manuell freigegebene synthetische Aufgabe. Keine dauerhafte Ausführung, automatische Übernahme oder Veröffentlichung.
 
 ## Aktueller Lesestand
