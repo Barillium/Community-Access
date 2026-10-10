@@ -1,36 +1,33 @@
-# Community Access · Flutter-Gastoberfläche
+# Community Access · aktive Flutter-App
 
-Diese Oberfläche wurde am 01.10.2026 aus dem bisherigen Vergleichsprototyp erhalten. Sie enthält Gastanmeldung, Kontowiederherstellung, Einladungen, Bewerbungen, Eventansichten sowie ihre bestehenden Tests und Rubik-Schriftdateien samt Lizenz.
+Stand: 10.10.2026. Die aktive Oberfläche verwendet Better Auth/Node.js und PostgreSQL unter `../server/`. `../app/` ist eine separate Statusdemo. Maßgeblich sind [Produktspezifikation](../docs/product-spec.md) und [Setup](../docs/setup.md).
 
-## Stand der Umstellung
+## V1 als Standard
 
-Das bisherige Backend, die Gastgeberverwaltung und der öffentliche Webkatalog wurden aus dem aktiven Projekt entfernt. Better Auth ist noch nicht installiert oder angebunden. Die separate Statusdemo unter `../app/` bleibt bestehen.
+Öffentliche/private Einzelveranstaltungen, E-Mail-Konto mit Wiederherstellung, persönliche Communityaufnahme, Eventanfrage/Zusage, geschützte Location, Standardtickets, Belege, Erstattung und Einlass sind angebunden. Veranstalterverwaltung, Communitymoderation, Plattformteam und Scanner bleiben getrennte Berechtigungen.
 
-`AccessApi` beschreibt weiterhin den bisherigen Produktvertrag. `HttpAccessApi` ist der erhaltene HTTP-Adapter mit Bearer-Token und ausschließlich lokalem Ziel `http://127.0.0.1:8000`. Dies ist **keine Better-Auth-Integration**. Ohne neues Backend funktionieren Anmeldung und Produktaktionen nicht. Die bestehenden Tests verwenden synthetische Antworten beziehungsweise Testimplementierungen.
+`ProductScope` wählt beim Build standardmäßig V1. Zurückgestellte Funktionen fehlen in der Oberfläche; der Backendprozess begrenzt dieselben Wege. Der erweiterte Entwicklungsmodus wird ausschließlich bewusst mit `--dart-define=CA_PRODUCT_EDITION=extended` gebaut und benötigt den entsprechend gestarteten Server.
 
-Die Verweise auf den entfernten Webkatalog und das entfernte Testpostfach öffnen keine Fenster mehr. Sie zeigen während der Umstellung einen Verfügbarkeitshinweis.
+## Start und Prüfung
 
-## Lokale Prüfungen und Oberfläche
-
-Bei bereits vorhandenen Flutter-Abhängigkeiten, aus diesem Ordner:
+Backendstart, Voraussetzungen, Fixturekonten und vollständige Prüfkommandos stehen ausschließlich in der [Setup-Anleitung](../docs/setup.md#flutter-mit-better-auth-starten). Aus diesem Ordner:
 
 ```sh
-flutter pub get --offline
+flutter run --no-pub -d chrome --web-hostname=127.0.0.1 --web-port=8300
 dart format --output=none --set-exit-if-changed lib test
-flutter analyze
-flutter test
+flutter analyze --no-pub
+flutter test --no-pub test/v1_scope_test.dart
+flutter test --no-pub --dart-define=CA_PRODUCT_EDITION=extended --exclude-tags=v1
 ```
 
-Die erhaltene Oberfläche lässt sich anschließend aufrufen:
+Keine automatische Paketinstallation. V1-Tests und bestehende Ausbau-Regressionssuite werden getrennt ausgeführt. Eigene Browser-Testserver anschließend beenden.
 
-```sh
-flutter run -d chrome --web-hostname=127.0.0.1 --web-port=8300
-```
+## Konto, Datenschutz und Darstellung
 
-Dieser Aufruf startet nur die Flutter-Oberfläche, keinen Authentifizierungs- oder Produktserver. Neue Abhängigkeiten benötigen vor einer Installation einen eigenen Review und die Projektfreigabe.
+Die Anmeldung wird serverseitig geprüft und im selben Browser über HttpOnly-Cookie wieder aufgenommen. Das signierte Clienttoken bleibt flüchtig; keine Speicherung in Browserstorage. Veraltete Antworten nach Kontowechsel werden verworfen. DE/EN-Bedientexte und responsive Darstellung bleiben erhalten; Veranstalterinhalte werden nicht automatisch übersetzt.
 
-## Nächster Integrationsschritt
+Informations-, Support- und Kontolöschungsseiten bleiben erreichbar. Die Löschfunktion erzeugt eine geschützte Anfrage und behauptet keine bereits erfolgte Löschung. Betreiber-/Rechtstexte bleiben unvollständige Entwürfe. Änderungen an den Informationstexten sind mit den statischen HTML-Seiten abzugleichen.
 
-Für die geplante Umstellung müssen die serverseitige Laufzeit, Better-Auth-Datenbankanbindung, sichere Sitzungsverarbeitung und der Flutter-Zugriff festgelegt werden. Communityrechte, Bewerbungen, Eventzusagen und geschützte Locations benötigen weiterhin ein eigenes Produkt-Backend mit Berechtigungs- und Konkurrenztests.
+## Native Vorbereitung
 
-Die [offizielle Better-Auth-Installation](https://better-auth.com/docs/installation) beschreibt die serverseitige Authentifizierung. Sie ist keine Abnahme der hier erhaltenen Oberfläche oder des Produktvertrags.
+`ios/` und `android/` bleiben erhalten. Storebuilds, Altersvoraussetzungen, mobiler Checkout-Handoff, echte Geräte/Assistenztechnik und Veröffentlichung sind gesondert abzunehmen. Der lokale Webbuild und synthetische Zahlungen sind kein nativer Startnachweis.

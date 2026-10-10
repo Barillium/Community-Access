@@ -1,0 +1,3 @@
+# Local golden-test diagnostics; supplied references remain versionable.
+/example/test/failures/
+/test/failures/

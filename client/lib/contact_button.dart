@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'design_system.dart';
+
 import 'contact_link_stub.dart'
     if (dart.library.js_interop) 'contact_link_web.dart';
 
@@ -24,7 +26,7 @@ class ContactButton extends StatelessWidget {
     if (!isSyntheticContact(contact)) {
       return const Text(
         'Es ist noch kein Kontaktweg hinterlegt. Nutze deinen bestehenden Kontakt zu den Gastgebern.',
-        style: TextStyle(height: 1.6),
+        style: TextStyle(height: AccessTypography.readingHeight),
       );
     }
     return Column(
@@ -43,15 +45,15 @@ class ContactButton extends StatelessWidget {
           },
           child: const Text('Gastgeber kontaktieren'),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AccessSpacing.s8),
         Semantics(
           label: 'Kontaktweg: $contact',
           excludeSemantics: true,
           child: SelectableText(
             contact!,
             style: const TextStyle(
-              fontSize: 12,
-              height: 1.6,
+              fontSize: AccessTypography.labelSize,
+              height: AccessTypography.readingHeight,
               color: Color(0xFF55514F),
             ),
           ),

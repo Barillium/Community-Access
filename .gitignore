@@ -79,3 +79,9 @@ coverage/
 # Local Python runner caches.
 __pycache__/
 *.pyc
+
+# Local JavaScript dependencies; package-lock.json remains versioned.
+node_modules/
+
+# Generated metadata from the approved local editable pretix-plugin install.
+pretix-plugin/*.egg-info/

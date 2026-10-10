@@ -1,0 +1,91 @@
+{
+  "date": "2026-10-10",
+  "scope": "local synthetic only",
+  "backend": {
+    "v1": {
+      "tests": 10,
+      "pass": 10,
+      "fail": 0,
+      "skipped": 0
+    },
+    "auth": {
+      "tests": 12,
+      "pass": 12,
+      "fail": 0,
+      "skipped": 0
+    },
+    "access": {
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "skipped": 0
+    },
+    "directory": {
+      "tests": 57,
+      "pass": 57,
+      "fail": 0,
+      "skipped": 0
+    },
+    "ticketing": {
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "skipped": 0
+    },
+    "private-access": {
+      "tests": 26,
+      "pass": 26,
+      "fail": 0,
+      "skipped": 0
+    },
+    "native-ticketing": {
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0
+    },
+    "social": {
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "skipped": 0
+    },
+    "store": {
+      "tests": 4,
+      "pass": 4,
+      "fail": 0,
+      "skipped": 0
+    }
+  },
+  "node_components": {
+    "tests": 29,
+    "pass": 29,
+    "fail": 0,
+    "skipped": 0
+  },
+  "flutter_v1": {
+    "tests": 4,
+    "pass": 4
+  },
+  "flutter_extended": {
+    "tests": 292,
+    "pass": 292
+  },
+  "pretix_policy": {
+    "tests": 4,
+    "pass": 4
+  },
+  "flutter_analysis": "passed",
+  "dart_format": "passed",
+  "web_build": "passed",
+  "browser_checkpoints": 9,
+  "browser_page_errors": 0,
+  "production_or_device_acceptance": false,
+  "staged_export": {
+    "v1_http_tests": 10,
+    "web_build": "passed",
+    "local_imports_assets_canonical_links": "passed",
+    "unselected_tracked_unchanged": 45,
+    "whitespace": "passed"
+  }
+}

@@ -1,5 +1,7 @@
 # Codex als Entwicklungspartner
 
+Aktuelle Einordnung 10.10.2026: Der Produktumfang steht ausschließlich in [product-spec.md](product-spec.md), aktuelle Start-/Prüfbefehle in [setup.md](setup.md). Die folgenden datierten Berichte beschreiben historische Nachweise. Der Einzelaufgaben-Runner bleibt unverändert eingeschränkt; sein blockierter Produkt-Scope ist keine Aussage über fehlende Implementierung im aktiven Backend.
+
 Historischer Ausgangsstand: 24.09.2026. Dieser Ablauf betrifft das lokale Community-Access-Repository. Codex ist bereits in Benutzung; in Schritt 04 wird keine zusätzliche Codex-Installation oder Kontoeinrichtung vorgenommen.
 
 ## Ein kleiner Arbeitszyklus

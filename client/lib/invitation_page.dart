@@ -6,15 +6,14 @@ import 'access_api.dart';
 import 'design_system.dart';
 import 'contact_button.dart';
 import 'account_recovery_page.dart';
+import 'auth_mode.dart';
 
 String? invitationToken(String value) {
   final text = value.trim();
   if (RegExp(r'^[0-9a-f]{64}$').hasMatch(text)) return text;
   final uri = Uri.tryParse(text);
   if (uri == null ||
-      uri.scheme != 'http' ||
-      uri.host != '127.0.0.1' ||
-      uri.port != 8300 ||
+      !configuredAuthPageOrigin(uri) ||
       uri.userInfo.isNotEmpty ||
       uri.path != '/' ||
       uri.query.isNotEmpty) {
@@ -157,12 +156,14 @@ class _InvitationPageState extends State<InvitationPage> {
     String? status;
     for (final application in snapshot['applications'] as List? ?? []) {
       if (application['community_id'] == community && community != null) {
-        status = application['status'] as String;
+        final candidate = application['status'] as String;
+        if (candidate != 'withdrawn' || status == null) status = candidate;
       }
     }
     for (final block in snapshot['application_blocks'] as List? ?? []) {
       if (block['community_id'] == community) {
-        status = block['reason'] as String;
+        final reason = block['reason'] as String;
+        if (reason != 'withdrawn' || status == null) status = reason;
       }
     }
     for (final member in snapshot['memberships'] as List? ?? []) {
@@ -185,7 +186,7 @@ class _InvitationPageState extends State<InvitationPage> {
       for (final question in form['questions'] as List)
         question['id'] as String: _answers[question['id']]!.text.trim(),
     };
-    await widget.api.apply(_token!, form['id'] as int, answers);
+    await widget.api.apply(_token!, form['id'] as Object, answers);
     if (mounted) {
       setState(() {
         _status = 'pending';
@@ -203,9 +204,9 @@ class _InvitationPageState extends State<InvitationPage> {
         children: [
           const Text(
             'Dein Bewerbungsstatus wird geprüft.',
-            style: TextStyle(height: 1.6),
+            style: TextStyle(height: AccessTypography.readingHeight),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AccessSpacing.s16),
           OutlinedButton(
             onPressed: _busy ? null : () => _run(_checkStatus),
             child: const Text('Bewerbungsstatus aktualisieren'),
@@ -213,14 +214,13 @@ class _InvitationPageState extends State<InvitationPage> {
         ],
       );
     }
-    if (_status != null) {
+    if (_status != null && _status != 'withdrawn') {
       final text = switch (_status) {
         'pending' => 'Deine Bewerbung ist offen. Die Gastgeber entscheiden über deine Aufnahme.',
         'approved' =>
           'Du wurdest bereits aufgenommen. Eine Eventzusage erfolgt separat.',
         'revoked' => 'Deine Mitgliedschaft wurde entzogen. Eine erneute Bewerbung ist gesperrt.',
         'rejected' => 'Deine Bewerbung wurde abgelehnt. Eine erneute Bewerbung ist gesperrt.',
-        'withdrawn' => 'Deine Bewerbung wurde zurückgezogen. Eine erneute Bewerbung ist gesperrt.',
         _ => 'Eine erneute Bewerbung ist aktuell nicht möglich.',
       };
       return Column(
@@ -231,15 +231,18 @@ class _InvitationPageState extends State<InvitationPage> {
                 ? 'Bewerbung eingereicht.'
                 : 'Dein Bewerbungsstatus',
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AccessSpacing.s16),
           Semantics(
             liveRegion: true,
-            child: Text(text, style: const TextStyle(height: 1.6)),
+            child: Text(
+              text,
+              style: const TextStyle(height: AccessTypography.readingHeight),
+            ),
           ),
-          const SizedBox(height: 24),
-          if (['rejected', 'withdrawn', 'revoked'].contains(_status))
+          const SizedBox(height: AccessSpacing.s24),
+          if (['rejected', 'revoked'].contains(_status))
             ContactButton(contact: _invitation!['host_contact'] as String?),
-          const SizedBox(height: 24),
+          const SizedBox(height: AccessSpacing.s24),
           FilledButton(
             onPressed: _busy
                 ? null
@@ -254,7 +257,7 @@ class _InvitationPageState extends State<InvitationPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _heading('E-Mail bestätigen'),
-          const SizedBox(height: 16),
+          const SizedBox(height: AccessSpacing.s16),
           VerificationNotice(
             api: widget.api,
             email: _accountEmail,
@@ -275,15 +278,30 @@ class _InvitationPageState extends State<InvitationPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _heading('Deine Bewerbung'),
-          const SizedBox(height: 16),
-          const Text(
-            'Beantworte die Fragen der Gastgeber. Verwende in dieser Demo ausschließlich erfundene Angaben.',
-            style: TextStyle(height: 1.6),
+          const SizedBox(height: AccessSpacing.s16),
+          if (_status == 'withdrawn') ...[
+            Semantics(
+              liveRegion: true,
+              child: const Text(
+                'Du hast deine Bewerbung zurückgezogen. Du kannst dich mit dieser gültigen Einladung erneut bewerben.',
+                style: TextStyle(height: AccessTypography.readingHeight),
+              ),
+            ),
+            const SizedBox(height: AccessSpacing.s16),
+          ],
+          Text(
+            'Deine Antworten gehen an die Gastgeber von ${_invitation!["community"]}. Sie entscheiden über deine Aufnahme.',
+            style: const TextStyle(height: AccessTypography.readingHeight),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AccessSpacing.s16),
+          const Text(
+            'Verwende in dieser Demo ausschließlich erfundene Angaben. Teile keine intimen Angaben oder persönlichen Informationen über andere Personen.',
+            style: TextStyle(height: AccessTypography.readingHeight),
+          ),
+          const SizedBox(height: AccessSpacing.s24),
           for (final (index, question) in (form['questions'] as List).indexed)
             Padding(
-              padding: const EdgeInsets.only(bottom: 24),
+              padding: const EdgeInsets.only(bottom: AccessSpacing.s24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -292,35 +310,43 @@ class _InvitationPageState extends State<InvitationPage> {
                     child: Text(
                       question['label'] as String,
                       style: const TextStyle(
-                        fontSize: 17,
-                        height: 1.5,
+                        fontSize: AccessTypography.bodySize,
+                        height: AccessTypography.bodyHeight,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _answers[question['id']],
-                    enabled: !_busy,
-                    minLines: 3,
-                    maxLines: 6,
-                    maxLength: 2000,
+                  const SizedBox(height: AccessSpacing.s12),
+                  AccessField(
                     decoration: InputDecoration(
                       labelText: 'Antwort auf Frage ${index + 1}',
                       helperText: question['required'] == true
                           ? 'Pflichtfeld'
                           : 'Optional',
                     ),
-                    validator: question['required'] == true ? _required : null,
+                    builder: (decoration) => TextFormField(
+                      controller: _answers[question['id']],
+                      enabled: !_busy,
+                      minLines: 3,
+                      maxLines: 6,
+                      maxLength: 2000,
+                      decoration: decoration,
+                      validator: question['required'] == true
+                          ? _required
+                          : null,
+                    ),
                   ),
                 ],
               ),
             ),
           const Text(
-            'Die Aufnahme wird manuell entschieden. Sie reserviert keinen Eventplatz. Nach Ablehnung oder Rückzug ist eine erneute Bewerbung gesperrt; du kannst die Gastgeber kontaktieren.',
-            style: TextStyle(fontSize: 13, height: 1.6),
+            'Die Aufnahme reserviert keinen Eventplatz. Nach freiwilligem Rückzug kannst du dich erneut bewerben. Nach Ablehnung oder Entzug ist eine erneute Bewerbung gesperrt; du kannst die Gastgeber kontaktieren.',
+            style: TextStyle(
+              fontSize: AccessTypography.captionSize,
+              height: AccessTypography.readingHeight,
+            ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AccessSpacing.s24),
           FilledButton(
             onPressed: _busy ? null : _apply,
             child: const Text('Bewerbung einreichen'),
@@ -341,8 +367,8 @@ class _InvitationPageState extends State<InvitationPage> {
     child: Text(
       text,
       style: const TextStyle(
-        fontSize: 26,
-        height: 1.25,
+        fontSize: AccessTypography.sectionTitleSize,
+        height: AccessTypography.titleHeight,
         fontWeight: FontWeight.w500,
       ),
     ),
@@ -355,17 +381,20 @@ class _InvitationPageState extends State<InvitationPage> {
     int? maxLength,
     TextInputType? keyboardType,
   }) => Padding(
-    padding: const EdgeInsets.only(bottom: 20),
-    child: TextFormField(
-      controller: controller,
-      enabled: !_busy,
-      obscureText: password,
-      maxLength: maxLength,
-      keyboardType: keyboardType,
-      validator: validate ?? _required,
+    padding: const EdgeInsets.only(bottom: AccessSpacing.s20),
+    child: AccessField(
       decoration: InputDecoration(labelText: label, counterText: ''),
-      autocorrect: !password,
-      enableSuggestions: !password,
+      builder: (decoration) => TextFormField(
+        controller: controller,
+        enabled: !_busy,
+        obscureText: password,
+        maxLength: maxLength,
+        keyboardType: keyboardType,
+        validator: validate ?? _required,
+        decoration: decoration,
+        autocorrect: !password,
+        enableSuggestions: !password,
+      ),
     ),
   );
 
@@ -389,52 +418,61 @@ class _InvitationPageState extends State<InvitationPage> {
     children: [
       if (_busy)
         const Padding(
-          padding: EdgeInsets.only(bottom: 20),
+          padding: EdgeInsets.only(bottom: AccessSpacing.s20),
           child: LinearProgressIndicator(
             semanticsLabel: 'Einladung wird bearbeitet',
           ),
         ),
       if (_error != null)
         Padding(
-          padding: const EdgeInsets.only(bottom: 20),
+          padding: const EdgeInsets.only(bottom: AccessSpacing.s20),
           child: Semantics(
             liveRegion: true,
             child: Text(
               _error!,
-              style: const TextStyle(color: Color(0xFFA63028), height: 1.6),
+              style: const TextStyle(
+                color: Color(0xFFA63028),
+                height: AccessTypography.readingHeight,
+              ),
             ),
           ),
         ),
       if (_invitation == null) ...[
-        TextField(
-          controller: _link,
-          enabled: !_busy,
-          autocorrect: false,
-          enableSuggestions: false,
+        AccessField(
           decoration: const InputDecoration(
             labelText: 'Einladungslink',
             helperText: 'Nur lokale Links dieses Prototyps.',
           ),
-          onSubmitted: (_) => _lookup(),
+          builder: (decoration) => TextField(
+            controller: _link,
+            enabled: !_busy,
+            autocorrect: false,
+            enableSuggestions: false,
+            decoration: decoration,
+            onSubmitted: (_) => _lookup(),
+          ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: AccessSpacing.s20),
         FilledButton(
           onPressed: _busy ? null : _lookup,
           child: const Text('Einladung prüfen'),
         ),
       ] else ...[
         _heading(_invitation!['community'] as String),
-        const SizedBox(height: 24),
+        const SizedBox(height: AccessSpacing.s24),
         if (!_authenticated) ...[
           _heading(
             _register ? 'Gastkonto anlegen' : 'Mit deinem Konto anmelden',
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AccessSpacing.s16),
           const Text(
             'Im lokalen Prototyp nur erfundene Namen und Adressen mit @example.invalid verwenden.',
-            style: TextStyle(fontSize: 13, height: 1.6),
+            style: TextStyle(
+              fontSize: AccessTypography.captionSize,
+              height: AccessTypography.readingHeight,
+            ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AccessSpacing.s24),
           Form(
             key: _form,
             child: Column(
@@ -506,23 +544,20 @@ class _InvitationPageState extends State<InvitationPage> {
   Widget _intro() => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      Semantics(
-        headingLevel: 1,
-        child: const Text(
-          'Dein Zugang zur Community.',
-          style: TextStyle(
-            fontSize: 40,
-            fontWeight: FontWeight.w500,
-            height: 1.15,
-          ),
+      const AccessHeading(
+        'Dein Zugang zur Community.',
+        level: 1,
+        role: AccessHeadingRole.page,
+      ),
+      const SizedBox(height: AccessSpacing.s16),
+      const Text(
+        'Einladung – Bewerbung – manuelle Aufnahme. Ein Link allein gibt dir noch keinen Eventplatz.',
+        style: TextStyle(
+          fontSize: AccessTypography.captionSize,
+          height: AccessTypography.readingHeight,
         ),
       ),
-      const SizedBox(height: 16),
-      const Text(
-        'Einladung → Bewerbung → manuelle Aufnahme. Ein Link allein gibt dir noch keinen Eventplatz.',
-        style: TextStyle(fontSize: 14, height: 1.6),
-      ),
-      const SizedBox(height: 24),
+      const SizedBox(height: AccessSpacing.s24),
     ],
   );
 
@@ -538,47 +573,40 @@ class _InvitationPageState extends State<InvitationPage> {
               : () => Navigator.of(context).pop(_authenticated),
           icon: const AccessIcon(Icons.arrow_back),
         ),
-        title: const Text('Einladung', style: TextStyle(fontSize: 18)),
+        title: const Text(
+          'Einladung',
+          style: TextStyle(fontSize: AccessTypography.leadSize),
+        ),
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final wide =
-              constraints.maxWidth >= 1000 &&
-              MediaQuery.textScalerOf(context).scale(14) <= 18;
           return SingleChildScrollView(
-            padding: EdgeInsets.symmetric(
-              horizontal: wide ? 40 : 24,
-              vertical: 32,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (wide)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            child: AccessPageFrame(
+              width: AccessPageWidth.content,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  AccessColumns(
+                    minWidth: AccessLayout.accountColumnsMinWidth,
+                    gap: AccessSpacing.s64,
+                    stackedGap: 0,
+                    flex: const [3, 5],
                     children: [
-                      Expanded(flex: 3, child: _intro()),
-                      const SizedBox(width: 64),
-                      Expanded(
-                        flex: 5,
-                        child: AccessSurface(child: _entryContent()),
-                      ),
+                      _intro(),
+                      AccessSurface(child: _entryContent()),
                     ],
-                  )
-                else ...[
-                  _intro(),
-                  AccessSurface(child: _entryContent()),
-                ],
-                const SizedBox(height: 32),
-                const Text(
-                  'Alle Konten, Kollektive und Orte sind erfunden.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    height: 1.6,
-                    color: Color(0xFF55514F),
                   ),
-                ),
-              ],
+                  const SizedBox(height: AccessSpacing.s32),
+                  const Text(
+                    'Alle Konten, Veranstalter und Orte sind erfunden.',
+                    style: TextStyle(
+                      fontSize: AccessTypography.labelSize,
+                      height: AccessTypography.readingHeight,
+                      color: Color(0xFF55514F),
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },

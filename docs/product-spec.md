@@ -1,124 +1,104 @@
 # Community Access: Produktspezifikation
 
-Stand: 24.09.2026 · Status: freigegebener Produktumfang, noch nicht implementiert
+Stand: 10.10.2026 · Verbindlicher V1-Umfang auf Nutzerauftrag. Lauffähige lokale Version mit ausschließlich synthetischen Daten; keine Produktionsfreigabe.
 
-Technikwechsel vom 01.10.2026: Der bisherige Laravel-Vergleichsprototyp wurde aus dem aktiven Projekt entfernt; seine Flutter-Gastoberfläche bleibt unter `client/` erhalten. Better Auth ist als nächster Authentifizierungsansatz vorgesehen, aber noch nicht installiert oder angebunden. Serverlaufzeit, Anbindung und Umsetzung der Produktberechtigungen sind noch festzulegen. Die separate Flutter-Statusdemo und der bestehende lokale Supabase-Teilumfang bleiben erhalten; deren bisherige Prüfergebnisse sind kein Better-Auth-Nachweis. Die folgenden Produktanforderungen gelten unabhängig vom entfernten Prototyp weiter.
+## 1. Ziel und maßgebliche Quellen
 
-## 1. Problem, Ziel und Belegstand
+Community Access ergänzt bestehende Kollektive um geregelten Zugang zu Veranstaltungen. Bestehende Messenger bleiben bestehen. Der vorgesehene Pilot mit The Base E.V. und Not Human Collective belegt keine Teilnahmezusage; Entwicklung und KI-Kontext verwenden ausschließlich erfundene Veranstalter und Personen.
 
-Community Access soll bestehenden Aachener Kollektiven ermöglichen, Bewerbungen, manuelle Aufnahme und Eventanfragen nachvollziehbar zu bearbeiten. Die Kollektive verteilen Einladungen über ihre bestehenden Messenger; Community Access ergänzt diese um geregelten Zugang und ersetzt sie nicht.
+Diese Datei beschreibt die verbindlichen Produktregeln. Die [Aktionsmatrix](implementation/access-matrix.md) konkretisiert die Rechte, [Setup](setup.md) die Ausführung und [AGENTS.md](../AGENTS.md) die Arbeitsregeln. Technische Detailberichte sind Nachweise ihres jeweiligen Datums, keine zusätzlichen Produktentscheidungen. Der [V1-Entscheid](decisions/0007-v1-scope.md) begründet die Reduktion; frühere Entscheidungen sind als [Historie](history/product-decisions-through-20261009.md) erhalten.
 
-Der geplante Pilot umfasst ausschließlich **The Base E.V.** und **Not Human Collective**. Diese Festlegung belegt keine Teilnahmezusage. In Entwicklung, Tests und KI-Kontext werden ausschließlich synthetische Kollektive, Personen, Kontaktdaten, Orte und Bewerbungen verwendet. Die beiden Namen dienen hier nur der Beschreibung des Pilotumfangs.
+Aktive Architektur: Flutter/Dart in `client/`, Better Auth/Node.js in `server/`, PostgreSQL und selbst betriebenes pretix. `app/`, `supabase/`, Dart-Lernübungen und Einzelaufgaben-Runner bleiben getrennte Entwicklungswerkzeuge. Ihre Tests nehmen das aktive Produkt nicht ab.
 
-| Kategorie | Aussage und Grundlage |
+## 2. Umfang der ersten Version
+
+| V1 enthält | Zurückgestellt im erweiterten Entwicklungsmodus |
 | --- | --- |
-| Nutzervorgaben | Pilotumfang, zwei Produktrollen, zusätzliche Kollektivbewerbung, manuelle Entscheidungen, veranstaltungsbezogene Altersselbstauskunft, Eigenbetrieb und Löschfrist wurden im Projektgespräch festgelegt. |
-| Technische Zielvorgabe | Flutter/Dart, PostgreSQL und zunächst lokales Supabase; Open-Source-orientiert. Eine Lizenz für den eigenen Code ist damit noch nicht gewählt. |
-| Dokumentierte Vorschläge | Der Entwicklungsplan beschreibt den Kernablauf, getrennte Berechtigungen und negative Zugriffstests; siehe Quellen unten. Das sind Planungsgrundlagen, keine Implementierungsnachweise. |
-| Projektannahme | Ein gemeinsamer, klarer Statusablauf verringert Rückfragen und organisatorischen Aufwand. Dieser Nutzen ist noch nicht mit Gastgebern und Gästen überprüft. |
-| Beobachteter Ist-Zustand | Vor Erstellung dieser Spezifikation war der Projektordner leer und kein Git-Repository vorhanden. Eine Anwendung und technisch getestete Produkteigenschaften existieren noch nicht. |
+| E-Mail-Konto, Bestätigung, Anmeldung, Wiederherstellung und Abmeldung | Google-, Apple- und Facebook-Anmeldung |
+| Öffentliche chronologische Eventliste, Suche, Communities und Veranstalter | Persönliche Empfehlungen, Präferenzen, Folgen, Merkliste, Interessenzähler, Besuchssignale und separates Ortsverzeichnis |
+| Öffentliche und private Einzelveranstaltungen | Veranstaltungsreihen und semi-öffentliche Veranstaltungen mit zeitgesteuerter Feldfreigabe |
+| Persönliche Communityeinladung, Bewerbung, manuelle Aufnahme | Zusätzliche Bewerbungs-, Formular- und Linkwege für privaten Profilzugang |
+| Communitymitgliedschaft oder ausdrückliche einzelne Eventfreigabe | Reihenfreigaben und darüber vererbte Eventsichtbarkeit |
+| Eventanfrage, manuelle Zusage und geschützte genaue Location | Zusätzliche Ticketkategorien und persönliche Kategorienfreigaben |
+| Ein Standardticketangebot pro Event, Zahlung, Belege, Erstattung und Einlass | Gruppenbuchung und Übertragung bleiben ausgeschlossen |
+| Getrennte Moderation, Beschwerden und gemeinsame Auftrittsverwaltung | Lern-/Automationswerkzeuge gehören nicht zur Produktoberfläche |
+| Deutsche/englische Bedientexte, responsive Weboberfläche | Store-Einreichung und echte native Geräteabnahme bleiben separate Schritte |
 
-Erfolg bedeutet zunächst: Eine Person kann die Produktidee in zwei Sätzen erklären; der vollständige Ablauf ist verständlich; seine Berechtigungsgrenzen lassen sich später mit synthetischen Konten nachweisen. Es gibt noch keine belegte Zeitersparnis oder Sicherheitsgarantie.
+V1 ist Standard für Server und Flutter-Build. `CA_PRODUCT_EDITION=extended` aktiviert den bisherigen erweiterten Entwicklungsumfang ausdrücklich. Ein Clientrequest oder eine Kontorolle kann den Servermodus nicht ändern. Zurückgestellte Funktionen werden in V1 serverseitig begrenzt und aus der Oberfläche entfernt. Vorhandene Daten werden durch den Moduswechsel nicht gelöscht. Bestehende Bestellbelege, Zahlungsabgleich, Erstattungen und Einlassrechte werden nicht allein wegen eines ausgeblendeten Katalogeintrags widerrufen.
 
-## 2. Zwei Nutzerrollen und betriebliche Verantwortung
+Einzelveranstaltungen, die noch einer Reihe zugeordnet oder semi-öffentlich sind, erscheinen in V1 nicht. Keine automatische Umwandlung, Veröffentlichung oder Entfernung bestehender Zuordnungen. Der erweiterte Modus bleibt zur bewussten Bearbeitung und für Regressionstests erhalten.
 
-- **Gast:** erhält eine Einladung, bewirbt sich beim Kollektiv, sieht den eigenen Status und fragt nach Aufnahme eine Eventteilnahme an. Bewerber, Mitglied und bestätigter Eventgast sind unterschiedliche Zustände dieser Rolle.
-- **Gastgeber:** vertritt ein Kollektiv, beantragt dessen Aufnahme und verwaltet nach Freigabe Einladungen, Gastbewerbungen und Eventanfragen seiner Community. Rechte gelten nur für die jeweils zugeordnete Community.
+## 3. Zuständigkeiten und getrennte Rechte
 
-Betrieb und Beschwerden übernimmt vorerst das Projektteam selbst. Es prüft Kollektivbewerbungen und entscheidet über die Veranstalteraufnahme. Das ist eine zusätzliche betriebliche Verantwortung, keine dritte Produktrolle für Gäste oder Gastgeber. Der technische Verwaltungszugang wird später gesondert abgesichert; gewöhnliche Gastgeberrechte erlauben keine Kollektivfreigabe oder Einsicht in fremde Bewerbungen.
+- **Gast:** verwaltet das eigene Konto, eigene Bewerbungen, Anfragen, Tickets, Belege und Beschwerden. Bewerber, Mitglied, kaufberechtigter Gast und bestätigter Teilnehmer sind unterschiedliche Zustände.
+- **Veranstalter:** verantwortet eigene Auftritte, Eventinhalte, Teilnahmeentscheidungen und Verkäufe. Ein angenommenes Verwalterkonto arbeitet ausschließlich am konkret delegierten Auftritt. Verkäuferzuordnung, Einladung und Entzug von Verwaltern bleiben beim verantwortlichen Konto.
+- **Communitymoderator:** wird vom Plattformteam ausdrücklich einer Community zugewiesen. Nur diese Zuweisung erlaubt Communityeinladungen, Aufnahme, Formulare, Regeln und Veröffentlichungsfreigaben. Veranstalterzulassung erteilt diese Rechte nicht automatisch.
+- **Plattformteam:** entscheidet über Veranstalteraufnahme, Moderatorzuweisung, Plattformmaßnahmen und eigene Prüfzuständigkeiten. Teamrechte eröffnen keinen pauschalen Zugang zu fremden privaten Eventdaten.
+- **Einlass:** ist eine zeitlich begrenzte Rolle für ein konkretes Event; keine allgemeine Veranstalter- oder Moderationsberechtigung.
 
-## 3. Zwei manuelle Aufnahmeabläufe
+Ein Konto kann mehrere getrennte Zuständigkeiten besitzen. Jeder Abruf und jede Änderung prüft die aktuelle Zielressource serverseitig; versteckte Menüs vergeben oder schützen keine Rechte.
 
-### Kollektivaufnahme durch das Projektteam
+## 4. Aufnahme und Teilnahme
 
-Ein Kollektiv reicht ein ausführliches Formular ein. Es umfasst bisherige Veranstaltungen, Kontaktdaten, Awarenessstrukturen, Mitglieder, Organisationsstruktur, Veranstaltungsorte und Veranstaltungsarten. Awarenessstrukturen beschreiben beispielsweise zuständige Ansprechstellen und den Umgang mit Grenzverletzungen.
+### Veranstalteraufnahme
 
-Das Projektteam prüft die Bewerbung manuell und nimmt sie an oder lehnt sie ab. Ein Rückzug durch das antragstellende Kollektiv ist möglich. Erst die Annahme eröffnet die Gastgeberverwaltung für diese Community. Konkrete Pflichtfelder und die Bedeutung von „Mitglieder“ bleiben offen; daraus wird keine personenbezogene Mitgliederliste abgeleitet. Das Formular ist fest definiert, kein frei konfigurierbarer Baukasten.
+Das Projektteam prüft Name, Selbstdarstellung, Veranstaltungstypen und ausdrücklich beantwortete Angaben zu Awarenesskonzept und Awarenessteam. Optionale organisatorische Angaben bleiben freiwillig; Mitgliederlisten werden nicht erhoben. Annahme erstellt Community, Veranstalterzulassung und privates Profil atomar, aber keine Moderatorrolle. Rückzug erlaubt einen neuen Antrag; eine Ablehnung erzeugt eine getrennte, nur vom Team aufhebbare Sperre.
 
-### Gastaufnahme und Eventbestätigung
+### Communityaufnahme
 
-**Einladung → Bewerbung → manuelle Aufnahme → Eventanfrage → Bestätigung**
+**Bestätigtes Konto → persönliche Einladung → Bewerbung → manuelle Entscheidung durch Communitymoderation → Mitgliedschaft.**
 
-1. **Einladung:** Der Gastgeber teilt einen kontrollierten Link über einen bestehenden Kanal. Der Link erlaubt den Bewerbungseinstieg, keine automatische Mitgliedschaft. Ein Konto mit Anmeldung ist die technische Voraussetzung für persönliche Anträge und Statusanzeigen.
-2. **Bewerbung:** Der Gast sendet eine separate, kurze Bewerbung an das Kollektiv. Sie bleibt bis zur Entscheidung in Bearbeitung; ein Rückzug ist möglich. Die Gastgeber legen das Gastbewerbungsformular selbst fest und kennzeichnen erforderliche sowie optionale Antworten. Name, E-Mail und Passwort gehören separat zur Kontoanlage. Bereits eingereichte Bewerbungen behalten ihre ursprünglichen Fragen. Intime Profile und Fragen nach sexuellen Vorlieben sind ausgeschlossen. Nach Ablehnung oder Rückzug ist eine erneute Gastbewerbung für diese Community gesperrt; stattdessen wird ein vom Gastgeber hinterlegter Kontaktweg angeboten. Entzogene Mitgliedschaften bleiben gesperrt.
-3. **Manuelle Aufnahme:** Ein berechtigter Gastgeber nimmt an oder lehnt ab. Nur die Annahme begründet eine Mitgliedschaft in dieser Community. Der Gast kann sich nicht selbst annehmen. Mitgliedschaft ist weder Identitätsprüfung noch Sicherheitsbescheinigung.
-4. **Eventanfrage:** Ein aktives Mitglied fragt die Teilnahme an einem Event an. Mitgliedschaft allein reserviert keinen Platz. Der Veranstalter legt je Event eine Altersgrenze fest; der Gast bestätigt, sie zu erfüllen. Das ist eine Selbstauskunft ohne Ausweis-Upload und keine verifizierte Altersprüfung. Tatsächliche Zugangsvoraussetzungen setzen die Veranstalter durch.
-5. **Bestätigung:** Der zuständige Gastgeber entscheidet separat über die Eventanfrage. Erst bestätigte Gäste mit aktueller Berechtigung erhalten die dafür vorgesehenen genauen Veranstaltungsinformationen. Eine Ablehnung erzeugt keinen Teilnahmeanspruch.
+Einladungen sind kontogebunden, sieben Tage gültig, widerrufbar und gehasht gespeichert. Erst erfolgreiche Einreichung verbraucht sie atomar; Vorschau und Fehler verbrauchen nichts. Das eingereichte Formular behält seinen Fragenstand. Intime Profile und Fragen nach sexuellen Vorlieben sind ausgeschlossen. Nach freiwilligem Rückzug ist eine neue Bewerbung mit gültiger Einladung möglich; nach Ablehnung oder Mitgliedschaftsentzug bleibt die Wiederbewerbung gesperrt, bis die zuständige Stelle die Sperre ausdrücklich aufhebt.
 
-Private Eventinformationen sind nach aktueller Community- und Eventberechtigung zugänglich. Genaue Locations werden getrennt geschützt: berechtigte Gastgeber und aktuell bestätigte Gäste dürfen sie abrufen. Ein Entzug verhindert neue unberechtigte Abrufe; bereits gelesene Informationen lassen sich nicht zurückholen.
+### Einzelveranstaltung ohne Ticket
 
-### Öffentlicher Einstieg
+**Aktueller Eventzugang → Eventanfrage → separate manuelle Zusage → geschützte genaue Location.**
 
-Ergänzende Nutzerentscheidung vom 30.09.2026: Öffentliche Events und Communities sowie Informationen zu Community Access sind ohne Anmeldung zugänglich. Gastgeber geben Profile und Events ausdrücklich frei und wählen die öffentlichen Eventangaben. Eine separate öffentliche Ortsangabe kann freigegeben werden; die geschützte Location wird nicht automatisch veröffentlicht. Öffentliche Sichtbarkeit begründet keine Mitgliedschaft oder Eventzusage.
+Der Veranstalter bestimmt Mitgliedschaftspflicht, Pflichtantworten, Mindestalter und Kapazität. Eine einzelne Eventfreigabe öffnet weder das private Veranstalterprofil noch andere Events. Nur aktuelle Zusagen belegen Plätze; Kapazität ist eine positive ganze Zahl oder ausdrücklich unbegrenzt. Anfrage und Zusage sind nur vor Beginn möglich. Rückzug vor Beginn erlaubt eine neue manuelle Anfrage. Alter wird ausdrücklich selbst bestätigt; kein Ausweis- oder Geburtsdatenupload und keine verifizierte Altersprüfung.
 
-### Veranstalterprofile und Veranstaltungsorte
+### Veranstaltung mit Ticket
 
-Die Eventstartseite zeigt **Alle bevorstehenden Events**: aktuell öffentliche, nicht abgesagte Veranstaltungen mit freigegebenem Beginn ab dem aktuellen Zeitpunkt, zeitlich aufsteigend. Das Suchfeld findet diese Events anhand des Titels, öffentlicher zuständiger Veranstalterprofile oder freigegebener öffentlicher Ortsangaben. Die bestehende Suche über öffentliche Communities und Genres bleibt erhalten. Nicht freigegebene Profil- und Ortsangaben dürfen keine Treffer auslösen. Die übergeordneten Communityfilter werden je umgebrochener Zeile horizontal zentriert.
+Öffentlicher Verkauf verlangt öffentlich freigegebene Eventinformationen und ein bestätigtes Konto, aber keine manuelle Kaufentscheidung; Mitgliedschaftspflicht ist damit nicht kombinierbar. Beim Verkauf nach Freigabe erteilt die manuelle Entscheidung ausschließlich **Kaufberechtigung**. Erst authentifiziert bestätigte Zahlung begründet Teilnahme. Einladung, Mitgliedschaft, Sichtzugang, Browserrückleitung und Kaufberechtigung reservieren keinen Ticketplatz.
 
-Ergänzende Nutzerentscheidung vom 30.09.2026: Die Navigation erhält die Seiten **Veranstalter** und **Veranstaltungsorte**. Das Veranstalterverzeichnis zeigt öffentlich freigegebene sowie dem angemeldeten Konto persönlich zugängliche Gastgeberprofile. Suche nach Anzeigenamen und Filter nach Communities werden angeboten.
+Genaue Locations liegen getrennt von öffentlichen Ortsangaben. Abruf erfordert aktuelle zuständige Verwaltung oder aktuell bestätigte berechtigte Teilnahme. Entzug verhindert weitere Abrufe; bereits gelesene Informationen lassen sich nicht zurückholen. Unabhängige berechtigte Communitywege oder Einzelrechte werden beim Entzug erneut geprüft.
 
-Ein Gastgeber verwaltet **ein eigenes Veranstalterprofil mit mehreren zugeordneten Communities**. Er bestimmt dessen Öffentlichkeit und kann Bewerbung, persönlichen Link und ein selbst festgelegtes Formular als Zugangswege anbieten. Bewerbung und Formular erfordern **manuelle Freigabe durch den Gastgeber**. Persönlicher Profilzugriff begründet keine Communitymitgliedschaft, Eventteilnahme oder Berechtigung für geschützte Locations. Private Communitynamen werden durch eine Profilfreigabe nicht automatisch öffentlich.
+## 5. Events, Konto und Bedienung
 
-Das Ortsverzeichnis zeigt ausdrücklich öffentliche Ortsangaben zu veröffentlichten kommenden und vergangenen Events. Verborgene Eventangaben und geschützte Locations werden nicht automatisch übernommen. Im bisherigen Vergleichsprototyp wurden identische öffentliche Ortsangaben zusammengefasst; eine eigenständige Verwaltung strukturierter Veranstaltungsorte war damit noch nicht verbunden. Dieser Implementierungsstand gehört zum entfernten Prototyp.
+Veranstalter pflegen Beschreibung, Beginn, Ende, Line-up, Genres, Einlass, optionales Mindestalter, Flyer mit Alternativtext sowie Zugänglichkeits-/Awarenessangaben. Unbekannte Ausstattung bleibt unbekannt. Öffentliche Events benötigen ein öffentliches Profil und ausdrücklich öffentliche Beschreibung, Beginn und Ortsangabe. Geschützte genaue Adressen gehören nicht in öffentliche Texte, Flyer oder Metadaten.
 
-### Szenespezifische Communities und Eventzuordnungen
+Events beginnen als Entwurf. Veröffentlichung erfordert gültige Veranstalter- und Communityveröffentlichungsrechte sowie Communityfreigabe. Kopien und Folgetermine sind neue Entwürfe ohne kopierte persönliche Freigaben, Anfragen oder Zusagen. Lokale ungespeicherte Entwürfe bleiben ausschließlich im Arbeitsspeicher und werden bei Abmeldung, Kontowechsel oder Sitzungsablauf entfernt. Versionsprüfung verhindert das Überschreiben neuerer Serverstände.
 
-Ergänzende Nutzerentscheidung vom 30.09.2026: Die fünf Bereiche Musik & Clubkultur, Queere Szene & Performance, Independent Arts & Film, Tanz & Movement sowie DIY-Kultur & selbstverwaltete Freiräume werden mit den im Gespräch benannten 28 spezifischen Communities als synthetische Profile vorgesehen. Spezifische Profile verweisen auf ihren übergeordneten Bereich; bestehende Profile bleiben erhalten. Die ursprüngliche Umsetzung gehörte zum inzwischen entfernten Vergleichsprototyp.
+Registrierung erzeugt keine automatische Sitzung und verrät keinen Kontobestand. E-Mail-Bestätigung und anschließende Anmeldung bleiben getrennt. Die servergeprüfte Sitzung endet spätestens acht Stunden nach Login; Abrufe verlängern sie nicht. Tokens liegen nicht in Browserstorage. Wiederaufnahme im selben Tab speichert nur Ressourcentyp und UUID, keine Zugangscodes oder privaten Inhalte. Veraltete Antworten dürfen nach Kontowechsel keine neue Ansicht überschreiben.
 
-Auf den anschließenden Hinweis zur fehlenden bildenden Kunst ergänzt der lokale Prototyp den ausdrücklich benannten Oberbereich **Bildende Kunst & Ausstellungskultur** mit sechs Untercommunities: Malerei & Zeichnung, Skulptur & Objektkunst, Fotografie & Fotokunst, Installation & Raumkunst, Kunstvereine & Ausstellungskollektive sowie Ateliergemeinschaften & Open Studios. Damit umfasst diese Szeneneinordnung sechs Oberbereiche und 34 Untercommunities. Die Ergänzung betrifft Communityprofile und erzeugt keine Veranstaltungen.
+Eine Plattformsperre verhindert Produktaktionen einschließlich Veranstalterverwaltung, Moderation, Team und Einlass. Identität/Wiederherstellung, eigene minimale Bestellbelege und eigene Beschwerden bleiben eng begrenzt erreichbar. Systemabgleich und Erstattungsaufgaben laufen unabhängig vom gesperrten Nutzer weiter.
 
-Die zusätzlich gewünschten Communities **Freier Eintritt**, **Studentische Ermäßigung** und **Eintritt** werden unter **Eintritt & Ermäßigungen** gruppiert. „Eintritt“ bezeichnet dabei den regulären Eintrittspreis. Diese Profile dienen ausschließlich als ergänzende Veranstaltungseinordnung; konkrete Preise und Ermäßigungsbedingungen werden nicht erfunden. Keine Preisfelder, Nachweisprüfung, Zahlung oder Ticketverkaufsfunktion wird ergänzt. Der lokale Katalog umfasst damit sieben Oberbereiche und 37 Untercommunities.
+## 6. Ticketvertrag
 
-Die gewünschten Communities **Barrierefrei** und **Nicht barrierefrei** werden unter **Barrierefreiheit** ergänzt. Sie dienen als Einordnung nach Veranstalterangabe, ohne geprüfte Zertifizierung oder automatische Bewertung bestehender Events. Eine fehlende Zuordnung bedeutet keine Aussage zur Barrierefreiheit. Der lokale Katalog umfasst damit acht Oberbereiche und 39 Untercommunities.
+Jeder Veranstalter bleibt Verkäufer. Vorgesehen sind selbst betriebenes pretix und Stripe Connect mit Direct Charges. Bank-/Identitätsdaten werden später beim Anbieter erhoben. Es gibt keinen erfundenen Provisionssatz und keinen Käuferaufschlag. EUR, ein persönliches Ticket pro bestätigtem Konto und Event, keine Übertragung oder Gruppenkäufe.
 
-Die gewünschten Communities **FLINTA-Only** und **Queer-Only** werden unter **Queere Szene & Performance** ergänzt. Sie dienen zur Einordnung entsprechend angekündigter Veranstaltungen; konkrete Zugangsvoraussetzungen beschreibt der Veranstalter. Bestehende Profile und Eventzuordnungen bleiben erhalten. Es werden keine Identitätsabfragen oder automatischen Zugangsentscheidungen ergänzt. Der lokale Katalog umfasst damit acht Oberbereiche und 41 Untercommunities.
+Nur der Ticketdienst reserviert Kontingente, im Checkout für 15 Minuten. Preis, Verkäufer, Event, Betrag, Währung und Bestellung werden serverseitig und beim Anbieterabgleich geprüft. Gebührenversion und Beträge bleiben je Bestellung festgehalten. Webhookdaten und Browserrückkehr bestätigen allein keine Zahlung. Wiederholte Aufrufe dürfen keinen zusätzlichen aktiven Auftrag oder doppelte Zahlung/Erstattung erzeugen.
 
-Veranstaltungen können mehreren Communities zugeordnet werden. Diese zusätzliche Einordnung dient der Auffindbarkeit; sie überträgt keine Verwaltungs- oder Teilnahmerechte. Eine feste verantwortliche Community verwaltet weiterhin Aufnahme, Eventzusagen, Kapazität und geschützte Informationen. Gastgeber können ausschließlich weitere Communities zuordnen, die sie selbst verwalten. Nur öffentliche Zusatzprofile erscheinen bei öffentlichen Events, in Suche und Filtern. Ein Event bleibt ein einzelner Datensatz mit einer gemeinsamen Platzkapazität. Die Zuordnung zu einem Unterbereich erzeugt keine automatische Zuordnung zum Oberbereich und umgekehrt.
+Absage oder tatsächlicher Berechtigungsentzug sperrt betroffenen Einlass und erzeugt eine Erstattungsprüfung. Der verantwortliche Veranstalter beziehungsweise angenommene Verwalter genehmigt Teil-/Vollerstattungen einschließlich ausdrücklicher Provisionsrückzahlung. Eine reine Verkaufspause erhält bezahlte Tickets. Onlineeinlass prüft Scannerzuständigkeit, Ticketinhaber, Zahlung, Eventrecht und Sperren atomar; Verbindungsfehler sind keine Bestätigung.
 
-## 4. Schutzgrenzen und Löschung
+V1 läuft ausschließlich mit synthetischen Zahlungsantworten und vorhandener lokaler pretix-Installation. Echte Stripe-Sandbox, Verkäufer-/Betreiberangaben, Provision, Erstattungsverantwortung, Finanzaufbewahrung und Betriebsabnahme bleiben Voraussetzungen vor echtem Verkauf. Eine reine Konfigurationsumschaltung aktiviert keinen produktiven Zahlungsbetrieb.
 
-Das Backend prüft Berechtigungen bei jedem Zugriff und verweigert sie standardmäßig. Versteckte Schaltflächen allein sind kein Zugriffsschutz. Gäste sehen ihre eigenen Bewerbungen; Gastgeber prüfen nur Bewerbungen ihrer Community. Kollektivbewerbungen sind für Antragsteller und zuständige Prüfer im Projektteam bestimmt.
+## 7. Schutz und Aufbewahrung
 
-Privilegierte Secrets und `service_role` gehören ausschließlich auf den Server, niemals in den Flutter-Build. Tokens, private Adressen und Bewerbungsantworten dürfen nicht in Logs stehen. Zusammengehörige Änderungen werden als Transaktion vollständig ausgeführt oder vollständig verworfen. Wiederholte oder gleichzeitige Anfragen dürfen weder doppelte Mitgliedschaften noch eine Überschreitung der Eventkapazität erzeugen.
+| Datenklasse | Geltende Regel und Grenze |
+| --- | --- |
+| Abgeschlossene Veranstalter-/Communitybewerbungen samt Antworten | Zwei Kalendermonate nach Annahme, Ablehnung oder Rückzug in Europe/Berlin; Monatsende wird begrenzt. Laufende Anträge bleiben. |
+| Mitgliedschaft und minimale Sperrmarkierung | Unabhängig von gelöschten Antragsantworten; keine neue Frist erfunden. |
+| Eventinformationen und gewöhnliche Eventbezüge | Ab exakt 168 Stunden nach tatsächlichem Ende nicht mehr abrufbar. Bisherige Bereinigung löscht nur dafür freigegebene, nicht durch neue Referenzen gebundene Events. |
+| Events mit neuen Kategorie-, Sperr- oder Einlassreferenzen; neue Moderations-/Einlassdaten | Keine neue physische Löschroutine freigegeben; zunächst aggregierte Vorschau. Die Abrufgrenze bleibt bestehen. |
+| Minimale Bestellzuordnung und offene Erstattungen | Getrennter Lebenszyklus, keine kaskadierende Eventlöschung. Finanzfristen bleiben vor echtem Verkauf zu entscheiden. |
+| Kontolöschanfrage | Authentifizierte Anfrage und erneute Bestätigung; keine behauptete automatische Löschung. Bearbeitung, Restdaten und Backups bleiben gesondert zu klären. |
 
-**Kollektiv- und Gastbewerbungen einschließlich Antworten werden zwei Kalendermonate nach Annahme, Ablehnung oder Rückzug gelöscht.** Laufende Bewerbungen bleiben während ihrer Bearbeitung erhalten. Die Regel schreibt keine zweimonatige Aufbewahrung anderer Daten vor. Mitgliedschaften und Eventbestätigungen müssen unabhängig von den später gelöschten Bewerbungsantworten bestehen können. Eine minimale, getrennte Sperrmarkierung hält nach Ablehnung oder Rückzug die erneute Bewerbung gesperrt und enthält keine Bewerbungsantworten. Fristen dieser Markierung und weiterer Datenarten sowie die technische Löschung einschließlich möglicher Sicherungen sind vor einem echten Pilot zu konkretisieren.
+Frühere Event-/Antragsbereinigung und die Vorschau neuer Datenklassen sind verschiedene Bereiche. Es wird keine Löschung aus Backups, WAL, Browserresten oder Empfängerkopien behauptet. Nur synthetische Daten in Entwicklung, Tests und KI-Kontext. Secrets bleiben serverseitig; Logs enthalten keine Tokens, privaten Adressen oder Antragsantworten.
 
-## 5. Nicht-Ziele der ersten Version
+## 8. Nicht-Ziele und Abnahme
 
-- Kein eigener Messenger, keine Messenger-Synchronisierung, Bots oder Gruppenimporte.
-- Keine Zahlungen, Ticketverkäufe oder Provisionen.
-- Keine KI-Kompatibilitätsbewertung und kein automatisches Matching.
-- Keine Trust Scores oder universellen Verifizierungsabzeichen.
-- Keine globalen Szeneprofile oder communityübergreifenden Personenbewertungen.
-- Kein allgemeiner Aachen-Eventkatalog und keine Stadtkarte. Ein öffentlicher Bereich zeigt ausdrücklich freigegebene Communityprofile und Eventangaben sowie Informationen zu Community Access; Gastgeber bestimmen die veröffentlichten Felder. Persönliche Bewerbungen und Teilnahmestatus bleiben geschützt.
-- Kein Ausweisarchiv und keine eigene Identitätsprüfung.
-- Kein frei konfigurierbarer Baukasten für Kollektivbewerbungen. Für Gastbewerbungen bestimmen Gastgeber die Fragen; der bisherige Vergleichsprototyp begrenzte dies auf eine bis acht Textfragen mit Pflichtfeldoption. Die Formularumsetzung im neuen Backend bleibt offen.
-- Keine native Store-Veröffentlichung im lokalen Prototyp.
+Keine Messenger-Synchronisierung, Bots/Gruppenimporte, Trust Scores, KI-Kompatibilitätswertung, globalen Szeneprofile oder Personenbewertungen. Keine Veröffentlichung, echten Zahlungen, automatische Kontolöschung oder zusätzlichen Dienste aus diesem V1-Auftrag ableiten.
 
-## 6. Fünf entscheidende offene Fragen
+Abnahme prüft erlaubte und verbotene Direktzugriffe, Aufnahme-/Entzugs- und Konkurrenzfälle, aktuellen Sitzungsbezug, Ticketreservierung, Zahlung, Erstattung und einmaligen Einlass. V1-Prüfungen und Regressionen des erweiterten Modus werden separat ausgewiesen. Der ältere Runner-Scope `product` bleibt gesperrt; das ist dessen technische Umfangsgrenze, keine Aussage, dass das aktive Backend fehlt.
 
-1. Welche Veranstaltungstypen sollen die beiden Kollektive im Pilot anbieten?
-2. Welche Kollektivformularfelder sind Pflicht, und reichen bei „Mitgliedern“ Anzahl und Funktionen statt personenbezogener Mitgliederlisten?
-3. Welche Leitlinien und Prüfung gelten für die von Gastgebern festgelegten Gastbewerbungsfragen? Die Zuständigkeit für das Formular ist entschieden; verbindliche Inhaltsregeln und Moderation bleiben zu konkretisieren.
-4. Wie lange bleiben Konten, Mitgliedschaften, Eventanfragen und Beschwerden gespeichert?
-5. Wer bearbeitet Beschwerden, die eigene Entscheidungen des Projektteams als Betreiber betreffen?
-
-## 7. Wie wir die drei wichtigsten Anforderungen testen
-
-Alle folgenden Tests sind **geplante Abnahmekriterien, noch nicht ausgeführt**. Sie benötigen eine implementierte Anwendung und ein lokales Backend mit synthetischen Daten.
-
-| Anforderung | Test mit erfundenen Konten | Erwartetes Ergebnis |
-| --- | --- | --- |
-| Manuelle Aufnahme und separate Eventzusage | Das Team nimmt Kollektiv A auf. Ein Gast bewirbt sich dort, versucht Selbstaufnahme und wird anschließend durch Gastgeber A aufgenommen. Er fragt ein Event an und erhält erst danach eine Zusage. Ablehnung und Rückzug werden ebenfalls durchgespielt. | Keine Selbstaufnahme; korrekter eigener Status; weder Einladung noch Mitgliedschaft geben automatisch einen Eventplatz oder die genaue Location frei. Die Altersbestätigung erscheint bei der Eventanfrage als Selbstauskunft. |
-| Schutz gegen fremde Zugriffe | Ein fremder Gast, Gastgeber B, ein nicht angemeldetes Konto und ein entferntes Mitglied versuchen direkte Backend-Abrufe bekannter Bewerbungs- und Event-IDs. Berechtigte Konten dienen als Gegenprobe. | Unberechtigte erhalten keine Antworten oder privaten Locations. Neue Abrufe nach Entzug sind gesperrt. Zuständige Prüfer können weiterhin arbeiten. Die Prüfung erfolgt über normale Nutzerzugänge, nicht nur als Datenbankadministrator. |
-| Konsistenz und verlässliche Löschung | Zwei Zusagen konkurrieren um den letzten Platz; eine Aufnahme wird wiederholt; ein Fehler wird zwischen zusammengehörigen Änderungen ausgelöst. Mit kontrollierter Testzeit prüfen wir die Löschfrist vor und nach Fälligkeit für angenommene, abgelehnte, zurückgezogene und laufende Bewerbungen beider Arten. | Höchstens eine Zusage für den letzten Platz, eine Mitgliedschaft je Gast und Community, keine halbfertige Aufnahme. Abgeschlossene Bewerbungen samt Antworten werden nach zwei Kalendermonaten gelöscht; laufende bleiben erhalten. Davon unabhängige Mitgliedschaften bleiben bestehen. |
-
-Für Einsteiger: Ein positiver Test zeigt, dass eine erlaubte Aktion funktioniert. Ein negativer Test zeigt, dass eine verbotene Aktion auch bei direktem Zugriff scheitert. Ein Konkurrenztest startet Aktionen gleichzeitig und prüft, ob das Ergebnis trotzdem widerspruchsfrei bleibt.
-
-## Quellen und Grenzen
-
-- Nutzerentscheidungen im Projektgespräch vom 24.09.2026 einschließlich Freigabe und Antworten zu Formular, Alter und Fristbeginn.
-- Ergänzende Nutzerentscheidungen zum bisherigen Vergleichsprototyp: Gastgeber legen Gastbewerbungsformulare fest; erneute Bewerbung nach Ablehnung oder Rückzug sperren und Kontakt zum Gastgeber anbieten (damalige Umsetzung 30.09.2026).
-- *Community Access – Entwicklungsplan*, Version 1.0, 24.09.2026: S. 5 (Produktvertrag), S. 9 (Berechtigungen), S. 12–13 (Produktkern und Abnahme). Das ausführliche zusätzliche Kollektivformular konkretisiert die ursprüngliche Planung durch Nutzerentscheidung.
-
-Diese Spezifikation dokumentiert den gewünschten Zustand. Sie ist weder ein Sicherheitsnachweis noch eine Freigabe für echte personenbezogene Daten oder eine Veröffentlichung. Installation, neue Dienste und Veröffentlichung sind nicht Bestandteil dieser Aufgabe.
+Native Projekte bleiben vorbereitet. Kontoalter ab 16 ist eine noch zu prüfende Startvorgabe und keine Store-Altersfreigabe oder Eventeinlassberechtigung. Reale Anbieter-, Rechts-, Geräte-, Barrierefreiheits- und Betriebsabnahme bleiben offen. Eine Lizenz für den eigenen Code ist weiterhin nicht gewählt.

@@ -4,7 +4,13 @@ import 'package:http/http.dart' as http;
 
 class ApiFailure implements Exception {
   final String message;
-  const ApiFailure(this.message);
+  final bool unauthenticated;
+  final bool accessDenied;
+  const ApiFailure(
+    this.message, {
+    this.unauthenticated = false,
+    this.accessDenied = false,
+  });
 }
 
 abstract class AccessApi {
@@ -28,14 +34,14 @@ abstract class AccessApi {
   );
   Future<void> apply(
     String invitation,
-    int formId,
+    Object formId,
     Map<String, String> answers,
   );
   Future<Map<String, dynamic>> snapshot();
-  Future<Map<String, dynamic>> event(int id);
-  Future<void> requestEvent(int id);
-  Future<void> withdrawApplication(int id);
-  Future<String> location(int id);
+  Future<Map<String, dynamic>> event(Object id);
+  Future<void> requestEvent(Object id);
+  Future<void> withdrawApplication(Object id);
+  Future<String> location(Object id);
   Future<void> logout();
   void close();
 }
@@ -186,7 +192,7 @@ class HttpAccessApi implements AccessApi {
   @override
   Future<void> apply(
     String invitation,
-    int formId,
+    Object formId,
     Map<String, String> answers,
   ) async {
     await _call(
@@ -198,19 +204,19 @@ class HttpAccessApi implements AccessApi {
   @override
   Future<Map<String, dynamic>> snapshot() => _call('me');
   @override
-  Future<Map<String, dynamic>> event(int id) => _call('events/$id');
+  Future<Map<String, dynamic>> event(Object id) => _call('events/$id');
   @override
-  Future<void> requestEvent(int id) async {
+  Future<void> requestEvent(Object id) async {
     await _call('events/$id/requests', body: {'age_confirmed': true});
   }
 
   @override
-  Future<void> withdrawApplication(int id) async {
+  Future<void> withdrawApplication(Object id) async {
     await _call('applications/$id/withdraw', body: {'confirm_withdraw': true});
   }
 
   @override
-  Future<String> location(int id) async =>
+  Future<String> location(Object id) async =>
       (await _call('events/$id/location'))['location'] as String;
   @override
   Future<void> logout() async {

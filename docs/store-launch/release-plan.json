@@ -1,0 +1,25 @@
+{
+  "app_name": "Community Access",
+  "application_id": "de.communityaccess.app",
+  "version": "0.1.0+1",
+  "public_origin": "https://communityaccess.de",
+  "ticket_sales_at_launch": true,
+  "minimum_account_age": 16,
+  "distribution": "Apple App Store and Google Play",
+  "publication_authorized": false,
+  "hosting": "not_selected_local_preparation_only",
+  "evidence": {
+    "age_policy_review": null,
+    "operator_and_privacy_review": null,
+    "production_product_runtime": null,
+    "stripe_connect_test_payments_refunds": null,
+    "native_checkout_session_handoff": null,
+    "deletion_processing_and_retention": null,
+    "support_mail_receipt": null,
+    "backup_restore_production": null,
+    "iphone_device_test": null,
+    "android_device_test": null,
+    "accessibility_voiceover_talkback": null,
+    "store_privacy_and_age_rating_review": null
+  }
+}

@@ -1,0 +1,28 @@
+name: ca_design
+description: Aushang 3, das Designsystem von Community Access, für Flutter (iOS und Android).
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.6.0
+  flutter: ">=3.27.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  assets:
+    - assets/logo/
+    - fonts/OFL.txt
+  # Archivo (SIL Open Font License) als variable Schrift mit Breite und Gewicht.
+  # Datei von Google Fonts laden und hier ablegen: fonts/Archivo[wdth,wght].ttf
+  fonts:
+    - family: Archivo
+      fonts:
+        - asset: fonts/Archivo[wdth,wght].ttf

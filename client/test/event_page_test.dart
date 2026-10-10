@@ -22,11 +22,11 @@ class DetailApi implements AccessApi {
   @override
   Future<void> apply(
     String invitation,
-    int formId,
+    Object formId,
     Map<String, String> answers,
   ) async {}
   @override
-  Future<void> withdrawApplication(int id) async {}
+  Future<void> withdrawApplication(Object id) async {}
   @override
   Future<Map<String, dynamic>> invitation(String token) async => {
     'community': 'Synthetische Community',
@@ -69,7 +69,7 @@ class DetailApi implements AccessApi {
     'events': allowed ? [detail] : [],
   };
   @override
-  Future<Map<String, dynamic>> event(int id) async {
+  Future<Map<String, dynamic>> event(Object id) async {
     detailCalls++;
     if (!allowed) {
       throw const ApiFailure(
@@ -80,14 +80,14 @@ class DetailApi implements AccessApi {
   }
 
   @override
-  Future<void> requestEvent(int id) async {
+  Future<void> requestEvent(Object id) async {
     requests++;
     if (requestCompletion != null) await requestCompletion!.future;
     requestStatus = 'pending';
   }
 
   @override
-  Future<String> location(int id) async {
+  Future<String> location(Object id) async {
     if (!allowed || status == 'cancelled') {
       throw const ApiFailure(
         'Für diese Aktion fehlt die aktuelle Berechtigung.',

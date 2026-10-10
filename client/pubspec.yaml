@@ -1,5 +1,5 @@
 name: community_access_client
-description: Erhaltene Flutter-Gastoberfläche für die geplante Better-Auth-Umstellung.
+description: Community Access – Events, Communities und persönlicher Zugang.
 publish_to: none
 version: 0.1.0+1
 environment:
@@ -7,14 +7,33 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  ca_design:
+    path: packages/ca_design
+  flutter_localizations:
+    sdk: flutter
+  forui: ^0.27.4
   http: ^1.6.0
+  # Native links, external browser and user-selected images; see docs/store-launch/dependencies.md.
+  app_links: 7.2.1
+  url_launcher: 6.3.2
+  file_selector: 1.1.0
+  # Flutter adaptive iOS controls require the bundled icon font.
+  cupertino_icons: 1.0.9
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
 flutter:
   uses-material-design: true
+  assets:
+    - assets/fonts/Archivo-OFL.txt
+    - assets/icons/phosphor/
   fonts:
+    - family: Archivo
+      fonts:
+        - asset: assets/fonts/Archivo-Variable.ttf
+        - asset: assets/fonts/Archivo-Italic-Variable.ttf
+          style: italic
     - family: Rubik
       fonts:
         - asset: assets/fonts/Rubik-Regular.ttf
@@ -22,3 +41,8 @@ flutter:
           weight: 500
         - asset: assets/fonts/Rubik-Bold.ttf
           weight: 700
+    # Flutter requires a family named Roboto as its default fallback.
+    # Use the bundled Archivo variable font for the default family too.
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Archivo-Variable.ttf

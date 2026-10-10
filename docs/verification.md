@@ -1,5 +1,51 @@
 # Bestandsaufnahme, Abnahme und Nachweise
 
+Aktuelle Einordnung 10.10.2026: Der Produktumfang steht ausschließlich in [product-spec.md](product-spec.md), aktuelle Start-/Prüfbefehle in [setup.md](setup.md). Die folgenden datierten Berichte beschreiben historische Nachweise. Der Einzelaufgaben-Runner bleibt unverändert eingeschränkt; sein blockierter Produkt-Scope ist keine Aussage über fehlende Implementierung im aktiven Backend.
+
+## Betriebssicherung · 05.10.2026
+
+Anbieter-MFA, Free-only-Kostenrahmen, SanDisk-Sicherung und korrigierte DNSSEC-/Mail-/TLS-Reihenfolge organisiert; [Betriebsplan](website-operations.md), [Nachweise](qa/website-operations-2026-10-05/report.md). Neue manuelle Prüfscripts außerhalb des Task-Runners. Keine Produkt- oder Kontrolllogik verändert; bestehende offene Arbeit erhalten.
+
+Synthetischer PostgreSQL-17-Dump in getrennten neuen Cluster wiederhergestellt: **7 Tests bestanden** lokal; zusätzliche verschlüsselte SanDisk-Kopie tatsächlich als Wiederherstellungsquelle verwendet: **8 Tests bestanden**, ohne übersprungene Fälle. Beide Läufe überlappen und dürfen nicht addiert werden. Datenidentität, eingeschränkte Rollen/ACLs, Sitzungsentzug, Mitgliedschaft/Teilnahme/Location-Grenzen und Recovery-Invalidierung geprüft. Eigene Testdatenbanken und Archive entfernt. Keine echte private Sicherung, Aufbewahrungs- oder Wiederherstellungszeit-Abnahme.
+
+Öffentlich über zwei Resolver: one.com-NS, vier Mail-MX, zwei zusätzliche one.com-DKIM-CNAMEs und DNSSEC-DS vorhanden. HTTP ohne HTTPS-Weiterleitung; **TLS bei Apex und www fehlgeschlagen**, aktive Zertifikatsprüfung. Endgültiger Lauf: 30 DNS-Abfragen abgeschlossen; zuvor fehlgeschlagene Netz-/Werkzeugläufe im Bericht getrennt erhalten. Angemeldetes Cloudflare-Portal: pending Free-Zone und alter Null-MX-Entwurf. Lokaler Vorschlag mit elf Records vorbereitet, nicht angewendet.
+
+Angemeldete Anbieterprüfung: Cloudflare Workers Free und Domain Free aktiv, keine Zahlungsmethode; Resend Free mit 3.000 Mails/Monat, 100/Tag und ausgeschalteter/deaktivierter Mehrverbrauchsabrechnung. MFA vor Besitzer-Handoff bei Cloudflare Inactive, Resend Enable MFA und one.com Aktivieren. Keine Nameserver-, DNSSEC-, Tarif- oder Veröffentlichungseinstellung verändert. Private MFA-Einrichtung bleibt dem Besitzer überlassen; Aktivierung noch nicht bestätigt.
+
+## Webseiten-Sicherheit · 05.10.2026
+
+Zusätzliche Anfrage-/Kontobegrenzungen, Parallelitäts- und DB-Zeitlimits, gemeinsames Mailbudget, Sicherheitsheader, HTTPS-Signalprüfung und feste Sicherheitszähler sind lokal implementiert. Flutter zeigt bei 429 eine sichere Warteaufforderung ohne Sitzungsverlust oder automatische Schreibwiederholung. [Umsetzung und Grenzen](website-security.md), [gezielte Prüfergebnisse und Aufgabenvergleich](qa/security-hardening-2026-10-05/report.md).
+
+Die gezielten Node-Läufe, neun Client-/Anmeldetests, alle 205 Fluttertests, Flutter-Analyse und der abschließende Webbuild bestehen. Nach zwischenzeitlichem Speicherplatzfehler und Speicherfreigabe ist die gezielte Browserprüfung des finalen Builds mit tatsächlichen Gateway-Headern bestanden: Font geladen, 429-Warteaufforderung sichtbar, keine Konsolenwarnungen/-fehler. Ausschließlich Loopback und synthetische Betriebs-/API-Fixtures. Keine öffentliche TLS-/DNS-, Zustellungs-, MFA-, Ausgabenlimit- oder Backup-/Restore-Abnahme. Bestehende Dienste nicht neu gestartet, keine Veröffentlichung.
+
+## Cloudflare-Free-Vorbereitung am 02.10.2026
+
+Nach ausdrücklicher Nutzerfreigabe im vorhandenen Cloudflare-Konto: `communityaccess.de` im Free-Tarif angelegt, benannter Tunnel `community-access-web` und Route auf `http://127.0.0.1:8400` gespeichert (Hostheader Domain, Connect Timeout 5 Sekunden). Zone **pending**, Connector nicht verbunden; keine Token gelesen. Fehlende Resend-CNAMEs ergänzt. Der separat freigegebene Apex-Wechsel wurde im inaktiven Cloudflare-DNS als proxied Tunnel-CNAME gespeichert. Keine Änderung an one.com-Nameservern, DNSSEC oder autoritativen Einträgen. [DNS-Vergleich und Screenshots](cloudflare-dns-review.md).
+
+Tatsächlich geprüft: one.com-DNS-Portal mit drei persönlichen Resend- und drei Standard-Einträgen; beide Portale enthalten dieselben Mailwerte. Öffentliche NS-, Apex-A-, www-A- und MX-Abfragen bestätigen weiterhin one.com und die bisherigen Ziele. DS-Abfrage über `1.1.1.1` ohne DS-Antwort; one.com-Portal zeigt DNSSEC dennoch aktiv und kündigt automatische Deaktivierung beim externen Nameserver-Wechsel an. Diese Beobachtungen sind getrennt dokumentiert. Ein erster `dig`-Aufruf scheiterte an der Sandbox; die freigegebenen öffentlichen Wiederholungen gelangen.
+
+Keine neuen Laufzeit- oder Auth-Codeänderungen in dieser Portalvorbereitung, daher keine Wiederholung der unten dokumentierten synthetischen Tests. Relative Dateilinks und Whitespace der vier bearbeiteten Dokumente sowie `git diff --check` bestanden. Keine öffentliche TLS-/OAuth-Abnahme, Provider-App-Konfiguration, echte Mail, privater Betriebsstart oder Autostart. Die Shared-Checkout-Branch wurde inzwischen durch parallele Nutzerarbeit gewechselt; bestehende Änderungen wurden erhalten, nichts gestaged, committet oder gepusht.
+
+## Dauerhafte HTTPS- und Provider-Vorbereitung am 02.10.2026
+
+Nutzerauftrag: bestätigte Google-/Apple-/Meta-Zugänge verwenden und diesen PC dauerhaft über HTTPS anbinden. Der Nutzer bestätigt die Zugänge, keine OAuth-App-Konfiguration oder Secret-Werte. Auf eigenem Branch `codex/permanent-https-auth` wurde die bestehende, umfangreiche offene Arbeit erhalten; nichts gestaged oder veröffentlicht. [Konkrete Vorbereitung](permanent-https-tunnel.md).
+
+Ergänzt: festes Loopback-Gateway auf Port 8400 mit Auth-Routenliste, gesperrtem Testpostfach/Dashboard/Katalog, sicheren festen Callback-Zielen, geprüftem privatem Backend-Modus und HTTPS-Origins; separater Web-Release ohne Secret-Umgebungsvariablen; verdeckte Besitzerhilfe für einen benannten Cloudflare-Token; rollenbeschränkter HTTP-Datenbankzugang `auth_app` statt Bootstrap-Administrator. Vorhandene Kontodaten werden weder gelesen noch zurückgesetzt oder einem anderen Eigentümer übertragen. Diese Aussage beschreibt den Controller-Code; ein echter privater Bestand wurde nicht gestartet oder migriert.
+
+Tatsächlich ausgeführt:
+
+- `node --test server/public_gateway.test.mjs server/http.test.mjs server/social.test.mjs`: **7 bestanden**. Startup und erneute API-Probe blockieren synthetischen Modus, Dashboard, fremde UI-Origin und Administratorrolle. Geprüft: gesperrte/normalisierte/encodierte Pfade, Host/Origin, Bodygrenze, Apple-POST, Cookie-/Header-Handoff und Ablehnung fremder, tokenhaltiger oder ungültiger Rückleitungen.
+- `python3 -I scripts/local_auth.py --test-mail`: **2 bestanden** mit ausschließlich synthetischen Daten und simuliertem Resend. Local-/HTTPS-Linkabläufe funktionieren als eingeschränkte Rolle; `CREATE ROLE`, `CREATE DATABASE` und Wechsel zur Administratorrolle werden abgewiesen.
+- `python3 -I scripts/local_auth.py --test-social`: **15 bestanden**, echte lokale Better-Auth-/PostgreSQL-Logik mit simulierten Anbieterantworten und gesperrtem externem Testnetz. Die vier reinen Social-Konfigurationstests überschneiden sich mit dem obigen Node-Lauf; Testzahlen nicht addieren.
+- `python3 -I scripts/local_auth.py --test`: **10 bestanden** einschließlich konkurrierender Registrierung/Linkverbrauch, Ablauf, Logout/Reset-Sitzungsentzug und Rate-Limits.
+- `python3 -I scripts/local_auth.py --test-directory`: **29 bestanden** einschließlich bestehender öffentlicher Alt-Events, persönlicher Profil-/Reihen-/Eventfreigaben und Konkurrenzfällen.
+- `python3 -I scripts/https_tunnel_setup_test.py`: **4 bestanden**, isolierte synthetische Token-Dateien, Rechte, keine Secret-Ausgabe, abgewiesene nicht-interaktive/unsichere Einrichtung und Token-Datei statt Token im Prozessargument. Connector und Netzantwort wurden in diesen Besitzerhilfe-Tests simuliert; kein Tunnelstart.
+- `python3 -I scripts/build_public_web.py`: **Release-Build bestanden**, unter `.local/public-web/20261002T195601667737Z`, private Kontoform und beide Origins `https://communityaccess.de`. Vorhandene CupertinoIcons-Fontwarnung; kein Wasm-Build oder neue Browserabnahme behauptet. Kein echter Anbieter-/Mail-/Datenbankschlüssel verwendet.
+
+Der erste Node-Lauf wurde von der Sandbox mit `listen EPERM` gestoppt (3 fehlgeschlagene Tests); erst die Wiederholung mit freigegebenen Loopback-Ports bestand. Sämtliche Testcontroller beendeten ihre selbst gestarteten synthetischen Datenbanken. Laufende Nutzerprozesse wurden nicht angehalten.
+
+Die öffentliche TLS-Prüfung von Domain und Provider-Endpunkt ergab Zertifikats-Hostnamenfehler; Prüfung blieb aktiv. Öffentliche DNS-Teilabfragen bestätigen one.com-Nameserver, Apex-A, Null-MX und Resend-Einträge; [Beobachtung](https-dns-observation.json) ist kein vollständiger Zonenexport. Ein erster DNS-Aufruf scheiterte an der Sandbox; die freigegebenen öffentlichen Wiederholungen gelangen. Bei diesem lokalen Implementierungsschritt wurden noch keine Cloudflare-Zone, DNS-/Nameserver-Umstellung, Tarifbuchung, Routeränderung, Autostart-Installation, echten Secrets, Mails oder Live-Anmeldungen vorgenommen. Die anschließende freigegebene Cloudflare-Vorbereitung ist im eigenen Abschnitt oben dokumentiert. Private Backup-/Wiederherstellungsabnahme und vollständige Produktfreigaben bleiben offen. Die Vorbereitung allein ist keine Produktionsabnahme.
+
 ## Laravel-Entfernung und erhaltener Flutter-Client am 01.10.2026
 
 Auf Nutzerauftrag wurde die Laravel-Struktur aus dem aktiven Projekt entfernt und die Flutter-Gastoberfläche separat unter `client/` erhalten. Das Paket heißt jetzt `community_access_client`; der bestehende HTTP-Adapter heißt `HttpAccessApi`. Sein API-Vertrag bleibt der bisherige Prototypvertrag und ist noch keine Better-Auth-Integration. Webkatalog- und Testpostfach-Schaltflächen öffnen keine Verweise auf den entfernten Server mehr.
@@ -172,3 +218,122 @@ Erneut ausgeführt und bestanden: `check_project.py --scope app` mit den 17 expl
 Nicht erneut ausgeführt: Supabase Auth/API und SQL-Analyse, weil deren unveränderte lokale Umgebung gestoppt bleibt. Der vorhandene Bericht `.local/supabase-tests/c6babc3547e14f558eec609a2d0c97ad.json` wurde gezielt geprüft: 47 bestandene Aussagen. Dies ist ein früherer Nachweis, keine erneute Backend-Abnahme. Der frühere echte Dokumentationslauf (`run-explain-event-confirmation-retry2-aff86e86`) und die App-Simulation (`app-proof-38d32392`) wurden anhand ihrer Berichte bestätigt. Kein neuer Modellaufruf, Browserintegrationstest oder nativer Plattformtest.
 
 Die Nutzerfreigabe gilt für den nach dieser Prüfung lokal gesicherten Kontrollcommit; seine vollständige SHA wird im Abschlussbericht genannt. Keine konkrete Aufgabenfreigabe erzeugt und `approve` nicht ausgeführt. Der nächste App-Auftrag benötigt weiterhin eine eigene menschliche Aufgabenfreigabe. Bestehende Grenzen bleiben: Loopback-Zugriff anderer lokaler Dienste möglich, keine vollständige Isolation gegen absichtlich bösartigen Code, keine Gesamt-Diskquote, kein Backend-Coding-Scope und keine vollständige Produktabnahme. Kein Merge, Push oder Deployment.
+
+## Flutter-Verzeichnisse: Veranstalter und Veranstaltungsorte
+
+Am 01.10.2026 manuell auf Nutzerauftrag lokal umgesetzt: zwei Navigationsseiten in `client/`, Anbindung an das synthetische Better-Auth-/PostgreSQL-Modul unter `server/`, Profilverwaltung und persönliche Freigaben. 60 Flutter-Tests und 29 Backend-Tests bestanden; Formatierung, Analyse, Web-Build und gezielte Browserprüfung bestanden. Dies erweitert keinen Runner-Kontrollstand und ist keine vollständige Produktabnahme. Im privaten Mailmodus bleiben die Verzeichnisrouten geschlossen. Umfang, Befehle, Einschränkungen und Browsernachweise stehen unter [Veranstalter und Veranstaltungsorte in Flutter](organizers-venues-flutter.md).
+
+
+## Getrennte Gästekreise für Veranstaltungsprogramm – 02.10.2026
+
+Der lokale synthetische Sichtbarkeitsstand für Profile, Reihen und einzelne Events bestand 67 Flutter-Tests, 23 PostgreSQL-/HTTP-Verzeichnisprüfungen und fünf weitere HTTP-/Mailtemplate-/Gatewaytests sowie Analyse und Web-Build. Der Browserweg Gastgeberfreigabe → angemeldeter Gastzugriff → Entzug → gesperrter Neuabruf wurde bestätigt. Ein zusätzlicher Auth-Regressionslauf wurde durch den belegten Vorschauport vor seinen Einzelprüfungen blockiert.
+
+Bei später festgestellten parallelen Änderungen an denselben Quellen bestand die erneute Flutter-Analyse; der Verzeichnislauf scheiterte im Fall eines älteren öffentlichen Events ohne Profilzuordnung, das nun aus dem Ortsverzeichnis verschwindet. Kein vollständiger Erfolgsnachweis für diesen neueren Zwischenstand. Zuständigkeit und gewünschte Behandlung des Altbestands sind vor gemeinsamer Korrektur zu klären. Details, Grenzen und Browsernachweise: [Veranstalter und Veranstaltungsorte](organizers-venues-flutter.md). Dies erweitert keinen Runner-Kontrollstand und ist keine Produkt- oder Produktionsabnahme.
+
+
+## Altbestands-Regression behoben und Auth-Test nachgeholt – 02.10.2026
+
+Auf ausdrücklichen Nutzerauftrag wurde die oben dokumentierte Regression korrigiert: Bereits öffentliche Events ohne Profil- und Reihenzuordnung bleiben bei öffentlicher Community, aktuellem Gastgeberrecht und freigegebener Ortsangabe im öffentlichen Ortsverzeichnis samt Details sichtbar. Private Profile und geschützte Reihen umgehen dadurch keinen Schutz. Keine automatische Profilzuordnung oder Gastfreigabe.
+
+Erneut bestanden: **27 Verzeichnis-/PostgreSQL-/HTTP-Tests, 10 Auth-Tests und fünf HTTP-/Gateway-/Mailtemplate-Tests**, jeweils ohne übersprungene Tests. Der zuvor belegte Port wurde nach ausdrücklicher Nutzerfreigabe für den Auth-Test freigegeben. Die lokale Backend-Vorschau wurde danach wieder gestartet; bisherige synthetische Datenbestände bleiben erhalten. Keine Flutter-Änderung, deshalb keine erneute Flutter-Prüfung oder neuer Web-Build. Der Nachweis gilt für diese Backend-Korrektur und erweitert keinen Runner-Kontrollstand oder eine Produktabnahme. [Umfang und Ergebnisse](organizers-venues-flutter.md).
+
+
+## Mehrere Profile, Vorschau, Merkliste und Eventinformationen – 02.10.2026
+
+Im gemeinsam geprüften lokalen synthetischen Stand bestanden 74 Flutter-Tests, Flutter-Analyse, Web-Build, 27 Verzeichnis-/PostgreSQL-/HTTP-Prüfungen einschließlich der Altbestandskorrektur, zehn Auth-Tests und fünf HTTP-/Gateway-/Mailtemplateprüfungen. Die Browserprüfung bestätigt ein zweites Profil im selben Gastgeberkonto, Eventanlage mit konkreten Zugänglichkeits-/Awarenessangaben, Vorschau, profilbezogenes Merken, Persistenz nach erneuter Anmeldung und Entfernen. Die Daten früherer lokaler Demoläufe wurden erhalten. Der Nachweis umfasst keine Produktteilnahme, geschützte genaue Adressen, Produktionsdaten, vollständige Barrierefreiheitsprüfung oder Runner-Abnahme. [Umfang, Grenzen und Nachweise](organizer-features.md).
+
+
+## Veranstaltungsseiten und Gastgebereditor — 02.10.2026
+
+Manuelle lokale Umsetzung des ausdrücklichen Nutzerauftrags. Die Informationshierarchie der genannten Resident-Advisor-Seite wurde anhand ihrer tatsächlich geöffneten Darstellung geprüft. [Umfang, Quellen, Architektur und Grenzen](event-editorial-pages.md).
+
+Tatsächlich ausgeführt am abschließenden gemeinsamen Checkoutstand:
+
+- Dart-Formatprüfung der zwölf betroffenen Dateien: bestanden, keine Änderungen erforderlich.
+- `flutter analyze --no-pub`: bestanden, keine Befunde.
+- `flutter test --no-pub --reporter expanded`: **87 Tests bestanden**. Sieben neue Widgettests betreffen vollständige Eventinhalte und Flyer-Vergrößerung, leere Altbestände/Absage, Ersetzen/Entfernen, Speicherung und Entwurfsvorschau sowie 320-/375-/1280-Pixel-Breiten mit verdoppelter Schrift in heller und dunkler Testgestaltung. Bestehende Scrollprüfungen wurden an längere Seiten angepasst, ohne ihre Erwartungen zu entfernen.
+- `flutter build web --no-pub --pwa-strategy=none`: bestanden. Die bestehende Cupertino-Fontwarnung und Abkündigung des PWA-Parameters bleiben. Kein nativer oder separat getesteter Wasm-Build.
+- `python3 -I scripts/local_auth.py --test-directory`: **28 Tests bestanden**, keine übersprungen; echte getrennte lokale PostgreSQL-/HTTP-Prüfung mit synthetischen Konten. Der neue Fall prüft Speicherung, verborgene Orts-/Endfelder in Detail und Vorschau, ungültige Inhalte und Zeitfolgen, unveränderte Version bei Fehlern, fremde Eigentümer, Erhaltung durch alte Clients und keine Inhalte für unsichtbare Events. Bestehende Rechte-, Konkurrenz- und Schemawiederholungsprüfungen bestehen weiter.
+- `node --test server/event_content.test.mjs server/http.test.mjs`: **vier Tests bestanden**, keine übersprungen. Dazu gehören der tatsächlich im Browser normalisierte Demo-Flyer, ungültige/aktive/externe/zu große Medien, EXIF, fehlender Alternativtext, abgeschnittene JPEG-Header und das größere Request-Limit ausschließlich am Event-Schreibendpunkt.
+- JavaScript-Syntax der fünf betroffenen Laufzeitdateien, lokale Dokumentationslinks, Leerzeichenprüfung neuer Dateien, aufgabenbezogener Quellvergleich und `git diff --check`: bestanden.
+
+Im gebauten Browser auf `127.0.0.1:8300` tatsächlich geprüft: synthetische Gastgeberanmeldung, Bearbeitung eines bestehenden Events, lokale PNG-Auswahl und Normalisierung, ungespeicherte Vorschau, erfolgreiche Speicherung, öffentlicher Detailabruf ohne Anmeldung, lesbare Beschreibung/Einlass in der Browser-Zugänglichkeitsstruktur, Veranstalterlink, vollständiger Flyer und Öffnen/Schließen der Vergrößerung. Der mobile Browser wurde auf 375 Pixel geprüft; die temporäre Größenänderung danach zurückgenommen. [Desktopnachweis](screenshots/event-editorial-desktop.jpg) und [Mobilnachweis](screenshots/event-editorial-mobile.jpg) zeigen den finalen Webbuild mit synthetischen Inhalten.
+
+Frühere Gesamtläufe während paralleler Änderungen scheiterten zunächst an einem neu ergänzten Social-Login-Test und später an noch unvollständigen Semantik-Ergänzungen der Startseite. Diese Läufe sind keine Erfolge. Die parallel bearbeiteten Quellen wurden erhalten; der oben genannte abschließende Gesamtlauf ist erfolgreich. Die vorhandene lokale Vorschau bleibt erreichbar; der vorherige synthetische Datenbestand wurde beim geordneten Backend-Neustart aufbewahrt. Keine echten Daten, Installation, Remote-Migration, Veröffentlichung, Staging oder Commit.
+
+Die Prüfungen belegen diesen lokalen Teilumfang. Teilnahmezusagen, geschützte genaue Adressen und vollständige serverseitige Medienverarbeitung bleiben offen; eine vollständige Produktabnahme wird nicht behauptet.
+
+## Web-Anmeldung Google → Apple → Facebook (02.10.2026)
+
+Auf Nutzerauftrag wurden die drei Anbieterwege, kontrollierte Account-Verknüpfung, kurzlebige Cookie-/Bearer-Übergabe und eine verdeckte private Einrichtungshilfe ergänzt. Details und konkrete offene Anbieter-Voraussetzungen stehen in [social-sign-in.md](social-sign-in.md). Bestehende gemeinsame Änderungen wurden erhalten. Im öffentlichen Einstieg wurden zudem ein fehlender `SemanticsRole`-Import und ein unzulässiges `const Semantics` minimal korrigiert, damit der gemeinsame Checkout wieder analysierbar ist.
+
+Tatsächlich ausgeführt, ausschließlich mit synthetischen Daten:
+
+| Prüfung | Ergebnis |
+| --- | --- |
+| `python3 -I scripts/local_auth.py --test-social` | 15 Tests bestanden, keine übersprungen. Reale Better-Auth-/PostgreSQL-State-, Account- und Sessionlogik; externe Anbieterantworten gemockt. Google, Apple-Formular und Facebook, Anbieterbindung, State-Ablauf/Replay, fehlende E-Mail, bewusste Verknüpfung ohne Rechteübernahme, Logout während Verknüpfung, Rate-Limit, Verschlüsselung und Verzicht auf gespeicherte ID-Tokens. Separate Apple-Signatur-/Nonce-Prüfung enthalten. |
+| `python3 -I scripts/local_auth.py --test` | 10 bestehende Auth-Tests bestanden. Der HTTP-Testtransport nutzt jetzt einen eigenen Loopback-Port und den unveränderten erwarteten Host; die laufende Vorschau muss dafür nicht beendet werden. |
+| `python3 -I scripts/local_auth.py --test-directory` | 28 Tests bestanden. Bestehende Profil-, Reihen-, Event-, Orts- und Legacy-Schutzgrenzen erhalten. |
+| `python3 -I scripts/local_auth.py --test-mail` | Zwei Varianten bestanden: Bestätigung, Reset und Sitzungsentzug sowohl lokal als auch an ausdrücklich konfigurierten HTTPS-Origins. Resend ist gemockt; kein Mailversand. |
+| `node --test server/account_mail.test.mjs server/social.test.mjs server/http.test.mjs server/dashboard_gateway.test.mjs server/event_content.test.mjs` | 13 Tests bestanden, keine übersprungen. Vier Konfigurations-/Apple-Tests sind außerdem im SSO-Lauf enthalten und nicht als zusätzliche einzigartige Tests zu zählen. |
+| `python3 -I scripts/social_setup_test.py` | Drei Tests bestanden: verdeckte Reihenfolge aller Anbieter, private Dateirechte und Redaktion, Symlink-/Rechteablehnung sowie Erhaltung vorhandener Konfiguration bei Fehlern. Nur temporäre synthetische Schlüssel/Dateien verwendet. |
+| `flutter analyze --no-pub` | Bestanden, keine Befunde. |
+| `flutter test --no-pub` | Abschließend 89 Tests bestanden. Acht zusätzliche SSO-/Origin-Prüfungen; Anbieterbuttons bei 320 Pixeln und doppelter Schrift, eindeutige Beschriftungen, fehlende signierte Übergabe, begrenzte Fehler und Ausschluss unkonfigurierter Anbieter geprüft. |
+| `flutter test --no-pub --dart-define=CA_PRIVATE_MAIL=true --dart-define=CA_AUTH_API_ORIGIN=https://auth.example.invalid --dart-define=CA_AUTH_UI_ORIGIN=https://app.example.invalid test/social_auth_origin_test.dart` | Zwei Tests bestanden; ausdrücklich konfigurierte HTTPS-Ziele, Recoverylinks und Ausschluss fremder Origins, ausschließlich HTTP-Mocks. |
+| `flutter build web --no-pub --output /private/tmp/ca-social-web` | Bestanden. Separate Ausgabe; laufende Vorschau nicht überschrieben. |
+| Webbuild mit `CA_PRIVATE_MAIL=true`, API-/UI-Origin `https://auth.example.invalid` / `https://app.example.invalid`, Ausgabe `/private/tmp/ca-social-https-web` | Bestanden. Synthetische HTTPS-Konfiguration, kein Deployment. |
+| Dart-Formatprüfung, JavaScript-/Python-Syntax, neue Dateileerzeichen, lokale Dokumentationslinks, Vergleich mit Aufgaben-Ausgangsstand und `git diff --check` | Bestanden. |
+
+Beide Builds meldeten die bestehende Cupertino-Fontwarnung; ein separat ausgeführter Wasm- oder Native-Build wird nicht behauptet. Keine zusätzliche Abhängigkeit installiert. Keine Anbieter-App, kostenpflichtige Mitgliedschaft, DNS-Änderung oder Veröffentlichung angelegt. Echte Provider-Secrets wurden nicht gelesen oder gespeichert. SSO-Live-Tests im Browser wurden mangels bestätigter Anbieterzugänge und erreichbarer HTTPS-Rückleitungen nicht ausgeführt. Ohne explizite Konfiguration bleibt `CA_SOCIAL_PROVIDERS` leer und die neue UI zeigt keine inaktiven Loginbuttons.
+
+
+## Öffentliche Interessenzähler und Event-Merkliste — 02.10.2026
+
+Manuelle Umsetzung des Nutzerauftrags mit ausdrücklich bestätigter Erweiterung auf einzelne Events. [Umfang, Daten und Grenzen](public-interest-counts.md).
+
+Tatsächlich ausgeführt:
+
+- Formatierung der sechs betroffenen Dart-Dateien: bestanden.
+- `flutter analyze --no-pub`: bestanden, keine Befunde im abschließenden Lauf.
+- `flutter test --no-pub --reporter expanded`: **94 Tests bestanden** im gemeinsamen Checkout. Fünf neue Widgettests prüfen anonymen Zähler ohne private Merklistenabfrage, Anmeldungseinstieg, tatsächliche Rückgabe nach Speichern/Entfernen, unveränderte Anzahl bei Fehler, private Eventmerker und Navigation aus der Merkliste sowie 320-/1280-Pixel-Breiten mit verdoppelter Schrift.
+- `flutter build web --no-pub --pwa-strategy=none`: bestanden. Bestehende PWA-/Cupertino-Fontwarnungen bleiben; kein nativer oder separat getesteter Wasm-Build.
+- `python3 -I scripts/local_auth.py --test-directory`: **29 Tests bestanden**, keine übersprungen. Der neue integrierte PostgreSQL-/HTTP-Fall prüft Profil-, Reihen- und Eventzahlen, Anmeldung und E-Mail-Bestätigung, paralleles/wiederholtes Merken, Entfernen, gleichzeitiges Merken/Entfernen, Wegfall einer E-Mail-Bestätigung, öffentliche Listen/Details/Ortsprogramme, Schemawiederholung mit erhaltenen Eventmerkern, Privatstellung von Reihe/Profil, individuell zugängliche geschützte Events und erneuten Entzug. Die bestehenden Rechte-/Konkurrenzfälle bestehen weiterhin.
+- Syntax der vier geänderten JavaScript-Laufzeit-/Testdateien, Aufgaben-Diff einschließlich neuer Quellen, lokale Dokumentationslinks, Leerzeichenprüfung neuer Dateien und `git diff --check`: bestanden.
+
+Im final gebauten Browser tatsächlich geprüft: öffentliches Profil und Programm mit Zählern, Eventzahl ohne Anmeldung, **Anmelden und merken** mit synthetischem Gastkonto, Rückkehr zur Eventseite mit **Event merken**, Änderung 0 → 1 → 0 beim Merken/Entfernen und erneut gespeicherte Zahl 1 im anschließenden anonymen Abruf. Die persönliche Auswahl und Kontonamen erscheinen dort nicht. Desktop und 375-Pixel-Browser wurden angesehen; temporäre Größenänderung zurückgenommen. [Öffentliche Eventansicht](screenshots/public-event-interest.jpg), [mobile Eventansicht](screenshots/public-event-interest-mobile.jpg).
+
+Ein erster Backendlauf hatte im neuen Test eine falsche Erwartung an das bestehende Ortsverhalten: Der letzte ausgeblendete Event lässt den Ort mit 404 verschwinden, nicht mit einer leeren Eventliste. Diese Erwartung wurde korrigiert; der Lauf war fehlgeschlagen. Zwei Format-/Analysehinweise im neuen Widgettest wurden vor dem erfolgreichen Abschluss behoben.
+
+Die vorhandene lokale Vorschau wurde geordnet mit aktualisiertem Backend und getrenntem synthetischem Demobestand wieder gestartet. Frühere Datenverzeichnisse bleiben erhalten; die bereits öffentliche synthetische Flyer-/Eventdarstellung wurde in der Vorschau wiederhergestellt. Nur lokale Testdaten und echte Merklisteneinträge dieser Testkonten; keine erfundenen produktiven Interessenzahlen. Keine Installation, Remote-Migration, Veröffentlichung, Staging oder Commit. Die Vorschau bleibt wie bisher auf `127.0.0.1` erreichbar.
+
+Der Zähler repräsentiert bestätigte Konten, nicht nachgewiesene verschiedene Personen oder zugesagte Gäste. Andere offene Seiten aktualisieren sich beim nächsten Abruf; keine Echtzeitübertragung. Eine vollständige Produktabnahme oder Abnahme bisher offener Teilnahme-/Adressfunktionen wird nicht behauptet.
+
+
+## Smartphone- und Tabletlayout · 03.10.2026
+
+Die öffentliche Flutter-Seite und ihre Konto-/Detailansichten wurden im Branch `codex/mobile-tablet-layout` responsiv angepasst. Formatierung, Analyse, 115 Flutter-Tests und die synthetische Chromium-Browsermatrix bei 320, 375, 414, 768, 820, 1024 und 1440 Pixeln bestanden. 105 Bereichskontrollen erfassten keine Konsolen-/HTTP-Fehler. Doppelte Schrift und ein simulierter Tastaturbereich wurden gesondert in Widgettests geprüft. Die mobile Erstladezeit verfehlt mit 4,013 Sekunden Median weiterhin das 2,5-Sekunden-Ziel; echte Geräte, Safari, Browserzoom und vollständige Barrierefreiheitsabnahme bleiben offen. Keine Veröffentlichungsfreigabe. Umfang, Rohdaten, Aufgabendifferenz und Screenshots: [Prüfbericht](qa/mobile-tablet-2026-10-03/report.md).
+
+## Evententdeckung, Präferenzen und Freigabe · 04.10.2026
+
+Manuelle lokale Umsetzung auf Nutzerauftrag, einschließlich der ausdrücklich gewünschten Veranstalter-Besuchszuordnung ohne historischen Eventbezug. Abschließend bestanden Formatprüfung, Flutter-Analyse, **161 Fluttertests, 39 Verzeichnis-/PostgreSQL-/HTTP-Tests, zehn Auth-Tests und vier HTTP-/Medientests** sowie Webbuild und `git diff --check`. Browserprüfung bestätigte Hero-/Detailwechsel, DE/EN, die 320-Pixel-Darstellung sowie Anmeldung → Präferenzabfrage → Speicherung → persönliche Startseite mit Empfehlungsgrund. Die selbst gestarteten Testserver wurden beendet; frühere synthetische Datenbestände erhalten.
+
+Der neue Fragenkatalog blockiert unbekannte Fragen und ersetzt keine juristische Prüfung. Die Siebentage-Bereinigung ist für die aktive lokale Datenbank geprüft, einschließlich Fremdschlüsselkaskaden und gleichzeitiger Läufe. Altbestände ohne Endzeit, Backups/WAL, Empfängerkopien und Browserreste sind nicht als gelöscht abgenommen. Keine vollständige Produktabnahme, Veröffentlichung oder Remote-Migration. [Umfang, tatsächliche Ergebnisse und Browsernachweise](event-discovery-preferences.md).
+
+## Einzeiliger Header und Sprachdropdown · 04.10.2026
+
+Lokale Folgeänderung auf Nutzerauftrag im Branch `codex/header-language-dropdown`: Sprachwechsel mit ausdrücklicher Auswahl von Deutsch/English; Logo, Navigation, Sprache und Konto in einer Zeile. Die Navigation wird bei Platzmangel als Menü geöffnet. Die verfügbare Breite wird einschließlich Schriftvergrößerung und aktueller Sprache bewertet. In besonders schmalen Ansichten bleiben Logo und Konto über benannte Symbole erreichbar.
+
+Tatsächlich bestanden: Formatprüfung der fünf betroffenen Dartdateien, `flutter analyze --no-pub`, **161 Fluttertests**, Webbuild mit lokal gebündelten Webressourcen und `git diff --check`. Die vorhandene Layoutmatrix prüft nun zusätzlich die gemeinsame vertikale Mitte der Headerbedienelemente bei 320, 375, 414, 768, 820, 1024 und 1440 Pixeln sowie normaler und doppelter Schrift. Bestehende Navigations-, Verzeichnis- und Sprachtests wurden auf das Dropdownbedienen angepasst; ihre Inhalts-/Zugriffsprüfungen bleiben erhalten. Ein erster Lauf scheiterte an der zu kleinen Menübedienfläche und alten Annahmen über stets sichtbare Navigationslinks. Die Bedienfläche wurde auf mindestens 48 Pixel korrigiert; der abschließende Gesamtlauf bestand.
+
+Browserbeobachtung im finalen Build: einzeiliger Desktopheader, geöffnetes Sprachdropdown mit Deutsch/English, ausdrückliche Auswahl von English, einzeiliger 320-Pixel-Header und Öffnen der vollständigen mobilen Navigation. Keine Warnungen oder Fehler im abgefragten Browserkonsolenprotokoll. [Desktopnachweis](screenshots/header-language-dropdown-20261004.jpg), [Mobilnachweis](screenshots/header-language-mobile-20261004.jpg). Temporäre Browsergröße zurückgenommen und beide selbst gestarteten lokalen Testserver beendet; synthetische Daten erhalten.
+
+Backendprüfungen wurden wegen unverändertem Backend nicht wiederholt. Bestehende Cupertino-Fontwarnung und Abkündigung des PWA-Buildparameters bleiben. Keine Installation, Veröffentlichung, Remoteänderung, Staging oder Commit; vorhandene Arbeit erhalten.
+
+
+## Vollständiger synthetischer Zugangsablauf — 05.10.2026
+
+Der ausdrücklich beauftragte lokale Umfang ist implementiert und bestanden: Veranstalteraufnahme, persönliche Einladung, Communitybewerbung/Mitgliedschaft, getrennte Eventzusage, Kapazität, geschützte Location und Rechteentzug. [Vollständiger Abnahmebericht, Logs, Buildhashes und betrachtete Screenshots](qa/access-flow-2026-10-05/report.md); [Implementierung und Schutzgrenzen](access-flow.md).
+
+Tatsächlich bestanden: 13 Access-Integrationstests mit frischer PostgreSQL-Datenbank, signierten Better-Auth-Sitzungen und eingeschränktem HTTP-Prozess; 49 Verzeichnis-/Discoverytests im aktuellen gemeinsamen Stand; 10 Auth- und 13 HTTP-/Gatewaytests; 166 Fluttertests, Formatierung, Analyse, Webbuild sowie der vollständige Browserablauf mit neun Kontrollpunkten. Keine Pflichtprüfung übersprungen. API-Gegenproben, letzter Platz, doppelte Aufnahme/Einlösung, Rückzug gegen Annahme, Entzug gegen Zusage, Rollback, getrennte Rechte, Kalender-/Freigabe-/Eventgrenzen und wiederholte Bereinigung geprüft. Browser ausschließlich auf 127.0.0.1; selbst gestartete Dienste anschließend nachweislich beendet.
+
+Der bisherige Gesamtprodukt-Runner bleibt unabhängig blockiert. Produktionsbetrieb, Backup-Löschung, echte Provider-/Mailzustellung und reale Geräte-/Screenreaderprüfung sind dadurch nicht nachgewiesen. Keine Veröffentlichung, neue Abhängigkeit oder Änderung an Remote-Schemas.

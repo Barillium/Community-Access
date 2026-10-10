@@ -20,13 +20,13 @@ class FakeApi implements AccessApi {
   @override
   Future<void> apply(
     String invitation,
-    int formId,
+    Object formId,
     Map<String, String> answers,
   ) async {}
   int withdrawals = 0;
   bool withdrawn = false;
   @override
-  Future<void> withdrawApplication(int id) async {
+  Future<void> withdrawApplication(Object id) async {
     withdrawals++;
     withdrawn = true;
   }
@@ -80,13 +80,13 @@ class FakeApi implements AccessApi {
         : [],
   };
   @override
-  Future<void> requestEvent(int id) async {
+  Future<void> requestEvent(Object id) async {
     requests++;
     requestStatus = 'pending';
   }
 
   @override
-  Future<Map<String, dynamic>> event(int id) async {
+  Future<Map<String, dynamic>> event(Object id) async {
     if (!admitted) {
       throw const ApiFailure(
         'Für diese Aktion fehlt die aktuelle Berechtigung.',
@@ -105,7 +105,7 @@ class FakeApi implements AccessApi {
   }
 
   @override
-  Future<String> location(int id) async => 'Erfundener Testort';
+  Future<String> location(Object id) async => 'Erfundener Testort';
   @override
   Future<void> logout() async {}
   @override
@@ -354,7 +354,9 @@ void main() {
       await tester.tap(find.text('Bewerbung zurückziehen'));
       await tester.pumpAndSettle();
       expect(
-        find.textContaining('Eine erneute Bewerbung ist gesperrt'),
+        find.textContaining(
+          'Mit einer gültigen Einladung kannst du dich erneut bewerben',
+        ),
         findsOneWidget,
       );
       await tester.tap(find.text('Zurück'));
@@ -366,7 +368,10 @@ void main() {
       await tester.pumpAndSettle();
       expect(api.withdrawals, 1);
       expect(find.text('Bewerbung zurückziehen'), findsNothing);
-      expect(find.text('Eine erneute Bewerbung ist gesperrt.'), findsOneWidget);
+      expect(
+        find.textContaining('Du kannst dich erneut bewerben.'),
+        findsOneWidget,
+      );
       expect(find.text('Noch keine Mitgliedschaft.'), findsOneWidget);
     },
   );

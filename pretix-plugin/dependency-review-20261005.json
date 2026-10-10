@@ -1,0 +1,825 @@
+{
+  "runtime": "Python 3.12.14, macOS arm64",
+  "packages": [
+    {
+      "name": "pretix",
+      "version": "2026.8.0",
+      "license": "AGPL-3.0 with additional terms; see upstream LICENSE",
+      "sha256": "a78932e698778d873530d67f25a57c28d1c09b1bfb1a22ec817c00d90397db85"
+    },
+    {
+      "name": "arabic-reshaper",
+      "version": "3.0.1",
+      "license": "MIT",
+      "sha256": "41c5adc2420f85758eada7e880251c4b6a2adbd83377bd27e5d4eba71f648bc7"
+    },
+    {
+      "name": "beautifulsoup4",
+      "version": "4.15.0",
+      "license": "MIT License",
+      "sha256": "d6f88de62e1d4e38ecb1077eb9724cd0eff29d2a08ca16a401e9b9e93f117cf9"
+    },
+    {
+      "name": "bleach",
+      "version": "6.4.0",
+      "license": "Apache Software License",
+      "sha256": "4b6b6a54fff2e69a3dde9d21cc6301220bee3c3cb792187d11403fd795031081"
+    },
+    {
+      "name": "celery",
+      "version": "5.6.3",
+      "license": "BSD-3-Clause",
+      "sha256": "0808f42f80909c4d5833202360ffafb2a4f83f4d8e23e1285d926610e9a7afa6"
+    },
+    {
+      "name": "chardet",
+      "version": "5.2.0",
+      "license": "LGPL",
+      "sha256": "e1cf59446890a00105fe7b7912492ea04b6e6f06d4b742b2c788469e34c82970"
+    },
+    {
+      "name": "css-inline",
+      "version": "0.21.3",
+      "license": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "sha256": "8181058a6b66c56037598dd45dadd1df12e815e56bce3045588ebb98058c6292"
+    },
+    {
+      "name": "Django",
+      "version": "5.2.17",
+      "license": "BSD-3-Clause",
+      "sha256": "f04fb3b36ee119e1af4fa1d397d5fd6cf12700f49321e84d4f4c642c5b1973db"
+    },
+    {
+      "name": "django-bootstrap3",
+      "version": "26.2",
+      "license": "BSD-3-Clause",
+      "sha256": "7b86df95f2c10d2d94f0e1d327b7b32c4f3a4022d20804180f396e165f9aab4e"
+    },
+    {
+      "name": "django_compressor",
+      "version": "4.6.0",
+      "license": "MIT",
+      "sha256": "6e7b21020a0d86272c5e37000c33accc4ebeb77394a3dd86d775a09aae7aade4"
+    },
+    {
+      "name": "django-countries",
+      "version": "9.1.0",
+      "license": "MIT",
+      "sha256": "18c9f6e1a8e32356656b1db5ee94121310cbc3b91dc78171052a9ef9d57d5318"
+    },
+    {
+      "name": "django-filter",
+      "version": "26.1",
+      "license": [
+        "License :: OSI Approved :: BSD License"
+      ],
+      "sha256": "7d98ef2899218e6242619b532cb1b95af14e09dfcf74844aecb550ad27b59ff2"
+    },
+    {
+      "name": "django-formset-js-improved",
+      "version": "0.5.0.5",
+      "license": "BSD",
+      "sha256": "10e91b538fbbfcd4e917050e7b4728723b9a81ff2b592b7705b779175e367ed7"
+    },
+    {
+      "name": "django-formtools",
+      "version": "2.7",
+      "license": "BSD",
+      "sha256": "06e4ab1f9c999f5b2ec6670cb2d51b77117599f4f17c5855f38de158b1c7f247"
+    },
+    {
+      "name": "django-hierarkey",
+      "version": "2.0.2",
+      "license": "Apache License 2.0",
+      "sha256": "5ec3d604f36a4165311759f1cb02f9dcc0c77544b6f6f81adf116bcd0fc0d391"
+    },
+    {
+      "name": "django-hijack",
+      "version": "3.7.9",
+      "license": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "sha256": "76e451842684ad79ea27e79a1dea60518c845d239656c90735c2c5c6eb2f78a3"
+    },
+    {
+      "name": "django-i18nfield",
+      "version": "1.11.0",
+      "license": "Apache License 2.0",
+      "sha256": "0cd84a6e8db83810cc935eae4c19c5244ac26f2ff5e781cb680ce37e2104f625"
+    },
+    {
+      "name": "django-libsass",
+      "version": "0.9",
+      "license": "BSD",
+      "sha256": "5234d29100889cac79e36a0f44207ec6d275adfd2da1acb6a94b55c89fe2bd97"
+    },
+    {
+      "name": "django-localflavor",
+      "version": "5.1",
+      "license": "BSD-3-Clause",
+      "sha256": "33a0b5418c99c733e87fd949e08ba3c6ccf7e7a9edd1458dac15586701b2cd90"
+    },
+    {
+      "name": "django-oauth-toolkit",
+      "version": "2.3.0",
+      "license": [
+        "License :: OSI Approved :: BSD License"
+      ],
+      "sha256": "47dfeab97ec21496f307c2cf3468e64ca08897fa499bf3104366d32005c9111d"
+    },
+    {
+      "name": "django-otp",
+      "version": "1.7.3",
+      "license": "Unlicense",
+      "sha256": "7d52fb0f76c4c1c86cbc71c196d3f79941b0b84aff980e45193bef89a70a7a12"
+    },
+    {
+      "name": "django-phonenumber-field",
+      "version": "8.5.0",
+      "license": "MIT",
+      "sha256": "a6dd71250f7fd0724aad995df01bdb4ac457a65622f120d0d623792fe8283798"
+    },
+    {
+      "name": "django-querytagger",
+      "version": "0.0.3",
+      "license": "Apache-2.0",
+      "sha256": "ee8288f28e49d6aa390cc7c74b4cdbabf908ddb5fa22b26f01ba7ff2af997477"
+    },
+    {
+      "name": "django-redis",
+      "version": "7.0.0",
+      "license": "BSD-3-Clause",
+      "sha256": "4b23aa6e0cd0937bb1242e9a463809e6004de3ca2150f34e986306bb6220d688"
+    },
+    {
+      "name": "django-scopes",
+      "version": "2.1.0",
+      "license": "Apache-2.0",
+      "sha256": "c44b9ee8a00ab2755e9a4e96c2b1b1ee4d0d0cc762f68c24fbeb1c023d219d6d"
+    },
+    {
+      "name": "django-statici18n",
+      "version": "2.8.0",
+      "license": "BSD",
+      "sha256": "e0ceb493d54e784bf58103d2e806df7d26fcdced088c25309c514ffb8f2c6e23"
+    },
+    {
+      "name": "djangorestframework",
+      "version": "3.17.2",
+      "license": "BSD-3-Clause",
+      "sha256": "cb0546a7415d5b46c04e0f4fe0a54b2109f4fdd5e83ca773c8c6183a6493d042"
+    },
+    {
+      "name": "dnspython",
+      "version": "2.8.0",
+      "license": "ISC",
+      "sha256": "01d9bbc4a2d76bf0db7c1f729812ded6d912bd318d3b1cf81d30c0f845dbf3af"
+    },
+    {
+      "name": "drf-ujson2",
+      "version": "1.7.2",
+      "license": "UNKNOWN",
+      "sha256": "5fead7ee1cccafd08137a845ddb1f153415519519ddfd9de5bcadfacb70ceb0b"
+    },
+    {
+      "name": "geoip2",
+      "version": "5.3.0",
+      "license": "Apache-2.0",
+      "sha256": "7f82c587f3f3691f30adc8634d0b93de9853d96d514ed48ff3ba38f188a5df31"
+    },
+    {
+      "name": "importlib_metadata",
+      "version": "9.0.1",
+      "license": "Apache-2.0",
+      "sha256": "bba5600596a7e21f3eef53281cf28d6a5195634d2f2b78ff9501a3272c6eaab0"
+    },
+    {
+      "name": "kombu",
+      "version": "5.6.2",
+      "license": "BSD-3-Clause",
+      "sha256": "efcfc559da324d41d61ca311b0c64965ea35b4c55cc04ee36e55386145dace93"
+    },
+    {
+      "name": "libsass",
+      "version": "0.23.0",
+      "license": "MIT",
+      "sha256": "ea97d1b45cdc2fc3590cb9d7b60f1d8915d3ce17a98c1f2d4dd47ee0d9c68ce6"
+    },
+    {
+      "name": "Markdown",
+      "version": "3.11",
+      "license": "BSD-3-Clause",
+      "sha256": "cd6c89e7eb308c8b332ed673215a52d208a43f8bacc030b1419376129408719e"
+    },
+    {
+      "name": "mt-940",
+      "version": "4.30.0",
+      "license": "BSD",
+      "sha256": "66fa0c1e942478fd7970b791be017b1ca46556f54d44115008f3982e97ae0a9b"
+    },
+    {
+      "name": "oauthlib",
+      "version": "3.3.1",
+      "license": "BSD-3-Clause",
+      "sha256": "88119c938d2b8fb88561af5f6ee0eec8cc8d552b7bb1f712743136eb7523b7a1"
+    },
+    {
+      "name": "openpyxl",
+      "version": "3.1.5",
+      "license": "MIT",
+      "sha256": "5282c12b107bffeef825f4617dc029afaf41d0ea60823bbb665ef3079dc79de2"
+    },
+    {
+      "name": "paypal-checkout-serversdk",
+      "version": "1.0.3",
+      "license": [
+        "License :: OSI Approved :: Apache Software License"
+      ],
+      "sha256": "48a00ec6c52450583e2265dbbdf700b025f38f40ddc597b24b6aa4d8f0cb0257"
+    },
+    {
+      "name": "paypalrestsdk",
+      "version": "1.13.3",
+      "license": "PayPal SDK License",
+      "sha256": "a3f51616ee8f6d975a5a5a8c2049db63653c843479c8fdd71c9d588a31e14560"
+    },
+    {
+      "name": "phonenumberslite",
+      "version": "9.0.40",
+      "license": "Apache-2.0",
+      "sha256": "e504bb005cc6a94fefedc89dfcad614378848a42b15f7ac03a7639838849b5ca"
+    },
+    {
+      "name": "pillow",
+      "version": "12.3.0",
+      "license": "MIT-CMU",
+      "sha256": "ffd0c5368496f41b0944be820fcb7a838aa6e623d250b01acf2643939c3f99d7"
+    },
+    {
+      "name": "protobuf",
+      "version": "7.36.2",
+      "license": "3-Clause BSD License",
+      "sha256": "cbc70b17ee27e28894c7fee8bb04be1abead49e936bc70eb60052531eee2079e"
+    },
+    {
+      "name": "pycparser",
+      "version": "3.0",
+      "license": "BSD-3-Clause",
+      "sha256": "b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992"
+    },
+    {
+      "name": "pycryptodome",
+      "version": "3.23.0",
+      "license": "BSD, Public Domain",
+      "sha256": "187058ab80b3281b1de11c2e6842a357a1f71b42cb1e15bce373f3d238135c27"
+    },
+    {
+      "name": "PyJWT",
+      "version": "2.15.1",
+      "license": "MIT",
+      "sha256": "42d59d631f7768a1028a64c7ff581a9bf7519804daf91fc5b6c56e30eec5e193"
+    },
+    {
+      "name": "pypdf",
+      "version": "6.19.0",
+      "license": "BSD-3-Clause",
+      "sha256": "7e5d6e730e7dae87d560a2cee218b852f6498c8be61966f3cd02ead971e48d14"
+    },
+    {
+      "name": "python-bidi",
+      "version": "0.6.11",
+      "license": [
+        "License :: OSI Approved :: GNU Library or Lesser General Public License (LGPL)"
+      ],
+      "sha256": "2d6970b09f5a3102c0aa192f5258c585742ab4ebd94f637a635ad3448ccba567"
+    },
+    {
+      "name": "python-dateutil",
+      "version": "2.9.0.post0",
+      "license": "Dual License",
+      "sha256": "a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"
+    },
+    {
+      "name": "pytz-deprecation-shim",
+      "version": "0.1.0.post0",
+      "license": "Apache-2.0",
+      "sha256": "8314c9692a636c8eb3bda879b9f119e350e93223ae83e70e80c31675a0fdc1a6"
+    },
+    {
+      "name": "qrcode",
+      "version": "8.2",
+      "license": "BSD",
+      "sha256": "16e64e0716c14960108e85d853062c9e8bba5ca8252c0b4d0231b9df4060ff4f"
+    },
+    {
+      "name": "redis",
+      "version": "7.4.1",
+      "license": "MIT",
+      "sha256": "1fa4647af1c5e93a2c685aa248ee44cce092691146d41390518dabe9a99839b0"
+    },
+    {
+      "name": "reportlab",
+      "version": "5.0.1",
+      "license": "BSD license (see license.txt for details), Copyright (c) 2000-2025, ReportLab Inc.",
+      "sha256": "1c36e6bb0e71780c72331eba60da7f602e8d4389a8723825af71342e49d791e8"
+    },
+    {
+      "name": "requests",
+      "version": "2.34.2",
+      "license": "Apache-2.0",
+      "sha256": "2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0"
+    },
+    {
+      "name": "sentry-sdk",
+      "version": "2.70.0",
+      "license": "MIT",
+      "sha256": "89600e8bb5fc5239cad5c4434217f453204f2207ad29399ea58947460b37a62e"
+    },
+    {
+      "name": "sepaxml",
+      "version": "2.7.0",
+      "license": "MIT License",
+      "sha256": "6644f695c66c2bf8f49065d4d7b0814da42140d03292131ec08e09798ad07b5d"
+    },
+    {
+      "name": "stripe",
+      "version": "7.9.0",
+      "license": "MIT",
+      "sha256": "42b4aa5162e45f889afaa40fc1eccfb9ec551c616e1620f700c19a11ae8e62eb"
+    },
+    {
+      "name": "text-unidecode",
+      "version": "1.3",
+      "license": "Artistic License",
+      "sha256": "1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8"
+    },
+    {
+      "name": "tqdm",
+      "version": "4.70.1",
+      "license": "MPL-2.0 AND MIT",
+      "sha256": "c293e525e6fef9c20e8728fd4612df02a0aa31bb5fe91ecd93e123b1b7bffa73"
+    },
+    {
+      "name": "ua-parser",
+      "version": "1.0.2",
+      "license": "Apache-2.0",
+      "sha256": "0f8e6d0484af2a9ff804bba5a4fe696e87c028eaba98ad9a7dfae873fef7788a"
+    },
+    {
+      "name": "vobject",
+      "version": "0.9.9",
+      "license": "Apache",
+      "sha256": "0fbdb982065cf4d1843a5d5950c88510041c6de026bda49c3502721de1c6ac3d"
+    },
+    {
+      "name": "webauthn",
+      "version": "3.0.1",
+      "license": "BSD-3-Clause",
+      "sha256": "9927b2f530773bd1d7f8194cd643a2e634a20995ea31f2d8f7a3e70b11c93e31"
+    },
+    {
+      "name": "zeep",
+      "version": "4.3.3",
+      "license": "MIT",
+      "sha256": "5adfae35582848819f8bb97b6ea9f1a34a2d4851a539f830e14dbab09961dd18"
+    },
+    {
+      "name": "vine",
+      "version": "5.1.0",
+      "license": "BSD",
+      "sha256": "40fdf3c48b2cfe1c38a49e9ae2da6fda88e4794c810050a728bd7413811fb1dc"
+    },
+    {
+      "name": "cryptography",
+      "version": "50.0.2",
+      "license": "Apache-2.0 OR BSD-3-Clause",
+      "sha256": "fa8f5efb344d6908a1ce62f4a24e2e5780f825d6f53f5f50ec5ffacac72936cb"
+    },
+    {
+      "name": "defusedcsv",
+      "version": "3.0.0",
+      "license": "Apache License 2.0",
+      "sha256": "5e5f2e940cefb5ac60580c8009388bfb154b7853784d34a8f0ff3a52c6130e87"
+    },
+    {
+      "name": "lxml",
+      "version": "6.1.3",
+      "license": "BSD-3-Clause",
+      "sha256": "0c0710ac085a157b593c38fbcacd950f15c4afa8e2057527185875ab302752bc"
+    },
+    {
+      "name": "tlds",
+      "version": "2026093003",
+      "license": "MIT",
+      "sha256": "3cb9452b79f08957bf868d407d40625897ac3215d6bbe8b3fdd38dce753cd41e"
+    },
+    {
+      "name": "babel",
+      "version": "2.18.0",
+      "license": "BSD-3-Clause",
+      "sha256": "e2b422b277c2b9a9630c1d7903c2a00d0830c409c59ac8cae9081c92f1aeba35"
+    },
+    {
+      "name": "django-markup",
+      "version": "1.10",
+      "license": "MIT",
+      "sha256": "e384699a29cb96287cc88acb3ac3ec9f444c91fb9a5c243d9c5b36f269fc0e9d"
+    },
+    {
+      "name": "isoweek",
+      "version": "1.3.3",
+      "license": "BSD",
+      "sha256": "d3324c497d97f1534669de225ec877964222e4cc773a4a99063086f7a4e342b6"
+    },
+    {
+      "name": "jsonschema",
+      "version": "4.26.0",
+      "license": "MIT",
+      "sha256": "d489f15263b8d200f8387e64b4c3a75f06629559fb73deb8fdfb525f2dab50ce"
+    },
+    {
+      "name": "packaging",
+      "version": "26.3",
+      "license": "Apache-2.0 OR BSD-2-Clause",
+      "sha256": "d7193f7c8e4e93f444fde0262bf90af30e16fa0ad0ad44cb553c87339b23cd1c"
+    },
+    {
+      "name": "pretix-plugin-build",
+      "version": "1.0.2",
+      "license": "Apache License",
+      "sha256": "c30286db5c14fd0fe49f934af5823319bb60aabb6d7c51681b51f72b1b7931eb"
+    },
+    {
+      "name": "psycopg2-binary",
+      "version": "2.9.13",
+      "license": "LGPL with exceptions",
+      "sha256": "07b7bd9f410650c34c3532162cc329f112368d78a3fc8668cb1ea9df61bc11bf"
+    },
+    {
+      "name": "pycountry",
+      "version": "26.2.16",
+      "license": "LGPL-2.1-only",
+      "sha256": "115c4baf7cceaa30f59a4694d79483c9167dbce7a9de4d3d571c5f3ea77c305a"
+    },
+    {
+      "name": "pytz",
+      "version": "2026.5",
+      "license": "MIT",
+      "sha256": "e658af3757f9e26a9d25dd2aff38335acd92bc9104f890a894b2c1ba28311b03"
+    },
+    {
+      "name": "pyuca",
+      "version": "1.2",
+      "license": "MIT",
+      "sha256": "abaa12e1bd2c7c68ca8396ff8383bc0654a739cef3ae68fd7af58bf29af0a91e"
+    },
+    {
+      "name": "aiohttp",
+      "version": "3.14.3",
+      "license": "Apache-2.0 AND MIT",
+      "sha256": "617105e2c3018ee38d0c8ce5ee3c84f621a6d8b9f723202aacaff28449ca91ee"
+    },
+    {
+      "name": "amqp",
+      "version": "5.4.0",
+      "license": "BSD",
+      "sha256": "5d931d8442a403b6d4a5725a868a55edaa40734eae37d282b16be9fa710bd8ee"
+    },
+    {
+      "name": "argon2-cffi",
+      "version": "25.1.0",
+      "license": "MIT",
+      "sha256": "fdc8b074db390fccb6eb4a3604ae7231f219aa669a2652e0f20e16ba513d5741"
+    },
+    {
+      "name": "asgiref",
+      "version": "3.12.1",
+      "license": "BSD-3-Clause",
+      "sha256": "fe386d1c2bff7259ea95929266d12a8cf9a8b5a1c2598402967d8792e7a7c094"
+    },
+    {
+      "name": "attrs",
+      "version": "26.1.0",
+      "license": "MIT",
+      "sha256": "c647aa4a12dfbad9333ca4e71fe62ddc36f4e63b2d260a37a8b83d2f043ac309"
+    },
+    {
+      "name": "billiard",
+      "version": "4.3.1",
+      "license": "BSD",
+      "sha256": "2c7075283191d9c0add66cf8fca8e06ba599e75fe7319b67186759f8877dfdaf"
+    },
+    {
+      "name": "cbor2",
+      "version": "6.1.5",
+      "license": "MIT",
+      "sha256": "0c1565bcd74a389b581e292592ccab0ed9c46286c6e986256820bc68c9ad7e8c"
+    },
+    {
+      "name": "certifi",
+      "version": "2026.7.22",
+      "license": "MPL-2.0",
+      "sha256": "62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775"
+    },
+    {
+      "name": "cffi",
+      "version": "2.1.1",
+      "license": "MIT-0",
+      "sha256": "f81b3b8f3d4e343550fa4baa0e479bba9f2d29ce9c2e9b51d1ce1718d7442fcf"
+    },
+    {
+      "name": "charset-normalizer",
+      "version": "3.5.2",
+      "license": "MIT",
+      "sha256": "ed2a239c0ea213acc1908150a3037257083c7c083128f1a4cec2ec4b97dca491"
+    },
+    {
+      "name": "click",
+      "version": "8.5.0",
+      "license": "BSD-3-Clause",
+      "sha256": "255bc9599cf7748b4b1a446ccc735421bd08a2ae529a8b88597d3de5664ee360"
+    },
+    {
+      "name": "click-didyoumean",
+      "version": "0.3.1",
+      "license": "MIT",
+      "sha256": "5c4bb6007cfea5f2fd6583a2fb6701a22a41eb98957e63d0fac41c10e7c3117c"
+    },
+    {
+      "name": "click-plugins",
+      "version": "1.1.1.2",
+      "license": "New BSD",
+      "sha256": "008d65743833ffc1f5417bf0e78e8d2c23aab04d9745ba817bd3e71b0feb6aa6"
+    },
+    {
+      "name": "click-repl",
+      "version": "0.4.1",
+      "license": "MIT",
+      "sha256": "5cb10881d4c5ebaa8695eceb69911af3062ee78342812b713564b17aad333eb5"
+    },
+    {
+      "name": "django-appconf",
+      "version": "1.2.0",
+      "license": "BSD",
+      "sha256": "b81bce5ef0ceb9d84df48dfb623a32235d941c78cc5e45dbb6947f154ea277f4"
+    },
+    {
+      "name": "idna",
+      "version": "3.20",
+      "license": "BSD-3-Clause",
+      "sha256": "ab7ae7122974553370f0bdb919e1a960b2cd1bc1ef0276416d896db81c14582c"
+    },
+    {
+      "name": "isodate",
+      "version": "0.7.2",
+      "license": "BSD-3-Clause",
+      "sha256": "28009937d8031054830160fce6d409ed342816b543597cece116d966c6d99e15"
+    },
+    {
+      "name": "jsonschema-specifications",
+      "version": "2025.9.1",
+      "license": "MIT",
+      "sha256": "98802fee3a11ee76ecaca44429fda8a41bff98b00a0f2838151b113f210cc6fe"
+    },
+    {
+      "name": "jwcrypto",
+      "version": "1.6.1",
+      "license": "LGPL-3.0-or-later",
+      "sha256": "77e856818e514cb3d64a1043b6885a7d52f5cc37773f5e944de02103c8d3a54f"
+    },
+    {
+      "name": "maxminddb",
+      "version": "3.2.0",
+      "license": "Apache-2.0",
+      "sha256": "bd14de353b898b0356434b95c447801ed56853345e4a4ffcc0fff127833ffd62"
+    },
+    {
+      "name": "platformdirs",
+      "version": "4.12.3",
+      "license": "MIT",
+      "sha256": "080f3b39423b5abfca9a23d84c4e9795f54d395cd8459867a8ded44084fcd5f8"
+    },
+    {
+      "name": "pyasn1",
+      "version": "0.6.4",
+      "license": "BSD-2-Clause",
+      "sha256": "deda9277cfd454080ec40b207fb6df82206a3a2688735233cdcd8d3d565f088b"
+    },
+    {
+      "name": "pyasn1_modules",
+      "version": "0.4.2",
+      "license": "BSD",
+      "sha256": "29253a9207ce32b64c3ac6600edc75368f98473906e8fd1043bd6b5b1de2c14a"
+    },
+    {
+      "name": "pyOpenSSL",
+      "version": "26.4.0",
+      "license": "Apache License, Version 2.0",
+      "sha256": "f0eb0cb2d581d3ad2b9c489468485e7f2ab6727d08401bcf9d824c3caddf3c1c"
+    },
+    {
+      "name": "python-stdnum",
+      "version": "2.2",
+      "license": "LGPL",
+      "sha256": "bdf98fd117a0ca152e4047aa8ad254bae63853d4e915ddd4e0effb33ba0e9260"
+    },
+    {
+      "name": "rcssmin",
+      "version": "1.2.2",
+      "license": "Apache License, Version 2.0",
+      "sha256": "806986eaf7414545edc28a1d29523e9560e49e151ff4a337d9d1f0271d6e1cc4"
+    },
+    {
+      "name": "referencing",
+      "version": "0.37.0",
+      "license": "MIT",
+      "sha256": "381329a9f99628c9069361716891d34ad94af76e461dcb0335825aecc7692231"
+    },
+    {
+      "name": "requests-file",
+      "version": "3.0.1",
+      "license": "Apache 2.0",
+      "sha256": "d0f5eb94353986d998f80ac63c7f146a307728be051d4d1cd390dbdb59c10fa2"
+    },
+    {
+      "name": "requests-toolbelt",
+      "version": "1.0.0",
+      "license": "Apache 2.0",
+      "sha256": "cccfdd665f0a24fcf4726e690f65639d272bb0637b9b92dfd91a5568ccf6bd06"
+    },
+    {
+      "name": "rjsmin",
+      "version": "1.2.5",
+      "license": "Apache License, Version 2.0",
+      "sha256": "a3f8040b0273dec773e0e807e86a4d0a9535516c0a0a35aa1bb6de6e15bb1f09"
+    },
+    {
+      "name": "rpds-py",
+      "version": "2026.9.1",
+      "license": "MIT",
+      "sha256": "e21c1429e205828ea886a2293a4a2c8e01f4c25d9893ca330e97a6cf73f52e7b"
+    },
+    {
+      "name": "six",
+      "version": "1.17.0",
+      "license": "MIT",
+      "sha256": "4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274"
+    },
+    {
+      "name": "soupsieve",
+      "version": "2.10",
+      "license": "MIT",
+      "sha256": "8596eb8967d744174820280fa62b4542a2e955bfaccca73ed8a13c6eb8e9b502"
+    },
+    {
+      "name": "sqlparse",
+      "version": "0.6.0",
+      "license": [
+        "License :: OSI Approved :: BSD License"
+      ],
+      "sha256": "b861c0288ce2fa56209a9a6412d2e066ac664b3873b89c26c9d8415e8e32996f"
+    },
+    {
+      "name": "typing_extensions",
+      "version": "4.16.0",
+      "license": "PSF-2.0",
+      "sha256": "481caa481374e813c1b176ada14e97f1f67a4539ce9cfeb3f350d78d6370c2e8"
+    },
+    {
+      "name": "tzdata",
+      "version": "2026.5",
+      "license": "Apache-2.0",
+      "sha256": "b683bd1b6659ddcd810ff02ad09ba821d4bf1065072805063eb35c49617905ac"
+    },
+    {
+      "name": "ujson",
+      "version": "6.0.0",
+      "license": "BSD-3-Clause AND TCL",
+      "sha256": "b305657e2ddc29a50b333053e7c7f431a8c24c92b7dcbbf7a420f2330152b486"
+    },
+    {
+      "name": "urllib3",
+      "version": "2.8.0",
+      "license": "MIT",
+      "sha256": "0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3"
+    },
+    {
+      "name": "zipp",
+      "version": "4.1.1",
+      "license": "MIT",
+      "sha256": "8979f52d874162f485ff2981e3891f3a3317b7a3dd43ff1e1775b9304f307a9c"
+    },
+    {
+      "name": "django-jquery-js",
+      "version": "3.1.1",
+      "license": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "sha256": "308e6472801f89be7c02fa3d06bea6470cfbcab8287db80c64b1093717b8eea9"
+    },
+    {
+      "name": "et_xmlfile",
+      "version": "2.0.0",
+      "license": "MIT",
+      "sha256": "7a91720bc756843502c3b7504c77b8fe44217c85c537d85037f0f536151b2caa"
+    },
+    {
+      "name": "paypalhttp",
+      "version": "1.0.1",
+      "license": "MIT",
+      "sha256": "251a6e72e2c5140c5372ee6351b64f7af61b5aad9c554618db5782a06205989a"
+    },
+    {
+      "name": "tzlocal",
+      "version": "5.4.4",
+      "license": "MIT",
+      "sha256": "aae09f0126a8a86fa736be266eb4a471380d26a0de3bc14844e7821fee3e2a15"
+    },
+    {
+      "name": "ua-parser-builtins",
+      "version": "202610",
+      "license": "Apache 2.0",
+      "sha256": "ed4b7c4c665323a5f4b2f118af86369412a9bb92e349a120f58f210127e30586"
+    },
+    {
+      "name": "webencodings",
+      "version": "0.6.1",
+      "license": [
+        "License :: OSI Approved :: BSD License"
+      ],
+      "sha256": "7fab6269c8bf237c657876b52058ccb182e861518d1c695c1a9aaa8c1c105d5b"
+    },
+    {
+      "name": "xmlschema",
+      "version": "4.3.2",
+      "license": "MIT",
+      "sha256": "cf5c970a30f6ebcb3da35260e694704cc0b6794d8ace46125bb2a95e38ed9307"
+    },
+    {
+      "name": "aiohappyeyeballs",
+      "version": "2.7.1",
+      "license": "PSF-2.0",
+      "sha256": "9243213661e29250eb41368e5daa826fc017156c3b8a11440826b2e3ed376472"
+    },
+    {
+      "name": "aiosignal",
+      "version": "1.4.0",
+      "license": "Apache 2.0",
+      "sha256": "053243f8b92b990551949e63930a839ff0cf0b0ebbe0597b0f3fb19e1a0fe82e"
+    },
+    {
+      "name": "elementpath",
+      "version": "5.1.4",
+      "license": "MIT",
+      "sha256": "5ec8d7bb44b16c98414a6a95e20cb150f3cbfc3cac65edc14773288c7a937376"
+    },
+    {
+      "name": "frozenlist",
+      "version": "1.8.0",
+      "license": "Apache-2.0",
+      "sha256": "f833670942247a14eafbb675458b4e61c82e002a148f49e68257b79296e865c4"
+    },
+    {
+      "name": "multidict",
+      "version": "6.9.1",
+      "license": "Apache License 2.0",
+      "sha256": "6ed30be8918e18c8bed0a2e8b70639ecf02feb61ed00ca2e41cfcb2a50fa3f42"
+    },
+    {
+      "name": "prompt_toolkit",
+      "version": "3.0.53",
+      "license": [
+        "License :: OSI Approved :: BSD License"
+      ],
+      "sha256": "01c0891d7f9237d5e339f7d3e42cdae80b7534abb1c7c0e3352efba6231492f2"
+    },
+    {
+      "name": "propcache",
+      "version": "0.5.4",
+      "license": "Apache-2.0",
+      "sha256": "87a3caecf8095e48dc72f84bfa42e23a848cf410cc9cc13031fba4869b706a21"
+    },
+    {
+      "name": "yarl",
+      "version": "1.25.1",
+      "license": "Apache-2.0",
+      "sha256": "e029648f9c951db30e98a7d7ec90835db88ec4b32820efe2a9bdc2287e032eb6"
+    },
+    {
+      "name": "argon2-cffi-bindings",
+      "version": "26.1.0",
+      "license": "MIT",
+      "sha256": "21ca0396fe5ec995dd54431c32698189666f9224810acfa752e50d2bd94d9df2"
+    },
+    {
+      "name": "wcwidth",
+      "version": "0.9.2",
+      "license": [
+        "License :: OSI Approved :: MIT License"
+      ],
+      "sha256": "ae0800c5339423cc53d33a266ad264b42ba8aaa16d4464f6e6b1bee607f50b17"
+    }
+  ]
+}

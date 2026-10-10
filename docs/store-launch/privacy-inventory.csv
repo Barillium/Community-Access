@@ -1,0 +1,14 @@
+Datenklasse,Verwendung,Empfänger,Kontobezug,Startprüfung
+Name und E-Mail,Konto und Kontakt,Betreiber; gewählter Mailanbieter,ja,Rechtsgrundlage und tatsächlichen Mailanbieter bestätigen
+Passwortnachweis und Sitzung,Authentifizierung,Backend; Auth-Bibliothek,ja,Keine Passwörter oder Sitzungstokens in Logs; keine Drittanbieteranalyse
+Interne Konto- und Anbieterkennungen,Kontoverknüpfung und Rechte,Backend; ausdrücklich gewählter Loginanbieter,ja,Mobile Version zunächst E-Mail-Login; Webanbieter getrennt prüfen
+Bewerbungsantworten und Communityzuordnung,Manuelle Zugangsentscheidung,Jeweils zuständige Communitymoderation,ja,Sensible Angaben und mögliche Rückschlüsse auf geschützte Merkmale gesondert prüfen
+Eventanfragen und Teilnahmezusagen,Teilnahme und geschützter Veranstaltungsort,Jeweils zuständiger Veranstalter,ja,Keine globalen Gastprofile; begrenzte Aufbewahrung und Backups bestätigen
+Merkliste und Präferenzen,Persönliche Entdeckung,Backend,ja,Optionalität und Löschen; öffentliche Zähler ohne Namen
+Besuchszuordnung,Optional bestätigter Veranstalterbesuch,Backend,ja,Getrennt löschbar; keine Eventnamen oder Besuchshäufigkeit behaupten
+Bestell- und Erstattungsreferenzen,Ticketabwicklung,Verkäufer; pretix; nach Aktivierung Stripe,ja,Liveanbieter und Finanzaufbewahrung noch offen
+Zahlungsdaten,Zahlungsabwicklung,Nach Aktivierung gewählter Zahlungsanbieter,ja,Tatsächliche Anbieterfelder prüfen; keine Kartendaten im Flutter-Client speichern
+Flyerdateien,Veranstaltungsdarstellung,Backend und sichtberechtigte Besucher,Veranstalterkonto,Native Auswahl rekodiert Bildpixel ohne EXIF; Bildrechte prüfen
+Inhaltsmeldungen und Beschwerden,Moderation und Einspruch,Zuständiges Plattformteam und berechtigte Moderation,falls angemeldet,Kein automatisches Weitergeben fremder Kontaktdaten
+Kontolöschanfrage,Löschung bearbeiten,Betreiberteam,ja,Nur Konto-ID und Vorgangsstatus; kein Passwort speichern; Bearbeitung noch nachweisen
+IP und technische Zugriffsprotokolle,Betrieb und Missbrauchsschutz,Noch zu wählendes Hosting,gegebenenfalls,Protokollumfang Empfänger Frist und Drittlandtransfer ungeklärt

@@ -1,0 +1,7 @@
+{
+  "CA_STORE_BUILD": "true",
+  "CA_PRIVATE_MAIL": "true",
+  "CA_AUTH_API_ORIGIN": "https://communityaccess.de",
+  "CA_AUTH_UI_ORIGIN": "https://communityaccess.de",
+  "CA_MINIMUM_ACCOUNT_AGE": "16"
+}

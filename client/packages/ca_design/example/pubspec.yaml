@@ -1,0 +1,20 @@
+name: ca_design_example
+description: Bausteinübersicht für Aushang 3. Nur synthetische Inhalte.
+publish_to: none
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  ca_design:
+    path: ..
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/

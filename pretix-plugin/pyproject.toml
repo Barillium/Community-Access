@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "community-access-pretix"
+version = "0.1.0"
+description = "Account-bound Community Access checkout and direct Connect charges"
+requires-python = ">=3.11"
+license = "AGPL-3.0-or-later"
+dependencies = ["pretix==2026.8.0"]
+
+[project.entry-points."pretix.plugin"]
+community_access_pretix = "community_access_pretix"
+
+[tool.setuptools.packages.find]
+include = ["community_access_pretix*"]

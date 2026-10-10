@@ -1,60 +1,42 @@
 # Community Access
 
-Eine kleine Zugangslösung für bestehende Kollektive in Aachen. Einladungen führen zu Bewerbungen und manueller Aufnahme; Eventteilnahme wird separat bestätigt. Bestehende Messenger bleiben bestehen.
+Eine kleine Zugangslösung für bestehende Kollektive: persönliche Einladung, Bewerbung und manuelle Communityaufnahme; Eventteilnahme wird separat zugesagt beziehungsweise durch bestätigte Ticketzahlung begründet. Bestehende Messenger bleiben bestehen.
 
-## Stand und Einstieg
+## Erste Version
 
-- [Produktspezifikation](docs/product-spec.md): Rollen, Abläufe, Schutzgrenzen und offene Entscheidungen.
-- [Lokales Setup](docs/setup.md): getestete Flutter-Web-Umgebung auf macOS ARM64.
-- [Git-Arbeitsablauf](docs/workflow.md): Änderungen prüfen, gezielt sichern und eine Rücknahme üben.
-- [Projektanweisungen](AGENTS.md) und [Codex-Arbeitsablauf](docs/codex-workflow.md): kleine Aufgaben, Freigaben und geprüfte Schutzgrenzen.
+Stand: 10.10.2026. Lauffähiger lokaler V1-Umfang mit synthetischen Konten und Zahlungen. Öffentliche/private Einzelveranstaltungen, Konto/Wiederherstellung, Communityaufnahme, getrennte Zuständigkeiten, Standardtickets, Erstattungen und Einlass bilden den Kern. Den verbindlichen Umfang und zurückgestellte Funktionen beschreibt ausschließlich die [Produktspezifikation](docs/product-spec.md).
 
-Die erste [Dart-Lernübung](docs/learning/dart.md) übt erlaubte Bewerbungsstatuswechsel, getrennt von der späteren Anwendung.
+- [Start und Prüfungen](docs/setup.md): V1-Demo und erhaltener erweiterter Entwicklungsmodus.
+- [Aktionsmatrix](docs/implementation/access-matrix.md): aktuelle Rechte je Ressource.
+- [V1-Entscheidung](docs/decisions/0007-v1-scope.md): Reduktion und Umgang mit bestehenden Daten.
+- [Projektanweisungen](AGENTS.md), [Git-Workflow](docs/workflow.md) und [Codex-Workflow](docs/codex-workflow.md): Arbeits- und Freigaberegeln.
+- [V1-Prüfbericht](docs/qa/v1-reduction-20261010.md): tatsächlich ausgeführte Prüfungen und Grenzen.
 
-Unter `app/` liegt eine minimale Flutter-Web-Demo mit vier synthetischen Statusanzeigen und fünf Tests. Sie speichert nichts und verbindet sich mit keinem Backend. Start und Prüfungen stehen im [Setup](docs/setup.md#projekt-app-starten-und-prüfen). Die separate frühere Werkzeugdemo bleibt unverändert.
+## Architektur
 
-Die ausgearbeitete [Flutter-Gastoberfläche](client/README.md) liegt seit dem 01.10.2026 separat unter `client/`. Das bisherige Laravel-Backend und seine zugehörige Struktur wurden aus dem aktiven Projekt entfernt. Die Umstellung auf Better Auth ist geplant, aber noch nicht implementiert; die Gastoberfläche besitzt derzeit kein lauffähiges Produkt-Backend.
+`client/` enthält die aktive Flutter-App, `server/` Better Auth/Node.js und PostgreSQL, `pretix-plugin/` die lokale pretix-Erweiterung. Das Root-`package.json` und die Lockdateien halten vorhandene Abhängigkeiten fest.
 
-## Projektstruktur
+`app/`, `supabase/` und `exercises/` bleiben separate Demo-/Lernbereiche. `scripts/task_runner.py` ist ein eingeschränkter Entwicklungsrunner. Sein weiterhin blockierter `product`-Scope beschreibt dessen Umfang; das aktive Produktbackend ist separat vorhanden und geprüft.
 
-```text
-Community Access/          Projektstamm
-  README.md
-  AGENTS.md
-  .gitignore
-  docs/                    Produkt, Setup und Arbeitsablauf
-  scripts/                 manueller Einzelaufgaben-Runner und Prüfungen
-  app/                     Flutter-Statusdemo mit eigenen Tests
-  client/                  erhaltene Flutter-Gastoberfläche mit eigenen Tests
-  supabase/                lokaler Auth-/API-Kern und Migration
-```
+## Lokal starten
 
-`app/` und der lokale Supabase-Kern sind angelegt. Ein einziges Git-Repository im Projektstamm umfasst beide Bereiche. Kein verschachteltes Repository anlegen; die externe Setup-Demo wird nicht hierher kopiert.
-
-Die getrennte lokale PostgreSQL-Testumgebung wird mit `python3 -I scripts/check_database.py` gestartet, geprüft und beendet. Sie verwendet nur synthetische Infrastruktur-Fixtures. Der zusätzliche lokale Supabase-Kern samt Auth-/API-Rollentests ist in [ADR 0002](docs/decisions/0002-local-supabase-core.md) beschrieben; das vollständige Produktmodell bleibt offen. Details stehen im [Setup](docs/setup.md#getrennte-lokale-postgresql-testdatenbank).
-
-## Arbeitsregeln
-
-Lokal zuerst: Flutter/Dart, PostgreSQL und Supabase. Nur synthetische Daten für Entwicklung, Tests und KI-Kontext. Keine echten Secrets, privaten Bewerbungen, Mitgliederlisten oder Einladungslinks im Repository. Community-Rollen sind communitybezogen; Mitgliedschaft ist keine bestätigte Eventteilnahme.
-
-Keine Messenger-Synchronisierung, Zahlungen, KI-Kompatibilitätsbewertung, Trust Scores oder globalen Szeneprofile. Backend-Zugriff muss standardmäßig verweigert und explizit erlaubt werden. Privilegierte Schlüssel gehören niemals in den App-Build. Transaktionen und Konkurrenzfälle benötigen später eigene Tests.
-
-Vor Änderungen Status und relevante Dokumente lesen, Plan und Prüfungen nennen und bestehende Arbeit erhalten. Installation, Netzwerkfreigaben, neue Dienste, Veröffentlichung, Server-/DNS-Eingriffe und destruktive Aktionen benötigen die entsprechende Nutzerfreigabe. Commits werden aus bewusst ausgewählten, geprüften Dateien erstellt.
-
-## GitHub und lokale Entwicklung
-
-Das öffentliche Repository [Barillium/Community-Access](https://github.com/Barillium/Community-Access) ist als `origin` verbunden. Es dient als Ziel für den ausdrücklich beauftragten Quellcode-Upload. Lokale Konfiguration, Datenbanken, Build-Ausgaben und das entfernte Laravel-Archiv unter `.local/` sind ausgeschlossen. Die Anwendung wird weiterhin lokal entwickelt; ein Quellcode-Upload ist kein Deployment und keine Produktabnahme. Git ersetzt keine gesonderte Sicherung lokaler Daten.
-
-Open-Source-orientiert beschreibt die Ausrichtung. Eine Lizenz für den eigenen Projektcode wurde noch nicht gewählt; aus diesem README folgt keine Lizenzfreigabe. Die Lizenzen der installierten Werkzeuge stehen in der Setup-Dokumentation.
-
-## Eine Aufgabe kontrolliert vorbereiten
-
-Der [manuelle Einzelaufgaben-Runner](docs/codex-workflow.md#manueller-einzelaufgaben-runner) erzeugt isolierte Änderungsvorschläge mit Prüfbericht. Der Runner unterstützt Dokumentation, die Dart-Lernübung und eng begrenzte App-Oberflächenaufgaben gemäß [ADR 0003](docs/decisions/0003-runner-app-gates.md). Ein echter Dokumentationslauf und eine modellfreie App-Simulation sind nachgewiesen; der echte App-Modelllauf steht aus; keine automatischen Merges, Dauerläufe oder Deployments.
-
-[Bestandsaufnahme und Abnahmekriterien](docs/verification.md), [Architekturentscheidung](docs/decisions/0001-single-task-runner.md), [Designregeln](docs/design-rules.md) und [Aufgabenvorlage](docs/tasks/README.md) beschreiben den Stand und die Grenzen. Die bestehenden Produktentscheidungen bleiben unverändert.
+Im Projektstamm:
 
 ```sh
-python3 -I scripts/check_project.py
+python3 -I scripts/local_auth.py --ticketing-demo
 ```
 
-Dieser Aufruf prüft den bestehenden lokalen Lernumfang und Runner. `--scope app` ergänzt die Flutter-Prüfungen; `--scope core` zusätzlich die bereits gestartete lokale Supabase-Testumgebung. Die vollständigen Produktabläufe fehlen weiterhin; deshalb blockiert `--scope product`.
+In einem zweiten Terminal:
+
+```sh
+cd client
+flutter run --no-pub -d chrome --web-hostname=127.0.0.1 --web-port=8300
+```
+
+V1 ist Standard. Voraussetzungen, synthetische Demokonten, Beenden und Tests stehen im [Setup](docs/setup.md#flutter-mit-better-auth-starten). Fehlende Werkzeuge nicht ungefragt installieren. Neue Dienste, echte Anbieterzugriffe und Veröffentlichung benötigen ihren eigenen Auftrag.
+
+## Nachweisgrenzen
+
+Alle Produktprüfungen verwenden synthetische Daten und simulierte Zahlungen. Produktiver Zahlungsbetrieb, reale Zustellung, rechtliche/betriebliche Entscheidungen und native Geräteabnahme bleiben offen. Betreiber- und Rechtstexte sind Entwürfe. Ein lokaler Commit oder Quellcode-Upload ist keine Veröffentlichung der Anwendung.
+
+Das vorhandene GitHub-Remote bleibt erhalten; dieser V1-Auftrag autorisiert keinen Push. Eine Lizenz für den eigenen Code ist weiterhin nicht gewählt. Keine echten Secrets, privaten Bewerbungen, Mitgliederlisten oder Einladungslinks im Repository.

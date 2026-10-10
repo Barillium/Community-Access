@@ -3,9 +3,10 @@
 ## Ziel und Arbeitsweise
 
 - Als Pair Programmer und geduldiger Tutor auf Deutsch erklären; neue Begriffe kurz am Projekt erläutern.
-- Flutter/Dart + PostgreSQL + Supabase; lokal zuerst, zunächst Flutter im Browser.
-- Kleine Zugangsplattform für bestehende Kollektive. Bestehende Messenger bleiben bestehen.
-- Keine Messenger-Synchronisierung, Zahlungen, Trust Scores, KI-Kompatibilitätsbewertung oder globalen Szeneprofile.
+- Aktive Oberfläche: Flutter/Dart unter `client/`, Better Auth/Node.js unter `server/`, PostgreSQL; lokal zuerst. Die separate Supabase-Statusdemo bleibt erhalten.
+- Kleine Zugangsplattform für bestehende Kollektive. Bestehende Messenger bleiben bestehen. Verbindlicher V1-Umfang und zurückgestellte Funktionen stehen ausschließlich in `docs/product-spec.md`; technische Detailberichte und historische Notizen erweitern diesen Umfang nicht.
+- Keine Messenger-Synchronisierung, Trust Scores, KI-Kompatibilitätsbewertung oder globalen Szeneprofile.
+- Ausdrückliche Umfangserweiterung vom 05.10.2026: Ticketing mit selbst betriebenem pretix und Stripe Connect; jeder Veranstalter bleibt Verkäufer. Zunächst ausschließlich lokale synthetische Zahlungsantworten. Die isolierte lokale Installation und Prüfung von pretix 2026.8.0 ist ausdrücklich freigegeben. Weitere Installationen, echte Stripe-Sandbox und Veröffentlichung separat freigeben; [Umsetzung und Nachweisgrenzen](docs/ticketing.md).
 - Nur synthetische Daten in Entwicklung, Tests und KI-Kontext.
 
 ## Vor Änderungen
@@ -24,7 +25,8 @@
 - `.gitignore` und diese Datei sind keine technischen Lesesperren. Echte sensible Daten außerhalb des KI-Arbeitsbereichs halten.
 - `secret`/`service_role` ausschließlich serverseitig; niemals in App-Builds oder öffentlichen Client-Konfigurationen.
 - Rechte am Backend prüfen; standardmäßig Zugriff verweigern. Versteckte UI-Elemente sind kein Zugriffsschutz.
-- Community-Rollen sind communitybezogen. Mitgliedschaft ist keine bestätigte Eventteilnahme.
+- Communityverwaltung erfordert eine ausdrücklich zugewiesene Moderatorrolle; Veranstalterzulassung allein genügt nicht. Community-Rollen sind communitybezogen. Mitgliedschaft ist keine bestätigte Eventteilnahme. Bei Ticketing ist manuelle Freigabe nur Kaufberechtigung; erst bestätigte Zahlung begründet Teilnahme.
+- Ticketkontingente werden ausschließlich vom Ticketdienst reserviert. Finanzzuordnungen und offene Erstattungen dürfen nicht mit Eventlöschung verschwinden. Keine geschützten Locations oder Bewerbungsantworten in Ticketdokumente/Zahlungsmetadaten.
 - Keine Tokens, privaten Adressen oder Antragsantworten in Logs und Fehlermeldungen.
 - Transaktionen, Wiederholungen und Konkurrenzfälle bei Einladungen, Aufnahme, Entzug und Platzvergabe ausdrücklich testen.
 - Kein Backend, Remote oder Cloud-Dienst als Nebenwirkung einer Dokumentations- oder Lernaufgabe anlegen.
@@ -40,12 +42,9 @@
 
 ## Prüfungen und aktueller Projektstand
 
-- `app/` enthält eine synthetische Flutter-Statusdemo mit Logik- und Widget-Tests. `supabase/` enthält einen lokalen Teilumfang mit RLS und Auth-/API-Tests gemäß ADR 0002; keine vollständige Produktabnahme behaupten.
-- Eine getrennte PostgreSQL-Infrastrukturprüfung ist mit `python3 -I scripts/check_database.py` vorhanden; nur synthetische Fixtures, kein Supabase-/Produktrollen-Nachweis.
-- App-Prüfungen separat gemäß `docs/setup.md` ausführen. Der erweiterte Runner unterstützt den begrenzten Scope `app-ui` mit geschützten Tests; ADR 0003 beachten. Der neue Kontrollstand ist vor echten Läufen separat freizugeben.
-- Bei reinen Dokumentationsänderungen Links, Markdown, unbeabsichtigte sensible Inhalte und `git diff --check` prüfen; keine Installation eines Linters nur dafür.
-- Die separat geprüfte Flutter-Demo liegt unter `~/develop/community_access_setup_check`; dort wurden `dart format --output=none --set-exit-if-changed lib test`, `flutter analyze` und `flutter test` erfolgreich ausgeführt.
-- Diese Demo-Tests sind kein Nachweis für spätere Community-Access-Funktionen. App-Testbefehle hier erst nach tatsächlicher Einrichtung ergänzen.
+- Start-/Prüfkommandos und Nachweisbereiche stehen ausschließlich in `docs/setup.md`. V1 ist Standard für Server und Client; der erweiterte Entwicklungsmodus wird ausdrücklich gewählt und getrennt geprüft.
+- Aktives Produkt: `client/` und `server/`. Separate Statusdemo: `app/`; Supabase-/Infrastrukturtests nehmen das aktive Better-Auth-Produkt nicht ab.
+- Bei reinen Dokumentationsänderungen Links, Markdown, unbeabsichtigte sensible Inhalte und `git diff --check` prüfen; keinen Linter nur dafür installieren.
 - Browser-Tests auf `127.0.0.1` beschränken und selbst gestartete Testserver anschließend beenden, sofern kein Weiterlaufen gewünscht ist.
 
 ## Abschluss jeder Aufgabe
@@ -64,4 +63,4 @@
 - Der Coding-Agent darf `approve` nicht ausführen, keine Freigaben erzeugen, kein Risiko herabsetzen und keine Tests, Abnahme oder Kontrolllogik ändern. Er darf keine zusätzlichen Aufgaben anlegen.
 - Kontrollstand und Aufgabenbasis werden vorab durch den Menschen geprüft. Änderungen daran benötigen einen eigenen Review; erfolgreicher Lauf ist keine Merge-Freigabe.
 - `python3 -I scripts/check_project.py` prüft den Lernprojektumfang; `--scope app` ergänzt App-Prüfungen, `--scope core` zudem die bereits laufende lokale Backend-Testumgebung. `--scope product` muss derzeit blockieren. Fehlende oder übersprungene Pflichtprüfungen niemals als Erfolg darstellen.
-- Produktive Daten/Zugänge und Veröffentlichungsberechtigungen dürfen nicht in die Agent-/Testumgebung gelangen. V1 ist für kleine synthetische Dokumentations- und Lernaufgaben bestimmt; technische Grenzen stehen im Architekturentscheid.
+- Produktive Daten/Zugänge und Veröffentlichungsberechtigungen dürfen nicht in die Agent-/Testumgebung gelangen. Die Runner-Version V1 ist für kleine synthetische Dokumentations- und Lernaufgaben bestimmt und nicht mit der Produktversion V1 gleichzusetzen; technische Grenzen stehen im Architekturentscheid.

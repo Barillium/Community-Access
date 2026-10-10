@@ -1,3 +1,5 @@
+import 'field_finder.dart';
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -20,7 +22,7 @@ class InvitationApi extends FakeApi {
   @override
   Future<void> apply(
     String invitation,
-    int formId,
+    Object formId,
     Map<String, String> answers,
   ) async {
     if (failApply) throw const ApiFailure('Das Formular wurde geändert.');
@@ -156,7 +158,7 @@ void main() {
       expect(find.text('Deine Bewerbung'), findsOneWidget);
       expect(find.widgetWithText(TextFormField, 'Passwort'), findsNothing);
       expect(
-        find.widgetWithText(TextFormField, 'Antwort auf Frage 1'),
+        fieldWithLabel(TextFormField, 'Antwort auf Frage 1'),
         findsOneWidget,
       );
       await Navigator.of(tester.element(find.text('Deine Bewerbung')))
@@ -249,12 +251,12 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Neue synthetische Frage'), findsOneWidget);
     final input = tester.widget<TextFormField>(
-      find.widgetWithText(TextFormField, 'Antwort auf Frage 1'),
+      fieldWithLabel(TextFormField, 'Antwort auf Frage 1'),
     );
     expect(input.controller!.text, isEmpty);
     expect(api.applications, 0);
   });
-  for (final status in ['rejected', 'withdrawn']) {
+  for (final status in ['rejected', 'revoked']) {
     testWidgets('$status blocks another application and exposes host contact', (
       tester,
     ) async {
@@ -388,7 +390,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(question), findsOneWidget);
     await tester.ensureVisible(
-      find.widgetWithText(TextFormField, 'Antwort auf Frage 1'),
+      fieldWithLabel(TextFormField, 'Antwort auf Frage 1'),
     );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
