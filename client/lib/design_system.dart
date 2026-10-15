@@ -878,6 +878,8 @@ class AccessHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
+    final base = AccessDesign.theme();
+    final headerFocus = AccessDesign._focusBorder(FlyerStyle.marker);
     return Container(
       constraints: const BoxConstraints(minHeight: 67),
       padding: EdgeInsets.symmetric(
@@ -889,9 +891,22 @@ class AccessHeader extends StatelessWidget {
         border: Border(bottom: BorderSide(color: Color(0xffdedbd3))),
       ),
       child: Theme(
-        data: AccessDesign.theme().copyWith(
-          colorScheme: AccessDesign.theme().colorScheme.copyWith(
-            surface: Colors.white,
+        data: base.copyWith(
+          colorScheme: base.colorScheme.copyWith(surface: Colors.white),
+          textButtonTheme: TextButtonThemeData(
+            style: base.textButtonTheme.style!.copyWith(side: headerFocus),
+          ),
+          iconButtonTheme: IconButtonThemeData(
+            style: base.iconButtonTheme.style!.copyWith(side: headerFocus),
+          ),
+          outlinedButtonTheme: OutlinedButtonThemeData(
+            style: base.outlinedButtonTheme.style!.copyWith(side: headerFocus),
+          ),
+          filledButtonTheme: FilledButtonThemeData(
+            style: base.filledButtonTheme.style!.copyWith(side: headerFocus),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: base.elevatedButtonTheme.style!.copyWith(side: headerFocus),
           ),
         ),
         child: DefaultTextStyle.merge(

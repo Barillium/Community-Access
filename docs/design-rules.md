@@ -110,6 +110,9 @@ die aktuelle Sprache als DE/EN mit Dropdown-Pfeil; das Menü bietet Deutsch und
 English, markiert die aktive Sprache und erhält den aktuellen Seiten-/Eventzustand.
 Mobil steht die Sprachauswahl vor dem Menü. Bedienziele bleiben mindestens 48 px
 hoch; Escape schließt das Sprachmenü und gibt den Fokus an den Schalter zurück.
+Header-Buttons haben keine schwarzen Rahmen. Ihr Fokus wird orange markiert;
+der weiße Sprach-Dropdown hat keinen schwarzen Außenrahmen. Die aktive
+Navigation behält ihren einzelnen orangefarbenen Unterstrich.
 
 Veranstaltungsanzeigen tragen keine Kennzeichnung „Öffentlich“, „Privat“ oder
 „Mit Zugang“ und kein zugehöriges Statussymbol. Dies gilt für Hero, Programmzeilen

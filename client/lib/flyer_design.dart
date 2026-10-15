@@ -139,9 +139,7 @@ class FlyerLanguageButton extends StatelessWidget {
       color: Colors.white,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      shape: const RoundedRectangleBorder(
-        side: BorderSide(color: FlyerStyle.ink),
-      ),
+      shape: const RoundedRectangleBorder(),
       constraints: const BoxConstraints(minWidth: 160),
       onSelected: (value) => language.value = value,
       itemBuilder: (_) => [

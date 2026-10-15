@@ -286,6 +286,58 @@ void main() {
     expect(find.byType(InteractiveViewer), findsNothing);
     expect(tester.takeException(), isNull);
   });
+  testWidgets('header focus is orange and keyboard actions remain usable', (
+    tester,
+  ) async {
+    final states = WidgetStatesController();
+    addTearDown(states.dispose);
+    ThemeData? headerTheme;
+    var pressed = 0;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AccessDesign.theme(),
+        home: Scaffold(
+          body: AccessHeader(
+            child: Builder(
+              builder: (context) {
+                headerTheme = Theme.of(context);
+                return TextButton(
+                  statesController: states,
+                  onPressed: () => pressed++,
+                  child: const Text('Programm'),
+                );
+              },
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pumpAndSettle();
+    expect(states.value, contains(WidgetState.focused));
+    final theme = headerTheme!;
+    for (final style in [
+      theme.textButtonTheme.style!,
+      theme.iconButtonTheme.style!,
+      theme.outlinedButtonTheme.style!,
+      theme.filledButtonTheme.style!,
+      theme.elevatedButtonTheme.style!,
+    ]) {
+      expect(style.side!.resolve({}), BorderSide.none);
+      final focused = style.side!.resolve(states.value)!;
+      expect(focused.color, FlyerStyle.marker);
+      expect(focused.width, greaterThanOrEqualTo(2));
+      expect(
+        1.05 / (focused.color.computeLuminance() + .05),
+        greaterThanOrEqualTo(3),
+      );
+    }
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(pressed, 1);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('white header stays white in dark theme and has 48px controls', (
     tester,
   ) async {
