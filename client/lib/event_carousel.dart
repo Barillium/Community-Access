@@ -315,7 +315,10 @@ class _EventCarouselState extends State<EventCarousel> {
                   _paused ? 'Plakatwechsel starten' : 'Plakatwechsel pausieren',
                   _paused ? 'Start poster rotation' : 'Pause poster rotation',
                 ),
-                icon: AccessIcon(_paused ? Icons.play_arrow : Icons.pause),
+              icon: AccessIcon(
+                _paused ? Icons.play_arrow : Icons.pause,
+                color: FlyerStyle.orange,
+              ),
               ),
           ],
         ),
