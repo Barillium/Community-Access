@@ -117,6 +117,14 @@ und Listen in Veranstalter-/Communityansichten. Teilnahmeaktionen und nötige
 Hinweise zur Ortsfreigabe bleiben erhalten; Zugangsregeln und redaktionelle
 Sichtbarkeitseinstellungen werden dadurch nicht verändert.
 
+Registrierte Community-Karten zeigen unten rechts die aktuelle Zahl zugeordneter
+Veranstaltungen (`event_count` aus dem Community-Verzeichnis). Gezählt wird nach
+denselben Berechtigungs-, Produkt- und Zeitregeln wie das kommende Programm;
+bestätigte zusätzliche Community-Zuordnungen werden berücksichtigt, jeder Termin
+je Community einmal. Null ist „0 Veranstaltungen“, fehlende/ungültige Zähldaten
+sind „Anzahl nicht verfügbar“. Singular/Plural und EN werden lokalisiert.
+Redaktionelle Themen-/Namensideen erhalten keinen Community-Zähler.
+
 [Tatsächliche Umsetzung und lokale Prüfungen](qa/flyer-20261015/report.md). Die 26 Boards zeigen 13 echte Flutter-Ansichten mit synthetischen Fixtures. Sie ersetzen keine umfassende Geräte-, Rollen-/Zustands-, Screenreader- oder Produktionsabnahme.
 
 

@@ -30,6 +30,15 @@ test('V1: real HTTP, PostgreSQL, standard tickets and deferred feature boundarie
   const event=(await admin.query("SELECT id,profile_id,community_id FROM ca_event WHERE title='Demo Ticketabend · pretix'")).rows[0];assert.ok(event);
   const guest=(await admin.query('SELECT id FROM "user" WHERE email=$1',['guest.a@example.invalid'])).rows[0];
   let order;
+  await t.test('community counts follow the V1 program scope',async()=>{
+   const list=await ok('directory/communities',undefined,'guest.a');
+   const program=await ok('directory/events?scope=upcoming',undefined,'guest.a');
+   assert.equal(program.has_more,false,'synthetic fixture fits on one page');
+   for(const community of list.items){
+    assert.ok(Number.isInteger(community.event_count));
+    assert.equal(community.event_count,program.events.filter(e=>e.community===community.name).length);
+   }
+  });
   await t.test('deferred API routes reject direct GET and POST requests',async()=>{
    for(const [path,body] of [[`directory/events/${event.id}/visit`,{}],['directory/venues',undefined],['directory/preferences',undefined],['directory/preferences',{}],['directory/bookmarks',undefined],['directory/bookmark',{}],['directory/follow',{}],['directory/manage/series',{}],['directory/manage/link',{}],['directory/manage/grant',{kind:'series'}],[`directory/organizers/${event.profile_id}/apply`,{}],['account/social/providers',undefined],['auth/sign-in/social',{provider:'google'}]]){
     const r=await call(path,body,'guest.a');assert.equal(r.status,404,path);

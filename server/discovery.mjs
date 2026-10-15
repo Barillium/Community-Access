@@ -26,7 +26,20 @@ export function createDiscovery(pool,catalog){
  async function preferences(u,body){signed(u);if(body!==undefined){const clean=cleanPreferences(body);await tx(db=>db.query('INSERT INTO ca_guest_preferences VALUES($1,$2) ON CONFLICT(user_id) DO UPDATE SET preferences=$2',[u.id,JSON.stringify(clean)]));}const row=(await pool.query('SELECT preferences FROM ca_guest_preferences WHERE user_id=$1',[u.id])).rows[0];const visits=(await pool.query(`SELECT v.profile_id AS id,CASE WHEN ${activeProfileHost} AND (p.is_public OR p.owner_id=$1 OR EXISTS(SELECT 1 FROM ca_profile_request r WHERE r.profile_id=p.id AND r.user_id=$1 AND r.status='approved')) THEN p.display_name ELSE '' END AS name FROM ca_organizer_visit v JOIN ca_organizer p ON p.id=v.profile_id WHERE v.user_id=$1 ORDER BY v.profile_id`,[u.id])).rows;return {preferences:row?.preferences??cleanPreferences({}),configured:!!row,visited_organizers:visits};}
  async function forgetVisit(u,body){signed(u);await tx(db=>db.query('DELETE FROM ca_organizer_visit WHERE user_id=$1 AND profile_id=$2',[u.id,id(body.id)]));return {forgotten:true};}
  async function follow(u,body){verified(u);if(typeof body.following!=='boolean')fail(422,'INVALID_FIELDS');const c=(await pool.query('SELECT id FROM ca_community WHERE id=$1 AND is_public',[id(body.id)])).rows[0];if(!c)fail(404,'NOT_FOUND');await tx(db=>body.following?db.query('INSERT INTO ca_community_follow VALUES($1,$2) ON CONFLICT DO NOTHING',[u.id,c.id]):db.query('DELETE FROM ca_community_follow WHERE user_id=$1 AND community_id=$2',[u.id,c.id]));return {following:body.following};}
- async function communities(u){return {items:(await pool.query(`SELECT c.id,c.name,EXISTS(SELECT 1 FROM ca_community_follow f WHERE f.community_id=c.id AND f.user_id=$1) AS following FROM ca_community c WHERE c.is_public ORDER BY c.name,c.id`,[u?.id??null])).rows,signed_in:!!u};}
+ async function communities(u){return {items:(await pool.query(`WITH visible_events AS (
+  SELECT e.id,e.community_id ${eventJoins} WHERE ${rules.upcoming}
+ ), assignments AS (
+  SELECT id,community_id FROM visible_events
+  UNION
+  SELECT e.id,linked.community_id FROM visible_events e
+   JOIN ca_event_community_access linked ON linked.event_id=e.id AND linked.approved
+ ), counts AS (
+  SELECT community_id,count(*)::int AS event_count FROM assignments GROUP BY community_id
+ ) SELECT listed.id,listed.name,
+  EXISTS(SELECT 1 FROM ca_community_follow f WHERE f.community_id=listed.id AND f.user_id=$1) AS following,
+  COALESCE(counts.event_count,0) AS event_count
+  FROM ca_community listed LEFT JOIN counts ON counts.community_id=listed.id
+  WHERE listed.is_public ORDER BY listed.name,listed.id`,[u?.id??null])).rows,signed_in:!!u};}
  async function saveForm(u,body){return tx(async db=>{await owner(db,u,body.profile_id);const fields=checkedForm(body.fields);if(!fields.length)fail(422,'EMPTY_FORM');const title=text(body.title,120,true);let r;if(body.id){r=await db.query('UPDATE ca_event_form SET title=$1,fields=$2,version=version+1 WHERE id=$3 AND profile_id=$4 AND version=$5 RETURNING id,version',[title,JSON.stringify(fields),id(body.id),body.profile_id,body.version]);if(!r.rowCount)fail(409,'FORM_CHANGED');}else r=await db.query('INSERT INTO ca_event_form(profile_id,title,fields) VALUES($1,$2,$3) RETURNING id,version',[body.profile_id,title,JSON.stringify(fields)]);return r.rows[0];});}
  async function forms(u,profile){signed(u);return (await pool.query(`SELECT f.* FROM ca_event_form f JOIN ca_organizer p ON p.id=f.profile_id WHERE ${organizerManager()} AND p.id=$2 AND ${activeProfileHost} ORDER BY f.title,f.id`,[u.id,profile])).rows;}
  async function eventOptions(db,body,profile,existing,publication){

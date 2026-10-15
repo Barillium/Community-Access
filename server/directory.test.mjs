@@ -1,6 +1,7 @@
 import {eventPolicyTests} from './event_policy.test.mjs';
 import {securityEventPolicyTests} from './security_event_policy.test.mjs';
 import {discoveryTests} from './discovery.test.mjs';
+import {communityCountTests} from './community_counts.test.mjs';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {request} from 'node:http';
@@ -31,6 +32,7 @@ test('directory: real PostgreSQL and signed Better Auth sessions',async t=>{
   const a=f.profiles['host.a'].id,b=f.profiles['host.b'].id;
   const apply=(key,method='form',answers={interest:'Synthetische Antwort'},version=1)=>call(`directory/organizers/${b}/apply`,{method,answers,version},tokens[key]);
   try {
+    await communityCountTests(t,state,f,call,tokens);
     await t.test('public event search filters visibility before search and paging, and guards public fields',async()=>{
       const results=await call('directory/events');
       assert.equal(results.status,200);assert.equal(results.data.events.length,4);

@@ -244,6 +244,7 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
         else
           for (final item in visible)
             Container(
+              key: ValueKey('community-card:${item['id']}'),
               padding: const EdgeInsets.symmetric(vertical: AccessSpacing.s20),
               decoration: BoxDecoration(
                 border: Border(bottom: BorderSide(color: palette.hair)),
@@ -288,6 +289,30 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
                           ),
                         ),
                     ],
+                  ),
+                  const SizedBox(height: AccessSpacing.s12),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Text(
+                      key: ValueKey('community-count:${item['id']}'),
+                      item['event_count'] is int && item['event_count'] >= 0
+                          ? localText(
+                              context,
+                              '${item['event_count']} ${item['event_count'] == 1 ? 'Veranstaltung' : 'Veranstaltungen'}',
+                              '${item['event_count']} ${item['event_count'] == 1 ? 'event' : 'events'}',
+                            )
+                          : localText(
+                              context,
+                              'Anzahl nicht verfügbar',
+                              'Event count unavailable',
+                            ),
+                      textAlign: TextAlign.right,
+                      style: TextStyle(
+                        fontSize: AccessTypography.captionSize,
+                        color: palette.muted,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
                 ],
               ),
