@@ -274,6 +274,30 @@ class FlyerScene extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     _picture(context),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      height: mobileImageHeight * .55,
+                      child: const IgnorePointer(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              stops: [0, .22, .5, .77, 1],
+                              colors: [
+                                Color(0x00171713),
+                                Color(0x10171713),
+                                Color(0x50171713),
+                                Color(0xb8171713),
+                                FlyerStyle.ink,
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                     if (topRight != null)
                       Positioned(top: 16, right: padding, child: topRight!),
                   ],
