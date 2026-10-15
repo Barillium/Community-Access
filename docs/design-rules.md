@@ -111,6 +111,12 @@ English, markiert die aktive Sprache und erhält den aktuellen Seiten-/Eventzust
 Mobil steht die Sprachauswahl vor dem Menü. Bedienziele bleiben mindestens 48 px
 hoch; Escape schließt das Sprachmenü und gibt den Fokus an den Schalter zurück.
 
+Veranstaltungsanzeigen tragen keine Kennzeichnung „Öffentlich“, „Privat“ oder
+„Mit Zugang“ und kein zugehöriges Statussymbol. Dies gilt für Hero, Programmzeilen
+und Listen in Veranstalter-/Communityansichten. Teilnahmeaktionen und nötige
+Hinweise zur Ortsfreigabe bleiben erhalten; Zugangsregeln und redaktionelle
+Sichtbarkeitseinstellungen werden dadurch nicht verändert.
+
 [Tatsächliche Umsetzung und lokale Prüfungen](qa/flyer-20261015/report.md). Die 26 Boards zeigen 13 echte Flutter-Ansichten mit synthetischen Fixtures. Sie ersetzen keine umfassende Geräte-, Rollen-/Zustands-, Screenreader- oder Produktionsabnahme.
 
 

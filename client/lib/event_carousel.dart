@@ -7,7 +7,6 @@ import 'app_language.dart';
 import 'design_system.dart';
 import 'flyer_design.dart';
 import 'event_editorial_view.dart';
-import 'program_views.dart';
 
 class EventCarousel extends StatefulWidget {
   const EventCarousel({
@@ -163,8 +162,6 @@ class _EventCarouselState extends State<EventCarousel> {
           ),
           const SizedBox(height: 12),
         ],
-        EventAccessMark(event: event),
-        const SizedBox(height: 8),
         Text(
           localText(
             context,

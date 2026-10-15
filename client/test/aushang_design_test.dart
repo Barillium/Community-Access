@@ -8,7 +8,6 @@ import 'package:community_access_client/aushang_tokens.dart';
 import 'package:community_access_client/design_system.dart';
 import 'package:community_access_client/event_carousel.dart';
 import 'package:community_access_client/main.dart';
-import 'package:community_access_client/program_views.dart';
 import 'package:community_access_client/public_home_page.dart';
 
 import 'discovery_widget_test.dart' show DiscoveryFixture;
@@ -21,13 +20,6 @@ void main() {
       ..addFont(rootBundle.load('assets/fonts/Archivo-Variable.ttf'))
       ..addFont(rootBundle.load('assets/fonts/Archivo-Italic-Variable.ttf'));
     await archivo.load();
-  });
-
-  test('visibility badges require explicit server visibility', () {
-    expect(eventAccessLabel({'access_mode': 'private'}), 'Mit Zugang');
-    expect(eventAccessLabel({'access_mode': 'semi_public'}), 'Semi-öffentlich');
-    expect(eventAccessLabel({'is_public': true}), 'Öffentlich');
-    expect(eventAccessLabel({}), isEmpty);
   });
 
   testWidgets('compact poster keeps a fitted Archivo word on one line', (

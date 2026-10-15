@@ -26,15 +26,6 @@ String programDate(dynamic value) {
   return '${two(date.day)}.${two(date.month)}.${date.year} · ${two(date.hour)}:${two(date.minute)}';
 }
 
-/// Visibility labels come from explicit API fields, never from membership.
-String eventAccessLabel(Map<String, dynamic> event) =>
-    switch (event['access_mode']) {
-      'semi_public' => 'Semi-öffentlich',
-      'public' => 'Öffentlich',
-      'private' => 'Mit Zugang',
-      _ => event['is_public'] == true ? 'Öffentlich' : '',
-    };
-
 class ProgramList extends StatelessWidget {
   final DirectoryApi api;
   final bool showHeading;
@@ -364,8 +355,6 @@ class _CalendarEvent extends StatelessWidget {
                     color: palette.muted,
                   ),
                 ),
-              if (eventAccessLabel(event).isNotEmpty)
-                EventAccessMark(event: event),
               if ((event['location'] as String? ?? '').isNotEmpty)
                 Text(
                   event['location'] as String,
@@ -461,80 +450,6 @@ class _CalendarEvent extends StatelessWidget {
   );
 }
 
-class EventAccessMark extends StatelessWidget {
-  final Map<String, dynamic> event;
-  const EventAccessMark({super.key, required this.event});
-  @override
-  Widget build(BuildContext context) {
-    final label = eventAccessLabel(event);
-    if (label.isEmpty) return const SizedBox.shrink();
-    final color =
-        DefaultTextStyle.of(context).style.color ??
-        AushangPalette.of(context).ink;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        ExcludeSemantics(
-          child: CustomPaint(
-            size: const Size(12, 12),
-            painter: _AccessMark(
-              color: color,
-              half: event['access_mode'] == 'semi_public',
-              filled: event['access_mode'] == 'private',
-            ),
-          ),
-        ),
-        const SizedBox(width: 9),
-        Flexible(
-          child: LocalText(
-            label,
-            style: TextStyle(
-              fontSize: AccessTypography.captionSize,
-              fontWeight: FontWeight.w500,
-              color: color,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _AccessMark extends CustomPainter {
-  final Color color;
-  final bool half, filled;
-  const _AccessMark({
-    required this.color,
-    required this.half,
-    required this.filled,
-  });
-  @override
-  void paint(Canvas canvas, Size size) {
-    final circle = Path()..addOval(Offset.zero & size);
-    canvas.save();
-    canvas.clipPath(circle);
-    if (filled || half) {
-      canvas.drawRect(
-        Rect.fromLTWH(0, 0, half ? size.width / 2 : size.width, size.height),
-        Paint()..color = color,
-      );
-    }
-    canvas.restore();
-    canvas.drawCircle(
-      size.center(Offset.zero),
-      size.width / 2 - 1,
-      Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_AccessMark old) =>
-      old.color != color || old.half != half || old.filled != filled;
-}
-
 class _ProgramRow extends StatelessWidget {
   final Map<String, dynamic> event;
   final VoidCallback onOpen;
@@ -590,14 +505,6 @@ class _ProgramRow extends StatelessWidget {
                 LocalText(
                   event['location'] as String,
                   style: const TextStyle(
-                    fontSize: AccessTypography.captionSize,
-                  ),
-                ),
-              if (eventAccessLabel(event).isNotEmpty)
-                LocalText(
-                  eventAccessLabel(event),
-                  style: TextStyle(
-                    color: palette.muted,
                     fontSize: AccessTypography.captionSize,
                   ),
                 ),

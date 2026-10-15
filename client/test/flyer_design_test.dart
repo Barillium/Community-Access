@@ -7,6 +7,7 @@ import 'package:community_access_client/design_system.dart';
 import 'package:community_access_client/event_carousel.dart';
 import 'package:community_access_client/event_editorial_view.dart';
 import 'package:community_access_client/app_language.dart';
+import 'package:community_access_client/program_views.dart';
 
 import 'discovery_widget_test.dart' show DiscoveryFixture;
 
@@ -16,6 +17,90 @@ void main() {
       ..addFont(rootBundle.load('assets/fonts/Archivo-Variable.ttf'))
       ..addFont(rootBundle.load('assets/fonts/Archivo-Italic-Variable.ttf'));
     await font.load();
+  });
+  testWidgets('event surfaces omit visibility labels in both languages', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    try {
+      for (final mode in ['public', 'private', 'semi_public']) {
+        for (final english in [false, true]) {
+          final event = <String, dynamic>{
+            'id': 'synthetic',
+            'title': 'Demo Termin',
+            'organizer': 'Demo Kollektiv',
+            'status': 'published',
+            'starts_at': '2026-11-21T22:00:00Z',
+            'access_mode': mode,
+            'is_public': mode == 'public',
+            'location': '',
+            'event_content': <String, dynamic>{},
+          };
+          await tester.pumpWidget(
+            MaterialApp(
+              theme: AccessDesign.theme(),
+              home: LanguageScope(
+                language: AppLanguage()..value = english,
+                child: Scaffold(
+                  body: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        EventCarousel(events: [event], onOpen: (_) {}),
+                        for (final calendar in [false, true])
+                          ProgramList(
+                            api: DiscoveryFixture(),
+                            calendarLayout: calendar,
+                            showHeading: false,
+                            program: {
+                              'events': [event],
+                            },
+                          ),
+                        EventEditorialView(event: event),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+          expect(find.text('Demo Termin'), findsNWidgets(4));
+          expect(
+            find.text(
+              english
+                  ? 'Attendance is confirmed separately.'
+                  : 'Teilnahme wird separat bestätigt.',
+            ),
+            findsOneWidget,
+          );
+          expect(
+            find.text(english ? 'Not released yet' : 'Noch nicht freigegeben'),
+            findsOneWidget,
+          );
+          for (final label in [
+            'Öffentlich',
+            'Semi-öffentlich',
+            'Mit Zugang',
+            'Privat',
+            'Public',
+            'Semi-public',
+            'With access',
+            'Private',
+          ]) {
+            expect(find.text(label), findsNothing, reason: '$mode / $english');
+            expect(
+              find.bySemanticsLabel(RegExp('\\b${RegExp.escape(label)}\\b')),
+              findsNothing,
+              reason: 'No visibility classification in semantics',
+            );
+          }
+          expect(tester.takeException(), isNull);
+          await tester.pumpWidget(const SizedBox.shrink());
+        }
+      }
+    } finally {
+      semantics.dispose();
+    }
   });
   for (final width in [320.0, 390.0, 768.0, 1440.0]) {
     for (final scale in [1.0, 2.0]) {
