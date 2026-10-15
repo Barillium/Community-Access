@@ -104,6 +104,13 @@ Desktop-Inhalte nutzen die verfügbare Breite mit fließendem Rand; vorhandene F
 
 Event- und Ticketflächen haben keine grauen Kartenrahmen/inneren Trennlinien; eigene orange Markierungen können die Inhalte rahmen. Formularumrandungen und chronologische Ordnungsstriche bleiben funktionale Orientierung. Verwaltung bleibt sachlich. Plakatwechsel sind standardmäßig aus und können gezielt gestartet werden; reduzierte Bewegung, Tastaturfokus und inaktive Routen unterbrechen sie. Keine Pflichtanimation an Überschriften oder Markierungen.
 
+Header-Präzisierung: Auf Desktop folgen rechts auf die Hauptnavigation „Mein Zugang“,
+Suche und die Sprachauswahl am rechten Rand. Der gemeinsame Sprachschalter zeigt
+die aktuelle Sprache als DE/EN mit Dropdown-Pfeil; das Menü bietet Deutsch und
+English, markiert die aktive Sprache und erhält den aktuellen Seiten-/Eventzustand.
+Mobil steht die Sprachauswahl vor dem Menü. Bedienziele bleiben mindestens 48 px
+hoch; Escape schließt das Sprachmenü und gibt den Fokus an den Schalter zurück.
+
 [Tatsächliche Umsetzung und lokale Prüfungen](qa/flyer-20261015/report.md). Die 26 Boards zeigen 13 echte Flutter-Ansichten mit synthetischen Fixtures. Sie ersetzen keine umfassende Geräte-, Rollen-/Zustands-, Screenreader- oder Produktionsabnahme.
 
 

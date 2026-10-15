@@ -132,15 +132,64 @@ class FlyerLanguageButton extends StatelessWidget {
     final language = LanguageScope.of(context);
     if (language == null) return const SizedBox.shrink();
     final english = language.value;
-    return TextButton(
-      onPressed: () => language.value = !english,
-      style: TextButton.styleFrom(
-        foregroundColor: FlyerStyle.ink,
-        minimumSize: const Size(48, 48),
+    return PopupMenuButton<bool>(
+      tooltip: localText(context, 'Sprache auswählen', 'Choose language'),
+      initialValue: english,
+      position: PopupMenuPosition.under,
+      color: Colors.white,
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      shape: const RoundedRectangleBorder(
+        side: BorderSide(color: FlyerStyle.ink),
       ),
-      child: Text(
-        english ? 'DE' : 'EN',
-        semanticsLabel: english ? 'Auf Deutsch wechseln' : 'Switch to English',
+      constraints: const BoxConstraints(minWidth: 160),
+      onSelected: (value) => language.value = value,
+      itemBuilder: (_) => [
+        for (final item in const {false: 'Deutsch', true: 'English'}.entries)
+          PopupMenuItem<bool>(
+            value: item.key,
+            height: 48,
+            child: Semantics(
+              selected: english == item.key,
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.check,
+                    size: 18,
+                    color: english == item.key
+                        ? FlyerStyle.ink
+                        : Colors.transparent,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    item.value,
+                    style: const TextStyle(color: FlyerStyle.ink),
+                  ),
+                ],
+              ),
+            ),
+          ),
+      ],
+      child: Semantics(
+        label: english ? 'Language: English' : 'Sprache: Deutsch',
+        excludeSemantics: true,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 64, minHeight: 48),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  english ? 'EN' : 'DE',
+                  style: const TextStyle(color: FlyerStyle.ink),
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.expand_more, size: 16, color: FlyerStyle.ink),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

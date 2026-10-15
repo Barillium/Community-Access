@@ -131,7 +131,9 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('2 / 2'), findsOneWidget);
-      await tester.tap(find.widgetWithText(TextButton, 'EN'));
+      await tester.tap(find.byTooltip('Sprache auswählen'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('English'));
       await tester.pumpAndSettle();
       expect(find.text('My access'), findsOneWidget);
       expect(

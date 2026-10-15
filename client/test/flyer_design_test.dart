@@ -95,7 +95,7 @@ void main() {
       });
     }
   }
-  testWidgets('EN toggle retains chosen event and returning to DE works', (
+  testWidgets('language dropdown is rightmost and retains chosen event', (
     tester,
   ) async {
     tester.view.physicalSize = const Size(1440, 1000);
@@ -110,16 +110,70 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    final access = tester.getRect(
+      find.widgetWithText(TextButton, 'Mein Zugang'),
+    );
+    final search = tester.getRect(find.byTooltip('Suche öffnen'));
+    final language = tester.getRect(find.byType(FlyerLanguageButton));
+    expect(access.right, lessThanOrEqualTo(search.left));
+    expect(search.right, lessThanOrEqualTo(language.left));
     await tester.tap(find.byTooltip('Nächste Veranstaltung'));
     await tester.pumpAndSettle();
-    await tester.tap(find.widgetWithText(TextButton, 'EN'));
+    await tester.tap(find.byTooltip('Sprache auswählen'));
+    await tester.pumpAndSettle();
+    expect(find.text('Deutsch'), findsOneWidget);
+    await tester.tap(find.text('English'));
     await tester.pumpAndSettle();
     expect(find.text('Program.'), findsOneWidget);
     expect(find.text('2 / 2'), findsOneWidget);
-    await tester.tap(find.widgetWithText(TextButton, 'DE'));
+    await tester.tap(find.byTooltip('Choose language'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Deutsch'));
     await tester.pumpAndSettle();
     expect(find.text('Programm.'), findsOneWidget);
     expect(find.text('2 / 2'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+  testWidgets('language dropdown supports keyboard dismissal and selection', (
+    tester,
+  ) async {
+    final language = AppLanguage();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AccessDesign.theme(),
+        home: Scaffold(
+          body: LanguageScope(
+            language: language,
+            child: const Align(
+              alignment: Alignment.topRight,
+              child: FlyerLanguageButton(),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(find.text('English'), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(find.text('English'), findsNothing);
+    expect(language.value, isFalse);
+    // Focus returns to the trigger, so Enter opens it again without Tab.
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(find.text('English'), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await tester.pump();
+    expect(Focus.of(tester.element(find.text('English'))).hasFocus, isTrue);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.pumpAndSettle();
+    expect(language.value, isTrue);
+    expect(find.text('EN'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
   testWidgets('missing event media and hidden locations stay absent', (
@@ -185,7 +239,7 @@ void main() {
       greaterThanOrEqualTo(48),
     );
     expect(
-      tester.getSize(find.byType(TextButton)).height,
+      tester.getSize(find.byType(FlyerLanguageButton)).height,
       greaterThanOrEqualTo(48),
     );
   });

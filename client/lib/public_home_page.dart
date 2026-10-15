@@ -410,13 +410,6 @@ class _PublicHomePageState extends State<PublicHomePage> {
             const Spacer(),
             if (!compact) _nav(),
             if (!compact)
-              IconButton(
-                onPressed: _openSearch,
-                tooltip: localText(context, 'Suche öffnen', 'Open search'),
-                icon: const AccessIcon(Icons.search),
-              ),
-            const FlyerLanguageButton(),
-            if (!compact)
               TextButton(
                 onPressed: _openAccount,
                 style: TextButton.styleFrom(
@@ -430,9 +423,15 @@ class _PublicHomePageState extends State<PublicHomePage> {
                     style: TextStyle(color: palette.ink),
                   ),
                 ),
-              )
-            else
-              menu,
+              ),
+            if (!compact)
+              IconButton(
+                onPressed: _openSearch,
+                tooltip: localText(context, 'Suche öffnen', 'Open search'),
+                icon: const AccessIcon(Icons.search),
+              ),
+            const FlyerLanguageButton(),
+            if (compact) menu,
           ],
         );
       },
