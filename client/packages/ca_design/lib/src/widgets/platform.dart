@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../haptics.dart';
+import '../icons.dart';
 import '../theme.dart';
 import '../tokens.dart';
 import 'basics.dart';
@@ -237,7 +238,7 @@ class CaSearchField extends StatelessWidget {
             textInputAction: TextInputAction.search,
             decoration: InputDecoration(
               hintText: hint,
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: const Icon(CaIcons.search),
               floatingLabelBehavior: FloatingLabelBehavior.never,
             ),
           );
@@ -286,14 +287,14 @@ class CaSettingsSection extends StatelessWidget {
                   style: CaType.body.copyWith(color: c.textPrimary)),
               leading: i.icon == null
                   ? null
-                  : Icon(i.icon, size: 22, color: c.textPrimary),
+                  : CaIcon(i.icon, size: 22, color: c.textPrimary),
               additionalInfo: i.value == null
                   ? null
                   : Text(i.value!,
                       style: CaType.body.copyWith(color: c.textSecondary)),
               trailing: i.onTap == null
                   ? null
-                  : Icon(Icons.chevron_right, size: 24, color: c.textSecondary),
+                  : Icon(CaIcons.caretRight, size: 24, color: c.textSecondary),
               onTap: i.onTap,
             ),
         ],
@@ -310,7 +311,7 @@ class CaSettingsSection extends StatelessWidget {
         ),
       for (final i in items)
         ListTile(
-          leading: i.icon == null ? null : Icon(i.icon, color: c.textPrimary),
+          leading: i.icon == null ? null : CaIcon(i.icon, color: c.textPrimary),
           title: Text(i.label, style: CaType.body),
           subtitle: i.value == null
               ? null
@@ -381,7 +382,7 @@ Future<void> showCaActions(BuildContext context,
         ),
       for (final a in actions)
         ListTile(
-          leading: Icon(a.icon, color: c.textPrimary),
+          leading: CaIcon(a.icon, color: c.textPrimary),
           title: Text(a.label, style: CaType.body),
           minTileHeight: 56,
           onTap: () {
@@ -403,7 +404,7 @@ class CaSwipeToRemove extends StatelessWidget {
     required this.onRemove,
     required this.child,
     this.label = 'Entfernen',
-    this.icon = Icons.bookmark_remove_outlined,
+    this.icon = CaIcons.bookmarkRemove,
   });
 
   final Object id;

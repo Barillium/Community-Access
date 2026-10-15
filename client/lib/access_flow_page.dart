@@ -1,3 +1,5 @@
+import 'flyer_design.dart';
+
 import 'package:flutter/material.dart';
 
 import 'access_api.dart';
@@ -826,6 +828,7 @@ class _AccessFlowPageState extends State<AccessFlowPage> {
     appBar: AppBar(
       title: Text(localText(context, 'Zugang verwalten', 'Manage access')),
       actions: [
+        const FlyerLanguageButton(),
         IconButton(
           tooltip: localText(context, 'Aktualisieren', 'Refresh'),
           onPressed: busy ? null : () => run(refresh, refreshAfter: false),

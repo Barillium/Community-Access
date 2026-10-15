@@ -166,6 +166,7 @@ void main() {
       expect(find.text('Veranstaltungen'), findsNothing);
       expect(find.textContaining('Freigabe'), findsNothing);
       api.allowed = true;
+      await tester.ensureVisible(find.text('Aktualisieren'));
       await tester.tap(find.text('Aktualisieren'));
       await tester.pumpAndSettle();
       expect(find.text('Demo Nebelreihe'), findsOneWidget);
@@ -175,6 +176,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Demo Nebelabend'), findsOneWidget);
       api.allowed = false;
+      await tester.ensureVisible(find.text('Aktualisieren'));
       await tester.ensureVisible(find.text('Aktualisieren'));
       await tester.tap(find.text('Aktualisieren'));
       await tester.pumpAndSettle();

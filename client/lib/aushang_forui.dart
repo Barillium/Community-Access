@@ -1,3 +1,5 @@
+import 'flyer_design.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:forui/forui.dart';
@@ -10,12 +12,10 @@ abstract final class AushangForui {
   static final dark = _theme(true);
 
   static FThemeData _theme(bool dark) {
-    final ink = dark
-        ? AushangTokens.darkSemanticTextPrimary
-        : AushangTokens.semanticTextPrimary;
+    final ink = dark ? AushangTokens.darkSemanticTextPrimary : FlyerStyle.ink;
     final page = dark
         ? AushangTokens.darkSemanticSurfacePage
-        : AushangTokens.semanticSurfacePage;
+        : FlyerStyle.paper;
     final sunken = dark
         ? AushangTokens.darkSemanticSurfaceSunken
         : AushangTokens.semanticSurfaceSunken;
@@ -42,14 +42,14 @@ abstract final class AushangForui {
     );
     TextStyle text(double size, {double height = 1.5}) => TextStyle(
       fontFamily: AushangTokens.primitiveFontFamily,
-      fontFamilyFallback: const ['Rubik'],
+
       fontSize: size,
       height: height,
       color: ink,
     );
     final body = FTypeface(
       fontFamily: AushangTokens.primitiveFontFamily,
-      fontFamilyFallback: const ['Rubik'],
+
       xs3: text(13),
       xs2: text(13),
       xs: text(14),
@@ -61,14 +61,14 @@ abstract final class AushangForui {
       xl3: text(52, height: 1),
     );
     TextStyle display(double size) => text(size, height: 1.1).copyWith(
-      fontWeight: FontWeight.w800,
-      fontVariations: const [FontVariation('wdth', 68)],
+      fontWeight: FontWeight.w600,
+      fontVariations: const [FontVariation('wdth', 100)],
       letterSpacing: 0,
     );
     final typography = FTypography(
       display: FTypeface(
         fontFamily: AushangTokens.primitiveFontFamily,
-        fontFamilyFallback: const ['Rubik'],
+
         xs3: display(13),
         xs2: display(13),
         xs: display(14),
@@ -104,7 +104,7 @@ abstract final class AushangForui {
           ),
         );
     return FThemeData(
-      debugLabel: dark ? 'Aushang 3 Dark' : 'Aushang 3 Light',
+      debugLabel: dark ? 'Flyer Dark' : 'Flyer Light',
       colors: colors,
       typography: typography,
       style: style,

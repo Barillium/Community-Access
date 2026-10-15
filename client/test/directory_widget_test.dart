@@ -189,13 +189,13 @@ void main() {
       await tester.ensureVisible(
         find.descendant(
           of: find.byWidgetPredicate((widget) => widget is PopupMenuItem),
-          matching: find.text('Veranstaltungsorte'),
+          matching: find.text('Orte'),
         ),
       );
       await tester.tap(
         find.descendant(
           of: find.byWidgetPredicate((widget) => widget is PopupMenuItem),
-          matching: find.text('Veranstaltungsorte'),
+          matching: find.text('Orte'),
         ),
       );
       await tester.pumpAndSettle();

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../icons.dart';
 import '../theme.dart';
 import '../tokens.dart';
+import 'basics.dart';
 import 'marks.dart';
 import 'platform.dart';
 
@@ -121,7 +123,7 @@ class CaNote extends StatelessWidget {
                   width: CaLine.mark)),
         ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(icon,
+          CaIcon(icon,
               size: 22, color: decision ? c.textDecision : c.textPrimary),
           const SizedBox(width: CaSpace.s3),
           Expanded(
@@ -148,7 +150,7 @@ class CaNote extends StatelessWidget {
 /// Offline-Zeile oben im Inhalt: sagt, welcher Stand zu sehen ist.
 class CaOfflineBar extends StatelessWidget {
   const CaOfflineBar(
-      {super.key, required this.text, this.icon = Icons.wifi_off});
+      {super.key, required this.text, this.icon = CaIcons.wifiOff});
   final String text;
   final IconData icon;
 
@@ -163,7 +165,7 @@ class CaOfflineBar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(
             horizontal: CaSpace.gutter, vertical: CaSpace.s3),
         child: Row(children: [
-          Icon(icon, size: 18, color: c.textInverse),
+          CaIcon(icon, size: 18, color: c.textInverse),
           const SizedBox(width: CaSpace.s3),
           Expanded(
               child: Text(text,

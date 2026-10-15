@@ -136,44 +136,52 @@ class _EventManagementListState extends State<EventManagementList> {
         )
         .toList();
     return AccessContent(
-      width: AccessPageWidth.form,
+      width: AccessPageWidth.content,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           const SizedBox(height: AccessSpacing.s16),
-          AccessField(
-            decoration: const InputDecoration(
-              labelText: 'Eigene Events suchen',
-            ),
-            builder: (d) => TextField(
-              enabled: !widget.busy,
-              decoration: d,
-              onChanged: (v) => setState(() => _query = v),
+          AccessContent(
+            width: AccessPageWidth.form,
+            child: AccessField(
+              decoration: const InputDecoration(
+                labelText: 'Eigene Events suchen',
+              ),
+              builder: (d) => TextField(
+                enabled: !widget.busy,
+                decoration: d,
+                onChanged: (v) => setState(() => _query = v),
+              ),
             ),
           ),
           const SizedBox(height: AccessSpacing.s16),
-          AccessField(
-            decoration: const InputDecoration(labelText: 'Eventstatus filtern'),
-            builder: (d) => DropdownButtonFormField<String>(
-              initialValue: _status,
-              isExpanded: true,
-              itemHeight: null,
-              decoration: d,
-              items: [
-                for (final s in {
-                  'all': 'Alle Events',
-                  'draft': 'Entwürfe',
-                  'published': 'Veröffentlicht',
-                  'cancelled': 'Abgesagt',
-                }.entries)
-                  DropdownMenuItem(
-                    value: s.key,
-                    child: AccessOptionText(s.value),
-                  ),
-              ],
-              onChanged: widget.busy
-                  ? null
-                  : (v) => setState(() => _status = v!),
+          AccessContent(
+            width: AccessPageWidth.form,
+            child: AccessField(
+              decoration: const InputDecoration(
+                labelText: 'Eventstatus filtern',
+              ),
+              builder: (d) => DropdownButtonFormField<String>(
+                initialValue: _status,
+                isExpanded: true,
+                itemHeight: null,
+                decoration: d,
+                items: [
+                  for (final s in {
+                    'all': 'Alle Events',
+                    'draft': 'Entwürfe',
+                    'published': 'Veröffentlicht',
+                    'cancelled': 'Abgesagt',
+                  }.entries)
+                    DropdownMenuItem(
+                      value: s.key,
+                      child: AccessOptionText(s.value),
+                    ),
+                ],
+                onChanged: widget.busy
+                    ? null
+                    : (v) => setState(() => _status = v!),
+              ),
             ),
           ),
           if (events.isEmpty)
@@ -181,52 +189,111 @@ class _EventManagementListState extends State<EventManagementList> {
               padding: EdgeInsets.symmetric(vertical: 24),
               child: LocalText('Keine passenden Events.'),
             ),
-          for (final e in events) ...[
-            const SizedBox(height: AccessSpacing.s24),
-            LocalText(
-              e['title'] as String,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-            LocalText(
-              '${switch (e['status']) {
-                'draft' => 'Entwurf',
-                'cancelled' => 'Abgesagt',
-                _ => 'Veröffentlicht',
-              }} · ${eventDateLabel(e['starts_at'] as String?)}',
-            ),
-            LocalText(
-              e['location_public'] == true
-                  ? e['public_location'] as String? ?? ''
-                  : 'Ort nicht öffentlich',
-            ),
-            LocalText(
-              widget.profilePublic &&
-                      e['is_public'] == true &&
-                      (e['series_id'] == null ||
-                          widget.series.any(
-                            (s) =>
-                                s['id'] == e['series_id'] &&
-                                s['is_public'] == true,
-                          ))
-                  ? e['access_mode'] == 'semi_public'
-                        ? 'Semi-öffentlich'
-                        : 'Frei sichtbar'
-                  : 'Nur freigegebener Gästekreis',
-            ),
-            if (e.containsKey('pending_count') &&
-                e.containsKey('confirmed_count')) ...[
-              LocalText(
-                '${e['pending_count']} offene Anfragen · ${e['confirmed_count']} Zusagen',
+          for (final e in events) _row(context, e),
+        ],
+      ),
+    );
+  }
+
+  Widget _row(BuildContext context, Map<String, dynamic> e) {
+    final palette = AushangPalette.of(context);
+    final public =
+        widget.profilePublic &&
+        e['is_public'] == true &&
+        (e['series_id'] == null ||
+            widget.series.any(
+              (s) => s['id'] == e['series_id'] && s['is_public'] == true,
+            ));
+    final status = switch (e['status']) {
+      'draft' => 'Entwurf',
+      'cancelled' => 'Abgesagt',
+      _ => 'Veröffentlicht',
+    };
+    final access = public
+        ? (e['access_mode'] == 'semi_public'
+              ? 'Semi-öffentlich'
+              : 'Frei sichtbar')
+        : 'Nur freigegebener Gästekreis';
+    final heading = Text(
+      e['title'] as String,
+      style: const TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w600,
+        fontVariations: [FontVariation('wdth', 100)],
+      ),
+    );
+    final date = LocalText(eventDateLabel(e['starts_at'] as String?));
+    final state = LocalText(status);
+    final visibility = LocalText(access);
+    final place = LocalText(
+      e['location_public'] == true
+          ? e['public_location'] as String? ?? ''
+          : 'Ort nicht öffentlich',
+      style: TextStyle(color: palette.muted),
+    );
+    final numbers = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (e.containsKey('pending_count') &&
+            e.containsKey('confirmed_count')) ...[
+          LocalText(
+            '${e['pending_count']} offene Anfragen · ${e['confirmed_count']} Zusagen',
+          ),
+          LocalText(
+            e['ticket_mode'] != null && e['ticket_mode'] != 'none'
+                ? 'Ticketplätze werden von pretix verwaltet'
+                : e['capacity'] == null
+                ? 'Kapazität unbegrenzt'
+                : '${e['available_places']} freie Plätze von ${e['capacity']}',
+          ),
+        ] else
+          const LocalText('Platzübersicht noch nicht verfügbar.'),
+      ],
+    );
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: palette.hair)),
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (AccessLayout.columns(
+              context,
+              constraints.maxWidth,
+              minWidth: 900,
+            ))
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [heading, const SizedBox(height: 8), place],
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  Expanded(flex: 2, child: date),
+                  const SizedBox(width: 24),
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [visibility, const SizedBox(height: 8), state],
+                    ),
+                  ),
+                  const SizedBox(width: 24),
+                  Expanded(flex: 2, child: numbers),
+                ],
+              )
+            else
+              AccessStack(
+                gap: 12,
+                children: [heading, date, visibility, state, place, numbers],
               ),
-              LocalText(
-                e['ticket_mode'] != null && e['ticket_mode'] != 'none'
-                    ? 'Ticketplätze werden von pretix verwaltet'
-                    : e['capacity'] == null
-                    ? 'Kapazität unbegrenzt'
-                    : '${e['available_places']} freie Plätze von ${e['capacity']}',
-              ),
-            ] else
-              const LocalText('Platzübersicht noch nicht verfügbar.'),
+            const SizedBox(height: 16),
             Wrap(
               spacing: AccessSpacing.s12,
               runSpacing: AccessSpacing.s8,
@@ -253,9 +320,8 @@ class _EventManagementListState extends State<EventManagementList> {
                 ),
               ],
             ),
-            const Divider(),
           ],
-        ],
+        ),
       ),
     );
   }

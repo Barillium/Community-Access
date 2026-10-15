@@ -194,15 +194,19 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byType(DropdownButtonFormField<String>));
     await tester.tap(find.text('Alle Communities'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Demo Musik').last);
     await tester.pumpAndSettle();
     api.directoryFails = true;
+    await tester.ensureVisible(find.text('Suchen'));
     await tester.tap(find.text('Suchen'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
     expect(find.text('Testfehler: Bitte erneut laden.'), findsOneWidget);
+    await tester.ensureVisible(find.byType(DropdownButtonFormField<String>));
+    await tester.pumpAndSettle();
     expect(find.text('Gewählte Community'), findsOneWidget);
     api.directoryFails = false;
     await tester.tap(find.text('Erneut laden'));
@@ -345,6 +349,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Event ansehen'));
     await tester.tap(find.text('Event ansehen'));
     await tester.pumpAndSettle();
     expect(find.byType(ProgramDetailPage), findsOneWidget);
@@ -409,6 +414,14 @@ class FollowFixture implements DirectoryApi {
     Map<String, String>? query,
     Map<String, dynamic>? body,
   }) async {
+    if (path == 'communities') {
+      return {
+        'signed_in': true,
+        'items': [
+          {'id': 'community', 'name': 'Demo Community', 'following': following},
+        ],
+      };
+    }
     if (path == 'home') {
       return {
         'signed_in': true,

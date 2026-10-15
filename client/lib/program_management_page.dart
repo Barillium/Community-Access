@@ -222,7 +222,8 @@ class _ProgramManagementPageState extends State<ProgramManagementPage> {
       text,
       style: const TextStyle(
         fontSize: AccessTypography.sectionTitleSize,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
+        fontVariations: [FontVariation('wdth', 100)],
       ),
     ),
   );
@@ -323,7 +324,7 @@ class _ProgramManagementPageState extends State<ProgramManagementPage> {
                     ),
                   ),
                 ),
-              ]),
+              ], width: AccessPageWidth.content),
               _box([
                 _title('Gästekreis freigeben'),
                 const SizedBox(height: AccessSpacing.s12),

@@ -78,6 +78,12 @@ class _AccountMenu extends StatelessWidget {
               children: [
                 Row(
                   children: [
+                    const AccessIcon(
+                      Icons.account_circle_outlined,
+                      size: 24,
+                      active: true,
+                    ),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: AccessHeading(
                         localText(context, 'Konto', 'Account'),
@@ -106,10 +112,18 @@ class _AccountMenu extends StatelessWidget {
                 const SizedBox(height: 32),
                 const Divider(),
                 const SizedBox(height: 24),
-                AccessHeading(
-                  localText(context, 'Sprache', 'Language'),
-                  role: AccessHeadingRole.card,
-                  level: 3,
+                Row(
+                  children: [
+                    const AccessIcon(Icons.language, size: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: AccessHeading(
+                        localText(context, 'Sprache', 'Language'),
+                        role: AccessHeadingRole.card,
+                        level: 3,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 Wrap(
@@ -129,10 +143,18 @@ class _AccountMenu extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 32),
-                AccessHeading(
-                  localText(context, 'Darstellung', 'Appearance'),
-                  role: AccessHeadingRole.card,
-                  level: 3,
+                Row(
+                  children: [
+                    const AccessIcon(Icons.contrast, size: 24),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: AccessHeading(
+                        localText(context, 'Darstellung', 'Appearance'),
+                        role: AccessHeadingRole.card,
+                        level: 3,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 Wrap(

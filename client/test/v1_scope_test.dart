@@ -53,8 +53,12 @@ void main() {
     expect(find.text('Veranstaltungsorte'), findsNothing);
     expect(find.text('Semi-öffentlich'), findsNothing);
     expect(find.text('Meine Präferenzen'), findsNothing);
+    await tester.tap(find.byTooltip('Menü'));
+    await tester.pumpAndSettle();
+    expect(find.text('Merkliste'), findsNothing);
+    expect(find.text('Orte'), findsNothing);
     expect(find.text('Mein Zugang'), findsOneWidget);
-    expect(find.text('Konto'), findsWidgets);
+    expect(find.text('Konto und Darstellung'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
   testWidgets('V1 bookmark and interest widgets perform no deferred requests', (

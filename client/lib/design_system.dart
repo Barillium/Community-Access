@@ -1,6 +1,12 @@
+import 'flyer_design.dart';
+import 'flyer_icons.dart';
+
+import 'package:ca_design/ca_design.dart';
+
 import 'app_language.dart';
 import 'aushang_tokens.dart';
-import 'phosphor_vectors.dart';
+import 'access_symbols.dart';
+export 'access_symbols.dart' show AccessSymbol, accessSymbolFor;
 import 'aushang_forui.dart';
 
 export 'aushang_forui.dart'
@@ -51,14 +57,14 @@ abstract final class AccessTypography {
   static const cardTitle = TextStyle(
     fontSize: cardTitleSize,
     height: titleHeight,
-    fontWeight: FontWeight.w800,
-    fontVariations: [FontVariation('wdth', 68)],
+    fontWeight: FontWeight.w600,
+    fontVariations: [FontVariation('wdth', 100)],
   );
   static const sectionTitle = TextStyle(
     fontSize: sectionTitleSize,
     height: titleHeight,
-    fontWeight: FontWeight.w800,
-    fontVariations: [FontVariation('wdth', 68)],
+    fontWeight: FontWeight.w600,
+    fontVariations: [FontVariation('wdth', 100)],
   );
 }
 
@@ -118,8 +124,8 @@ abstract final class AccessLayout {
   static const comfortableSurfaceWidth = 600.0;
   static const compactControlsWidth = 620.0;
   static const metadataMinWidth = 300.0;
-  static const maxContentWidth = 1280.0;
-  static const detailWidth = 1180.0;
+  static const maxContentWidth = double.infinity;
+  static const detailWidth = double.infinity;
   static const readingWidth = 760.0;
   static const formWidth = 520.0;
   static const metadataWidth = 280.0;
@@ -139,8 +145,8 @@ abstract final class AccessLayout {
   static const brandIconSize = 28.0;
   static const smallIconSize = 18.0;
   static const brandIllustrationSize = 64.0;
-  static const headerHeight = AushangTokens.componentHeaderHeight;
-  static const toolbarHeight = AushangTokens.componentHeaderHeight;
+  static const headerHeight = 67.0;
+  static const toolbarHeight = 67.0;
 
   static double fluid(
     double width,
@@ -151,7 +157,11 @@ abstract final class AccessLayout {
   }) => min + (max - min) * ((width - from) / (to - from)).clamp(0.0, 1.0);
   static double gutter(BuildContext context, double width) {
     final tokens = AccessLayoutTheme.of(context);
-    return width < mobileBreakpoint ? tokens.gutterMin : tokens.gutterMax;
+    return width < mobileBreakpoint
+        ? tokens.gutterMin
+        : tokens.gutterMax != const AccessLayoutTheme().gutterMax
+        ? tokens.gutterMax
+        : (width * .0225).clamp(24.0, 56.0);
   }
 
   static EdgeInsets pagePadding(BuildContext context) =>
@@ -368,7 +378,7 @@ AppBar accessAppBar(BuildContext context, String title, {Widget? leading}) {
     maxWidth: math.max(
       1,
       MediaQuery.sizeOf(context).width -
-          AccessLayout.minTouchTarget -
+          AccessLayout.minTouchTarget * 2 -
           AccessSpacing.s48,
     ),
   );
@@ -380,6 +390,7 @@ AppBar accessAppBar(BuildContext context, String title, {Widget? leading}) {
   painter.dispose();
   return AppBar(
     leading: leading,
+    actions: const [FlyerLanguageButton()],
     toolbarHeight: height,
     title: Text(
       localText(context, title),
@@ -519,7 +530,7 @@ class AccessHeading extends StatelessWidget {
     this.role = AccessHeadingRole.section,
     this.level = 2,
     this.color,
-    this.weight = FontWeight.w800,
+    this.weight = FontWeight.w600,
     this.referenceWidth,
     this.uppercase = false,
   });
@@ -533,7 +544,7 @@ class AccessHeading extends StatelessWidget {
               : MediaQuery.sizeOf(context).width);
       final size = switch (role) {
         AccessHeadingRole.poster =>
-          MediaQuery.sizeOf(context).width < 768 ? 72.0 : 136.0,
+          MediaQuery.sizeOf(context).width < 768 ? 44.0 : 72.0,
         AccessHeadingRole.hero => AccessLayout.fluid(
           width,
           AccessTypography.heroMin,
@@ -552,23 +563,31 @@ class AccessHeading extends StatelessWidget {
               : AccessTypography.cardTitleSize,
       };
       final content = localText(context, text);
-      return Semantics(
-        headingLevel: level,
-        child: Text(
-          uppercase ? content.toUpperCase() : content,
-          semanticsLabel: content,
-          style: TextStyle(
-            fontSize: size,
-            height: uppercase
-                ? (role == AccessHeadingRole.card ? .98 : .9)
-                : role == AccessHeadingRole.card
-                ? AccessTypography.titleHeight
-                : AccessTypography.headingHeight,
-            fontWeight: weight,
-            fontVariations: const [FontVariation('wdth', 68)],
-            color: color,
-          ),
+      final heading = Text(
+        uppercase ? content.toUpperCase() : content,
+        semanticsLabel: content,
+        style: TextStyle(
+          fontSize: size,
+          height: uppercase
+              ? (role == AccessHeadingRole.card ? .98 : .9)
+              : role == AccessHeadingRole.card
+              ? AccessTypography.titleHeight
+              : AccessTypography.headingHeight,
+          fontWeight: weight,
+          fontVariations: const [FontVariation('wdth', 100)],
+          color: color,
         ),
+      );
+      return Semantics(
+        container: true,
+        headingLevel: level,
+        child:
+            (role == AccessHeadingRole.page || role == AccessHeadingRole.hero)
+            ? Align(
+                alignment: Alignment.centerLeft,
+                child: FlyerMark(child: heading),
+              )
+            : heading,
       );
     },
   );
@@ -598,15 +617,11 @@ class AushangPalette extends ThemeExtension<AushangPalette> {
   const AushangPalette({this.dark = false});
   static AushangPalette of(BuildContext context) =>
       Theme.of(context).extension<AushangPalette>() ?? const AushangPalette();
-  Color get page => dark
-      ? AushangTokens.darkSemanticSurfacePage
-      : AushangTokens.semanticSurfacePage;
+  Color get page => dark ? FlyerStyle.ink : FlyerStyle.paper;
   Color get sunken => dark
       ? AushangTokens.darkSemanticSurfaceSunken
       : AushangTokens.semanticSurfaceSunken;
-  Color get ink => dark
-      ? AushangTokens.darkSemanticTextPrimary
-      : AushangTokens.semanticTextPrimary;
+  Color get ink => dark ? FlyerStyle.paper : FlyerStyle.ink;
   Color get muted => dark
       ? AushangTokens.darkSemanticTextSecondary
       : AushangTokens.semanticTextSecondary;
@@ -631,8 +646,8 @@ class AushangPalette extends ThemeExtension<AushangPalette> {
 }
 
 abstract final class AccessDesign {
-  static const ink = AushangTokens.semanticTextPrimary;
-  static const paper = AushangTokens.semanticSurfacePage;
+  static const ink = FlyerStyle.ink;
+  static const paper = FlyerStyle.paper;
   static const muted = AushangTokens.semanticTextSecondary;
   static const accentSoft = AushangTokens.semanticSurfaceDecision;
   static const accent = AushangTokens.semanticSurfaceAccent;
@@ -648,8 +663,8 @@ abstract final class AccessDesign {
       borderSide: BorderSide(color: palette.control),
     );
     final button = FilledButton.styleFrom(
-      backgroundColor: palette.ink,
-      foregroundColor: palette.page,
+      backgroundColor: FlyerStyle.orange,
+      foregroundColor: FlyerStyle.ink,
       disabledBackgroundColor: palette.sunken,
       disabledForegroundColor: palette.muted,
       minimumSize: const Size(48, AushangTokens.componentButtonHeight),
@@ -662,24 +677,30 @@ abstract final class AccessDesign {
       ),
       animationDuration: AushangTokens.semanticMotionHover,
     ).copyWith(side: _focusBorder(palette.ink));
-    return ThemeData(
-      useMaterial3: true,
-      brightness: dark ? Brightness.dark : Brightness.light,
-      fontFamily: 'Archivo',
-      fontFamilyFallback: const ['Rubik'],
-      extensions: [const AccessLayoutTheme(), palette],
-      textTheme: const TextTheme(
-        bodyMedium: AccessTypography.body,
-        bodyLarge: AccessTypography.body,
-        bodySmall: AccessTypography.caption,
-        titleLarge: AccessTypography.cardTitle,
-        titleMedium: AccessTypography.lead,
-        titleSmall: AccessTypography.body,
-        headlineSmall: AccessTypography.sectionTitle,
-        labelLarge: AccessTypography.caption,
-        labelMedium: AccessTypography.caption,
-        labelSmall: AccessTypography.label,
-      ).apply(bodyColor: palette.ink, displayColor: palette.ink),
+    final base = dark ? CaTheme.dark() : CaTheme.light();
+    return base.copyWith(
+      extensions: [
+        ...base.extensions.values,
+        const AccessLayoutTheme(),
+        palette,
+      ],
+      textTheme:
+          const TextTheme(
+            bodyMedium: AccessTypography.body,
+            bodyLarge: AccessTypography.body,
+            bodySmall: AccessTypography.caption,
+            titleLarge: AccessTypography.cardTitle,
+            titleMedium: AccessTypography.lead,
+            titleSmall: AccessTypography.body,
+            headlineSmall: AccessTypography.sectionTitle,
+            labelLarge: AccessTypography.caption,
+            labelMedium: AccessTypography.caption,
+            labelSmall: AccessTypography.label,
+          ).apply(
+            fontFamily: 'Archivo',
+            bodyColor: palette.ink,
+            displayColor: palette.ink,
+          ),
       scaffoldBackgroundColor: palette.page,
       colorScheme: ColorScheme.fromSeed(
         brightness: dark ? Brightness.dark : Brightness.light,
@@ -702,15 +723,15 @@ abstract final class AccessDesign {
         space: 1,
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: palette.page,
-        foregroundColor: palette.ink,
+        backgroundColor: Colors.white,
+        foregroundColor: FlyerStyle.ink,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
-        shape: Border(bottom: BorderSide(color: palette.ink)),
+        shape: const Border(bottom: BorderSide(color: Color(0xffdedbd3))),
         toolbarHeight: AccessLayout.toolbarHeight,
         titleTextStyle: TextStyle(
           fontFamily: 'Archivo',
-          color: palette.ink,
+          color: FlyerStyle.ink,
           fontSize: 20,
           fontWeight: FontWeight.w600,
         ),
@@ -836,10 +857,7 @@ class AccessSurface extends StatelessWidget {
             EdgeInsets.all(
               AccessLayout.cardPadding(context, constraints.maxWidth),
             ),
-        decoration: BoxDecoration(
-          color: background,
-          border: Border.all(color: palette.hair),
-        ),
+        decoration: BoxDecoration(color: background, border: const Border()),
         child: Material(type: MaterialType.transparency, child: child),
       );
     },
@@ -875,20 +893,29 @@ class AccessHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
-    final palette = AushangPalette.of(context);
     return Container(
-      constraints: BoxConstraints(minHeight: width < 768 ? 61 : 73),
+      constraints: const BoxConstraints(minHeight: 67),
       padding: EdgeInsets.symmetric(
         horizontal: AccessLayout.gutter(context, width),
-        vertical: 6,
+        vertical: 9,
       ),
-      decoration: BoxDecoration(
-        color: palette.page,
-        border: Border(bottom: BorderSide(color: palette.ink)),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(bottom: BorderSide(color: Color(0xffdedbd3))),
       ),
-      child: DefaultTextStyle.merge(
-        style: TextStyle(color: palette.ink),
-        child: child,
+      child: Theme(
+        data: AccessDesign.theme().copyWith(
+          colorScheme: AccessDesign.theme().colorScheme.copyWith(
+            surface: Colors.white,
+          ),
+        ),
+        child: DefaultTextStyle.merge(
+          style: const TextStyle(color: FlyerStyle.ink),
+          child: IconTheme(
+            data: const IconThemeData(color: FlyerStyle.ink),
+            child: child,
+          ),
+        ),
       ),
     );
   }
@@ -921,13 +948,14 @@ class AccessTopBar extends StatelessWidget implements PreferredSizeWidget {
               child: title,
             ),
           ),
+          const FlyerLanguageButton(),
         ],
       ),
     ),
   );
 }
 
-/// Original Phosphor paths from the supplied reference; keep existing identifiers.
+/// Shared icon adapter: existing action identifiers use the supplied symbol style.
 class AccessIcon extends Icon {
   const AccessIcon(
     super.icon, {
@@ -935,11 +963,94 @@ class AccessIcon extends Icon {
     super.size,
     super.color,
     super.semanticLabel,
+    this.active = false,
+    this.decorated = true,
   });
+  final bool active;
+  final bool decorated;
+
   @override
   Widget build(BuildContext context) {
-    final path = phosphorVectors[icon];
-    if (path == null) return super.build(context);
+    final symbol = accessSymbolFor(icon);
+    if (symbol == null) return super.build(context);
+    final palette = AushangPalette.of(context);
+    final iconTheme = IconTheme.of(context);
+    final baseInk = color ?? iconTheme.color ?? palette.ink;
+    final ink = baseInk.withValues(alpha: baseInk.a * (iconTheme.opacity ?? 1));
+    final enabled = ink != Theme.of(context).disabledColor && ink.a >= .8;
+    if (FlyerIconPainter.supports(symbol)) {
+      final dimension = size ?? iconTheme.size ?? AccessLayout.iconSize;
+      return Semantics(
+        label: semanticLabel,
+        excludeSemantics: true,
+        child: SizedBox.square(
+          dimension: dimension,
+          child: CustomPaint(
+            painter: FlyerIconPainter(
+              symbol,
+              decorated && enabled ? FlyerStyle.marker : ink,
+            ),
+          ),
+        ),
+      );
+    }
+    final supplied = switch (symbol) {
+      AccessSymbol.arrowRight => CaIcons.arrowRight,
+      AccessSymbol.arrowLeft => CaIcons.arrowLeft,
+      AccessSymbol.check => CaIcons.check,
+      AccessSymbol.close => CaIcons.close,
+      AccessSymbol.caretDown => CaIcons.caretDown,
+      AccessSymbol.caretRight => CaIcons.caretRight,
+      AccessSymbol.menu => CaIcons.menu,
+      AccessSymbol.search => CaIcons.search,
+      AccessSymbol.bookmark => CaIcons.bookmark,
+      AccessSymbol.bookmarkFill => CaIcons.bookmarkFill,
+      AccessSymbol.bookmarkRemove => CaIcons.bookmarkRemove,
+      AccessSymbol.calendar => active ? CaIcons.calendarFill : CaIcons.calendar,
+      AccessSymbol.calendarFill => CaIcons.calendarFill,
+      AccessSymbol.calendarAdd => CaIcons.calendarAdd,
+      AccessSymbol.door => active ? CaIcons.doorFill : CaIcons.door,
+      AccessSymbol.doorFill => CaIcons.doorFill,
+      AccessSymbol.user => active ? CaIcons.userFill : CaIcons.user,
+      AccessSymbol.userFill => CaIcons.userFill,
+      AccessSymbol.users => CaIcons.users,
+      AccessSymbol.lock => CaIcons.lock,
+      AccessSymbol.shieldCheck => CaIcons.shieldCheck,
+      AccessSymbol.clock => CaIcons.clock,
+      AccessSymbol.globe => CaIcons.globe,
+      AccessSymbol.mapPin => CaIcons.mapPin,
+      AccessSymbol.warning => CaIcons.warning,
+      AccessSymbol.help => CaIcons.help,
+      AccessSymbol.wifiOff => CaIcons.wifiOff,
+      AccessSymbol.refresh => CaIcons.refresh,
+      AccessSymbol.trash => CaIcons.trash,
+      AccessSymbol.pause => CaIcons.pause,
+      AccessSymbol.play => CaIcons.play,
+      AccessSymbol.contrast => CaIcons.contrast,
+      AccessSymbol.share => CaIcons.share,
+      AccessSymbol.shareAndroid => CaIcons.shareAndroid,
+      AccessSymbol.more => CaIcons.more,
+      AccessSymbol.moreVertical => CaIcons.moreVertical,
+      AccessSymbol.bell => CaIcons.bell,
+      AccessSymbol.mail => CaIcons.mail,
+      AccessSymbol.flag => CaIcons.flag,
+      AccessSymbol.document => CaIcons.document,
+      AccessSymbol.filter => CaIcons.filter,
+      _ => null,
+    };
+    final dimension = size ?? iconTheme.size ?? AccessLayout.iconSize;
+    if (supplied != null) {
+      return Semantics(
+        label: semanticLabel,
+        excludeSemantics: true,
+        child: CaIcon(
+          supplied,
+          size: dimension,
+          color: baseInk,
+          plain: !decorated || !enabled || dimension < 16,
+        ),
+      );
+    }
     return Semantics(
       label: semanticLabel,
       excludeSemantics: semanticLabel == null,
@@ -950,30 +1061,15 @@ class AccessIcon extends Icon {
           dimension:
               size ?? IconTheme.of(context).size ?? AccessLayout.iconSize,
           child: CustomPaint(
-            painter: _AccessIconPainter(
-              path,
-              color ??
-                  IconTheme.of(context).color ??
-                  AushangPalette.of(context).ink,
+            painter: AccessSymbolPainter(
+              symbol,
+              ink: ink,
+              accent: decorated && enabled ? AccessDesign.accent : null,
+              active: active,
             ),
           ),
         ),
       ),
     );
   }
-}
-
-class _AccessIconPainter extends CustomPainter {
-  final Path path;
-  final Color color;
-  _AccessIconPainter(this.path, this.color);
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.scale(size.width / 256, size.height / 256);
-    canvas.drawPath(path, Paint()..color = color);
-  }
-
-  @override
-  bool shouldRepaint(_AccessIconPainter oldDelegate) =>
-      oldDelegate.path != path || oldDelegate.color != color;
 }

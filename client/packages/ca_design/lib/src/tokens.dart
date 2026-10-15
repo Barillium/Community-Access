@@ -204,7 +204,8 @@ class CaColors extends ThemeExtension<CaColors> {
   );
 
   static CaColors of(BuildContext context) =>
-      Theme.of(context).extension<CaColors>()!;
+      Theme.of(context).extension<CaColors>() ??
+      (Theme.of(context).brightness == Brightness.dark ? dark : light);
 
   @override
   CaColors copyWith() => this;

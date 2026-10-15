@@ -37,7 +37,10 @@ void main() {
         final language = LanguageScope.of(homeContext)!;
         final appearance = AppearanceScope.of(homeContext)!;
         expect(find.byTooltip('Sprache wählen'), findsNothing);
-        await tester.tap(find.text('Konto').last);
+        await tester.tap(find.byTooltip('Menü'));
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(find.text('Konto und Darstellung'));
+        await tester.tap(find.text('Konto und Darstellung'));
         await tester.pumpAndSettle();
         expect(find.text('Sprache'), findsOneWidget);
         final dark = find.text('Dunkle Darstellung');
@@ -57,7 +60,10 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('Appearance'), findsNothing);
         expect(api.writes, isEmpty);
-        await tester.tap(find.text('Account').last);
+        await tester.tap(find.byTooltip('Menu'));
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(find.text('Account and appearance'));
+        await tester.tap(find.text('Account and appearance'));
         await tester.pumpAndSettle();
         await tester.ensureVisible(find.text('Sign in'));
         await tester.tap(find.text('Sign in'));

@@ -16,6 +16,18 @@ class ResponsiveFixture extends DirectoryFixture {
     Map<String, String>? query,
     Map<String, dynamic>? body,
   }) async {
+    if (path == 'communities') {
+      return {
+        'signed_in': false,
+        'items': [
+          {
+            'id': 'community',
+            'name': 'Demo Gemeinschaft für elektronische Klanglandschaften und gemeinsame Kultur',
+            'following': false,
+          },
+        ],
+      };
+    }
     if (path == 'events') {
       return {
         'series': [],
@@ -111,16 +123,12 @@ void main() {
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         final header = find.byType(AccessHeader);
+        final headerTop = tester.getTopLeft(header).dy;
         final brand = find
             .descendant(of: header, matching: find.byType(TextButton))
             .first;
-        if (size.width < 768) {
-          expect(find.byTooltip('Sprache wählen'), findsNothing);
-          expect(
-            find.descendant(of: header, matching: find.text('Anmelden')),
-            findsNothing,
-          );
-          final menu = find.byTooltip('Menü');
+        final menu = find.byTooltip('Menü');
+        if (menu.evaluate().isNotEmpty) {
           expect(
             tester.getCenter(menu).dy,
             closeTo(tester.getCenter(brand).dy, 1),
@@ -128,19 +136,11 @@ void main() {
           expect(tester.getSize(menu).height, greaterThanOrEqualTo(48));
           expect(tester.getRect(menu).right, lessThanOrEqualTo(size.width));
         } else {
-          final language = find.byTooltip('Sprache wählen');
-          final account = find.text('Anmelden').evaluate().isNotEmpty
-              ? find.text('Anmelden').first
-              : find.byTooltip('Anmelden');
-          expect(
-            tester.getCenter(language).dy,
-            closeTo(tester.getCenter(brand).dy, 1),
-          );
+          final account = find.text('Mein Zugang');
           expect(
             tester.getCenter(account).dy,
-            closeTo(tester.getCenter(brand).dy, 1),
+            closeTo(tester.getCenter(brand).dy, 6),
           );
-          expect(tester.getRect(language).right, lessThanOrEqualTo(size.width));
         }
         if (size.width < 768 && scale == 1) {
           // Keep the main purpose visible without scrolling past all nav links.
@@ -158,9 +158,9 @@ void main() {
         for (final name in [
           'Communities',
           'Veranstalter',
-          'Veranstaltungsorte',
-          'Über',
-          'Events',
+          'Orte',
+          'FAQ',
+          'Programm',
         ]) {
           final menu = find.byTooltip('Menü');
           final compactNavigation = menu.evaluate().isNotEmpty;
@@ -177,14 +177,11 @@ void main() {
                   ),
                   matching: find.text(name),
                 )
-              : name == 'Communities'
-              ? find.text('Communityprofile')
               : find.descendant(
                   of: header,
                   matching: find.text(switch (name) {
                     'Events' => 'Programm',
                     'Veranstaltungsorte' => 'Orte',
-                    'Über' => 'So funktioniert’s',
                     _ => name,
                   }),
                 );
@@ -196,6 +193,45 @@ void main() {
             isNull,
             reason: '$name at $size/$scale',
           );
+          if (name == 'Communities') {
+            expect(find.text('Öffentliche Communities'), findsOneWidget);
+            expect(find.textContaining('Namensidee:'), findsNWidgets(48));
+            final lastTopic = find.text('Namensidee: Horizontkreis');
+            await tester.ensureVisible(lastTopic);
+            await tester.pumpAndSettle();
+            expect(
+              tester.getTopLeft(header).dy,
+              headerTop,
+              reason: 'Header stays fixed at $size/$scale',
+            );
+            expect(tester.getRect(lastTopic).left, greaterThanOrEqualTo(0));
+            expect(
+              tester.getRect(lastTopic).right,
+              lessThanOrEqualTo(size.width),
+            );
+            expect(
+              tester.takeException(),
+              isNull,
+              reason: 'Community catalogue at $size/$scale',
+            );
+          }
+          if (name == 'FAQ') {
+            final question = find.text('Was ist Community Access?');
+            await tester.ensureVisible(question);
+            await tester.tap(question);
+            await tester.pumpAndSettle();
+            expect(
+              tester.takeException(),
+              isNull,
+              reason: 'Expanded FAQ at $size/$scale',
+            );
+            expect(
+              find.textContaining(
+                'Community Access hilft bestehenden Kollektiven',
+              ),
+              findsOneWidget,
+            );
+          }
           if (compactNavigation) {
             expect(
               find.byWidgetPredicate((widget) => widget is PopupMenuItem),
@@ -203,18 +239,23 @@ void main() {
             );
           }
         }
-        if (size.width < 768) {
-          await tester.tap(find.text('Konto').last);
+        final compactMenu = find.byTooltip('Menü');
+        if (compactMenu.evaluate().isNotEmpty) {
+          await tester.tap(compactMenu);
+          await tester.pumpAndSettle();
+          await tester.ensureVisible(find.text('Konto und Darstellung'));
+          await tester.tap(find.text('Konto und Darstellung'));
           await tester.pumpAndSettle();
           expect(find.text('Darstellung'), findsOneWidget);
           expect(find.text('Sprache'), findsOneWidget);
+          final login = find.text('Anmelden').first;
+          await tester.ensureVisible(login);
+          await tester.tap(login);
+          await tester.pumpAndSettle();
+        } else {
+          await tester.tap(find.text('Mein Zugang'));
+          await tester.pumpAndSettle();
         }
-        final login = find.text('Anmelden').evaluate().isNotEmpty
-            ? find.text('Anmelden').first
-            : find.byTooltip('Anmelden');
-        await tester.ensureVisible(login);
-        await tester.tap(login);
-        await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         final register = find.text('Testkonto anlegen');
         await tester.ensureVisible(register);

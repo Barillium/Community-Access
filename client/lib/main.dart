@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart'
+    show LicenseRegistry, LicenseEntryWithLineBreaks;
+
 import 'product_scope.dart';
 
 import 'dart:async';
@@ -20,6 +23,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'app_language.dart';
 import 'access_brand.dart';
+import 'flyer_design.dart';
 import 'appearance_scope.dart';
 import 'guest_preferences.dart';
 
@@ -52,6 +56,11 @@ import 'social_browser.dart'
 Future<void> main() async {
   // Expose controls to assistive technology from the first rendered frame.
   WidgetsFlutterBinding.ensureInitialized().ensureSemantics();
+  LicenseRegistry.addLicense(() async* {
+    yield LicenseEntryWithLineBreaks([
+      'Archivo',
+    ], await rootBundle.loadString('assets/fonts/Archivo-OFL.txt'));
+  });
   if (!storeConfigurationValid || !ProductScope.valid) {
     runApp(const StoreUnavailablePage());
     return;
@@ -174,7 +183,7 @@ class _CommunityAccessAppState extends State<CommunityAccessApp> {
   }
 
   final _language = AppLanguage();
-  final _appearance = ValueNotifier(ThemeMode.light);
+  final _appearance = ValueNotifier(ThemeMode.system);
   @override
   void dispose() {
     _mobileLinks?.cancel();
@@ -1094,6 +1103,7 @@ class _GuestPageState extends State<GuestPage> {
                     ),
                   ),
                   const SizedBox(width: AccessSpacing.s16),
+                  const FlyerLanguageButton(),
                   if (_authenticated && !compact && !widget.authOnly)
                     navigation,
                   Expanded(

@@ -2,6 +2,7 @@
 library;
 
 export 'src/haptics.dart';
+export 'src/icons.dart';
 export 'src/theme.dart';
 export 'src/tokens.dart';
 export 'src/widgets/basics.dart';

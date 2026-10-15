@@ -66,6 +66,8 @@ class LocalText extends StatelessWidget {
 }
 
 const englishCopy = <String, String>{
+  'Mein Zugang': 'My access',
+  'Konto und Darstellung': 'Account and appearance',
   "Events und Einladungen": "Events and invitations",
   "Events und Einladungen verwalten": "Manage events and invitations",
   "Einlassrollen": "Admission roles",

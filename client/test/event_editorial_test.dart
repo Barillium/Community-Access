@@ -101,14 +101,14 @@ void main() {
     },
   );
   testWidgets(
-    'event renders genuine supplied information, flyer zoom and accessible text',
+    'event renders genuine supplied information and accessible media without zoom action',
     (tester) async {
       tester.view.physicalSize = const Size(1280, 1000);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.resetPhysicalSize);
       addTearDown(tester.view.resetDevicePixelRatio);
       await render(tester, EventEditorialView(event: demoEvent()));
-      expect(find.text('DEMO NACHTLINIE'), findsOneWidget);
+      expect(find.text('Demo Nachtlinie'), findsOneWidget);
       expect(find.text('Demo Halle'), findsOneWidget);
       expect(find.text('Demo Wellenraum'), findsOneWidget);
       expect(find.text('Mindestalter: 18 Jahre'), findsOneWidget);
@@ -117,13 +117,8 @@ void main() {
       expect(find.byType(Image), findsOneWidget);
       final image = tester.widget<Image>(find.byType(Image));
       expect(image.semanticLabel, 'Demo grünes Motiv');
-      await tester.ensureVisible(find.byType(InkWell).first);
-      await tester.tap(find.byType(InkWell).first);
-      await tester.pumpAndSettle();
-      expect(find.byType(InteractiveViewer), findsOneWidget);
-      await tester.tap(find.byTooltip('Schließen'));
-      await tester.pumpAndSettle();
       expect(find.byType(InteractiveViewer), findsNothing);
+      expect(find.text('Flyer ansehen'), findsNothing);
       expect(tester.takeException(), isNull);
     },
   );

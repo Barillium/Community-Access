@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../haptics.dart';
+import '../icons.dart';
 import '../theme.dart';
 import '../tokens.dart';
 
@@ -115,6 +116,31 @@ class _CaButtonState extends State<CaButton> {
   }
 }
 
+/// Symbol mit Veredelung: eine flache Fläche in Signalorange passgenau unter der Tinte,
+/// sofern es eine gibt (`CaIcons.accentOf`). Werkzeuge, Hinweis und Hilfe bleiben einfarbig.
+/// `plain: true` zeigt nur den Strich, z. B. für inaktive Navigation oder unter 16 px.
+class CaIcon extends StatelessWidget {
+  const CaIcon(this.icon,
+      {super.key, this.size, this.color, this.plain = false});
+
+  final IconData? icon;
+  final double? size;
+  final Color? color;
+  final bool plain;
+
+  @override
+  Widget build(BuildContext context) {
+    final i = icon;
+    final accent = plain || i == null ? null : CaIcons.accentOf(i);
+    final ink = Icon(icon, size: size, color: color);
+    if (accent == null) return ink;
+    return Stack(children: [
+      Icon(accent, size: size, color: CaColors.of(context).surfaceAccent),
+      ink,
+    ]);
+  }
+}
+
 /// Merken. Quadratisch, so hoch wie der Hauptknopf daneben.
 class CaSaveButton extends StatelessWidget {
   const CaSaveButton({
@@ -122,8 +148,8 @@ class CaSaveButton extends StatelessWidget {
     required this.saved,
     required this.onChanged,
     required this.eventTitle,
-    this.icon = Icons.bookmark_border,
-    this.savedIcon = Icons.bookmark,
+    this.icon = CaIcons.bookmark,
+    this.savedIcon = CaIcons.bookmark,
     this.size = CaSize.buttonHeight,
   });
 
@@ -132,6 +158,7 @@ class CaSaveButton extends StatelessWidget {
   final String eventTitle;
   final IconData icon;
   final IconData savedIcon;
+
   final double size;
 
   @override
@@ -139,8 +166,9 @@ class CaSaveButton extends StatelessWidget {
     final c = CaColors.of(context);
     return IconButton(
       isSelected: saved,
-      icon: Icon(icon),
-      selectedIcon: Icon(savedIcon),
+      // Gemerkt zeigt nur die Tinte (dunkler Knopf); das orange Band bleibt in beiden Zuständen.
+      icon: CaIcon(icon),
+      selectedIcon: CaIcon(savedIcon),
       tooltip: saved ? '$eventTitle gemerkt' : '$eventTitle merken',
       onPressed: () {
         CaHaptics.save();
@@ -233,8 +261,7 @@ class _AccessPainter extends CustomPainter {
 
 /// Schloss mit kurzem Text, z. B. „Ort nach Zusage“.
 class LockLabel extends StatelessWidget {
-  const LockLabel(this.text,
-      {super.key, this.icon = Icons.lock_outline, this.color});
+  const LockLabel(this.text, {super.key, this.icon = CaIcons.lock, this.color});
   final String text;
   final IconData icon;
   final Color? color;
@@ -243,7 +270,7 @@ class LockLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     final ink = color ?? CaColors.of(context).textSecondary;
     return Row(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, size: 16, color: ink),
+      CaIcon(icon, size: 16, color: ink),
       const SizedBox(width: CaSpace.s2),
       Text(text, style: CaType.meta.copyWith(color: ink)),
     ]);
@@ -258,7 +285,7 @@ class EmbossedLock extends StatelessWidget {
       {super.key,
       required this.label,
       this.fill = false,
-      this.icon = Icons.lock_outline});
+      this.icon = CaIcons.lock});
 
   /// Was gesperrt ist, z. B. „Genauer Ort“. Nie der Inhalt selbst.
   final String label;
@@ -284,7 +311,7 @@ class EmbossedLock extends StatelessWidget {
           ),
         ),
         child: Row(children: [
-          Icon(icon, size: 16, color: c.textSecondary),
+          CaIcon(icon, size: 16, color: c.textSecondary),
           const SizedBox(width: CaSpace.s2),
           Text(label,
               style: CaType.meta.copyWith(
@@ -325,7 +352,7 @@ class Stamp extends StatelessWidget {
           decoration: BoxDecoration(border: Border.all(color: ink)),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             if (icon != null) ...[
-              Icon(icon, size: 16, color: ink),
+              CaIcon(icon, size: 16, color: ink),
               const SizedBox(width: CaSpace.s2)
             ],
             Text(label.toUpperCase(),
@@ -379,8 +406,8 @@ class DoorList extends StatelessWidget {
   const DoorList(
       {super.key,
       required this.steps,
-      this.doneIcon = Icons.check,
-      this.nowIcon = Icons.schedule});
+      this.doneIcon = CaIcons.check,
+      this.nowIcon = CaIcons.clock});
   final List<DoorStep> steps;
   final IconData doneIcon;
   final IconData nowIcon;

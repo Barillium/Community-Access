@@ -15,9 +15,11 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.text('Events & Communities.'), findsOneWidget);
-    expect(find.text('Anmelden'), findsOneWidget);
+    await tester.tap(find.byTooltip('Menü'));
+    await tester.pumpAndSettle();
+    expect(find.text('Mein Zugang'), findsOneWidget);
     expect(find.text('Synthetisches Event'), findsNothing);
-    await tester.tap(find.text('Anmelden'));
+    await tester.tap(find.text('Mein Zugang'));
     await tester.pumpAndSettle();
     expect(find.text('Mit deinem Testkonto anmelden'), findsOneWidget);
     await tester.tap(find.text('Zur Hauptseite'));
@@ -59,14 +61,35 @@ void main() {
     await tester.tap(find.text('Communities'));
     await tester.pumpAndSettle();
     expect(
-      find.text('Die Communityübersicht ist noch nicht angebunden.'),
+      find.text('Öffentliche Communities sind derzeit nicht verfügbar.'),
       findsOneWidget,
     );
     await tester.tap(find.byTooltip('Menü'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Über'));
+    await tester.tap(
+      find.descendant(
+        of: find.byWidgetPredicate((widget) => widget is PopupMenuItem),
+        matching: find.text('FAQ'),
+      ),
+    );
     await tester.pumpAndSettle();
-    expect(find.text('Entdecken.\nKennenlernen.\nDabei sein.'), findsOneWidget);
+    expect(find.text('Was ist Community Access?'), findsOneWidget);
+    expect(
+      find.textContaining('Community Access hilft bestehenden Kollektiven'),
+      findsNothing,
+    );
+    await tester.tap(find.text('Was ist Community Access?'));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Community Access hilft bestehenden Kollektiven'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Was ist Community Access?'));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Community Access hilft bestehenden Kollektiven'),
+      findsNothing,
+    );
   });
 
   testWidgets(
@@ -89,7 +112,9 @@ void main() {
       await tester.tap(find.text('Zur Hauptseite'));
       await tester.pumpAndSettle();
       expect(find.text('Events & Communities.'), findsOneWidget);
-      await tester.tap(find.text('Anmelden'));
+      await tester.tap(find.byTooltip('Menü'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Mein Zugang'));
       await tester.pumpAndSettle();
       expect(find.byType(AccountRecoveryPage), findsNothing);
     },
@@ -124,9 +149,9 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
-    await tester.tap(find.text('Konto').last);
+    await tester.tap(find.byTooltip('Menü'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Anmelden'));
+    await tester.tap(find.text('Mein Zugang'));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });

@@ -1,3 +1,9 @@
+import 'package:ca_design/ca_design.dart' show EmbossedLock;
+
+import 'flyer_design.dart';
+
+import 'app_language.dart';
+
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -38,12 +44,13 @@ String eventTime(dynamic value) {
 class EventEditorialView extends StatelessWidget {
   final Map<String, dynamic> event;
   final VoidCallback? onOrganizer;
-  final Widget? interestControl;
+  final Widget? interestControl, participation;
   const EventEditorialView({
     super.key,
     required this.event,
     this.onOrganizer,
     this.interestControl,
+    this.participation,
   });
   @override
   Widget build(BuildContext context) {
@@ -57,6 +64,26 @@ class EventEditorialView extends StatelessWidget {
     final venue = content['venue_name'] as String? ?? '';
     final location = event['location'] as String? ?? '';
     final startDay = eventDay(event['starts_at']);
+    final startDate = DateTime.tryParse(event['starts_at'] as String? ?? '')
+        ?.toLocal();
+    const weekdaysDe = [
+      'Montag',
+      'Dienstag',
+      'Mittwoch',
+      'Donnerstag',
+      'Freitag',
+      'Samstag',
+      'Sonntag',
+    ];
+    const weekdaysEn = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
     final endDay = eventDay(content['ends_at']);
     final endTime = eventTime(content['ends_at']);
     final flyer = content['flyer_data'] as String? ?? '';
@@ -72,18 +99,8 @@ class EventEditorialView extends StatelessWidget {
               detail: eventTime(event['request_deadline_at']),
             ),
           _EventFact(
-            label: 'Datum',
-            value: startDay.isEmpty ? 'Wird bekannt gegeben' : startDay,
-            detail: startDay.isEmpty
-                ? ''
-                : '${eventTime(event['starts_at'])}${endTime.isEmpty
-                      ? ''
-                      : endDay == startDay
-                      ? ' - $endTime'
-                      : '\nbis $endDay, $endTime'}',
-          ),
-          _EventFact(
             label: 'Veranstaltungsort',
+            locked: venue.isEmpty && location.isEmpty,
             value: venue.isNotEmpty
                 ? venue
                 : location.isNotEmpty
@@ -91,31 +108,22 @@ class EventEditorialView extends StatelessWidget {
                 : 'Noch nicht freigegeben',
             detail: venue.isNotEmpty && location != venue ? location : '',
           ),
-          if (organizer.isNotEmpty)
-            _EventFact(
-              label: 'Veranstalter',
-              value: organizer,
-              onTap: onOrganizer,
-            ),
         ];
         final body = Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if ((content['description'] as String? ?? '').isNotEmpty) ...[
+              Text(
+                content['description'] as String,
+                style: const TextStyle(fontSize: 28, height: 1.2),
+              ),
+              const SizedBox(height: AccessSpacing.s32),
+            ],
             if (lineup.isNotEmpty) ...[
               const _EventHeading('Line-up'),
               const SizedBox(height: AccessSpacing.s20),
-              for (final artist in lineup)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: AccessSpacing.s8),
-                  child: Text(
-                    artist as String,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      height: AccessTypography.titleHeight,
-                    ),
-                  ),
-                ),
+              Divider(color: colors.onSurface),
+              for (final artist in lineup) _LineupRow(artist as String),
               const SizedBox(height: AccessSpacing.s32),
             ],
             if (genres.isNotEmpty) ...[
@@ -136,18 +144,6 @@ class EventEditorialView extends StatelessWidget {
                       child: Text(genre as String),
                     ),
                 ],
-              ),
-              const SizedBox(height: AccessSpacing.s32),
-            ],
-            if ((content['description'] as String? ?? '').isNotEmpty) ...[
-              const _EventHeading('Über die Veranstaltung'),
-              const SizedBox(height: AccessSpacing.s16),
-              Text(
-                content['description'] as String,
-                style: const TextStyle(
-                  fontSize: AccessTypography.bodySize,
-                  height: AccessTypography.readingHeight,
-                ),
               ),
               const SizedBox(height: AccessSpacing.s32),
             ],
@@ -180,56 +176,6 @@ class EventEditorialView extends StatelessWidget {
             ),
           ],
         );
-        final media = flyer.isEmpty
-            ? null
-            : Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(
-                    height: wide ? 940 : 440,
-                    child: EventFlyer(
-                      data: flyer,
-                      fit: BoxFit.cover,
-                      alt: content['flyer_alt'] as String? ?? 'Eventflyer',
-                      onOpen: () => showDialog<void>(
-                        context: context,
-                        builder: (context) => Dialog.fullscreen(
-                          child: Scaffold(
-                            appBar: AppBar(
-                              title: const Text('Eventflyer'),
-                              leading: IconButton(
-                                tooltip: 'Schließen',
-                                icon: const AccessIcon(Icons.close),
-                                onPressed: () => Navigator.pop(context),
-                              ),
-                            ),
-                            body: InteractiveViewer(
-                              minScale: 0.5,
-                              maxScale: 4,
-                              child: Center(
-                                child: EventFlyer(
-                                  data: flyer,
-                                  alt:
-                                      content['flyer_alt'] as String? ??
-                                      'Eventflyer',
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: AccessSpacing.s12),
-                  Text(
-                    'Flyer ansehen',
-                    style: TextStyle(
-                      color: colors.onSurfaceVariant,
-                      fontSize: AccessTypography.captionSize,
-                    ),
-                  ),
-                ],
-              );
         final editorial = Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -244,15 +190,80 @@ class EventEditorialView extends StatelessWidget {
                   ),
                 ),
               ),
-            AccessHeading(
-              title.isEmpty ? 'Veranstaltung' : title,
-              role: flyer.isNotEmpty
-                  ? AccessHeadingRole.poster
-                  : AccessHeadingRole.hero,
-              level: 1,
-              uppercase: flyer.isNotEmpty,
-              weight: FontWeight.w800,
+            FlyerScene(
+              minHeight: 540,
+              showImage: flyer.isNotEmpty,
+              image: flyer.isEmpty
+                  ? null
+                  : EventFlyer(
+                      data: flyer,
+                      fit: BoxFit.cover,
+                      alt: content['flyer_alt'] as String? ?? title,
+                    ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FlyerTitle(
+                    title.isEmpty
+                        ? localText(context, 'Veranstaltung', 'Event')
+                        : title,
+                    size: wide ? 64 : 40,
+                    italic: true,
+                  ),
+                  const SizedBox(height: 24),
+                  if (startDay.isNotEmpty)
+                    Wrap(
+                      spacing: 24,
+                      runSpacing: 16,
+                      children: [
+                        if (startDate != null)
+                          Text(
+                            localText(
+                              context,
+                              weekdaysDe[startDate.weekday - 1],
+                              weekdaysEn[startDate.weekday - 1],
+                            ),
+                          ),
+                        FlyerMark(
+                          kind: FlyerMarkKind.circle,
+                          child: Text(
+                            '${startDate?.day.toString().padLeft(2, '0')}.${startDate?.month.toString().padLeft(2, '0')}.${startDate?.year}',
+                          ),
+                        ),
+                        Text(
+                          '${eventTime(event['starts_at'])}${endTime.isEmpty ? '' : ' – $endTime'}${endDay != startDay && endDay.isNotEmpty ? ' · $endDay' : ''}',
+                        ),
+                      ],
+                    )
+                  else
+                    const LocalText('Wird bekannt gegeben'),
+                  if (organizer.isNotEmpty) ...[
+                    const SizedBox(height: 28),
+                    Text(
+                      localText(context, 'Veranstalter', 'Organizer'),
+                      style: const TextStyle(fontSize: 13),
+                    ),
+                    if (onOrganizer != null)
+                      TextButton(
+                        onPressed: onOrganizer,
+                        style: TextButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          padding: EdgeInsets.zero,
+                          alignment: Alignment.centerLeft,
+                        ),
+                        child: Text(
+                          organizer,
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                      )
+                    else
+                      Text(organizer, style: const TextStyle(fontSize: 20)),
+                  ],
+                ],
+              ),
             ),
+            const SizedBox(height: 32),
             if (event['status'] == 'cancelled')
               const Padding(
                 padding: EdgeInsets.only(top: AccessSpacing.s16),
@@ -265,9 +276,33 @@ class EventEditorialView extends StatelessWidget {
                 ),
               ),
             const SizedBox(height: AccessSpacing.s32),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: facts,
+            AccessColumns(
+              minWidth: 600,
+              gap: 48,
+              flex: participation == null ? const [1] : const [5, 4],
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Divider(color: colors.onSurface),
+                    ...facts,
+                  ],
+                ),
+                if (participation != null)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Divider(color: colors.onSurface),
+                      const SizedBox(height: 20),
+                      LocalText(
+                        localText(context, 'Dein Stand', 'Your status'),
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 16),
+                      participation!,
+                    ],
+                  ),
+              ],
             ),
             if (interestControl != null)
               Padding(
@@ -288,21 +323,7 @@ class EventEditorialView extends StatelessWidget {
             ),
           ],
         );
-        if (media == null) return editorial;
-        if (wide) {
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(flex: 5, child: media),
-              const SizedBox(width: 64),
-              Expanded(flex: 7, child: editorial),
-            ],
-          );
-        }
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [media, const SizedBox(height: 32), editorial],
-        );
+        return editorial;
       },
     );
   }
@@ -327,49 +348,38 @@ class _EventHeading extends StatelessWidget {
 
 class _EventFact extends StatelessWidget {
   final String label, value, detail;
-  final VoidCallback? onTap;
+  final bool locked;
   const _EventFact({
     required this.label,
     required this.value,
     this.detail = '',
-    this.onTap,
+    this.locked = false,
   });
   @override
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(vertical: 16),
-    decoration: BoxDecoration(
-      border: Border(
-        bottom: BorderSide(color: AushangPalette.of(context).hair),
-      ),
-    ),
+
     child: LayoutBuilder(
       builder: (context, constraints) {
         final valueWidget = Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (onTap == null)
-              Text(
+            if (locked)
+              EmbossedLock(
+                label: localText(
+                  context,
+                  'Noch nicht freigegeben',
+                  'Not released yet',
+                ),
+                fill: true,
+              )
+            else
+              LocalText(
                 value,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                   height: 1.55,
-                ),
-              )
-            else
-              TextButton(
-                onPressed: onTap,
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.zero,
-                  alignment: Alignment.centerLeft,
-                ),
-                child: Text(
-                  value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    decoration: TextDecoration.underline,
-                  ),
                 ),
               ),
             if (detail.isNotEmpty)
@@ -382,14 +392,14 @@ class _EventFact extends StatelessWidget {
               ),
           ],
         );
-        final labelWidget = Text(
+        final labelWidget = LocalText(
           label,
           style: TextStyle(
             fontSize: 14,
             color: AushangPalette.of(context).muted,
           ),
         );
-        if (constraints.maxWidth < 360 || AccessLayout.largeText(context)) {
+        if (constraints.maxWidth < 280 || AccessLayout.largeText(context)) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [labelWidget, const SizedBox(height: 8), valueWidget],
@@ -481,6 +491,39 @@ class _EventFlyerState extends State<EventFlyer> {
         borderRadius: BorderRadius.zero,
         child: framed,
       ),
+    );
+  }
+}
+
+class _LineupRow extends StatelessWidget {
+  const _LineupRow(this.value);
+  final String value;
+  @override
+  Widget build(BuildContext context) {
+    final parts = RegExp(r'^(\d{1,2}[:.]\d{2})\s*[·–-]?\s*(.*)$')
+        .firstMatch(value);
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 16),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: AushangPalette.of(context).hair),
+        ),
+      ),
+      child: parts == null
+          ? Text(value)
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 96,
+                  child: Text(
+                    parts[1]!,
+                    style: TextStyle(color: AushangPalette.of(context).muted),
+                  ),
+                ),
+                Expanded(child: Text(parts[2]!)),
+              ],
+            ),
     );
   }
 }

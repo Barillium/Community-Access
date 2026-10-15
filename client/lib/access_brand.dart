@@ -8,21 +8,27 @@ class AccessBrand extends StatelessWidget {
   Widget build(BuildContext context) => SizedBox(
     width: width,
     height: width * 223 / 559,
-    child: const CustomPaint(painter: _BrandPainter()),
+    child: CustomPaint(
+      painter: _BrandPainter(
+        Theme.of(context).colorScheme.surface,
+        Theme.of(context).colorScheme.onSurface,
+      ),
+    ),
   );
 }
 
 class _BrandPainter extends CustomPainter {
-  const _BrandPainter();
+  const _BrandPainter(this.paper, this.ink);
+  final Color paper, ink;
   @override
   void paint(Canvas canvas, Size size) {
     canvas.scale(size.width / 559, size.height / 223);
     final paint = Paint();
-    paint.color = const Color(0xFFFFFFFF);
+    paint.color = paper;
     canvas.drawRect(Rect.fromLTWH(0, 0, 558.6, 222.75), paint);
     canvas.save();
     canvas.translate(24.0, 92.75);
-    paint.color = const Color(0xFF0D0E13);
+    paint.color = ink;
     {
       final path = Path();
       path.moveTo(28.195328097886343, 1.2000000000000002);
@@ -1728,5 +1734,6 @@ class _BrandPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _BrandPainter old) => false;
+  bool shouldRepaint(covariant _BrandPainter old) =>
+      old.paper != paper || old.ink != ink;
 }

@@ -264,7 +264,8 @@ class _OrganizerManagementPageState extends State<OrganizerManagementPage> {
       title,
       style: const TextStyle(
         fontSize: AccessTypography.sectionTitleSize,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
+        fontVariations: [FontVariation('wdth', 100)],
       ),
     ),
   );

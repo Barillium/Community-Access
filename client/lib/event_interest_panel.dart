@@ -191,216 +191,211 @@ class _EventInterestPanelState extends State<EventInterestPanel> {
   }
 
   @override
-  Widget build(BuildContext context) => AccessSurface(
-    child: Form(
-      key: form,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (notice != null)
-            Semantics(liveRegion: true, child: LocalText(notice!)),
-          if (data == null && notice != null && widget.openAccount != null)
-            TextButton(
-              onPressed: () async {
-                await widget.openAccount!();
-                if (mounted) await load();
-              },
-              child: const LocalText('Erneut anmelden'),
-            ),
-          if (data != null) ...[
-            if (data!['request_deadline_at'] != null)
-              LocalText(
-                localText(
-                  context,
-                  'Öffentliche Anfragefrist: ${eventDay(data!['request_deadline_at'])} · ${eventTime(data!['request_deadline_at'])}',
-                  'Public request deadline: ${eventDay(data!['request_deadline_at'])} · ${eventTime(data!['request_deadline_at'])}',
-                ),
+  Widget build(BuildContext context) => Form(
+    key: form,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (notice != null)
+          Semantics(liveRegion: true, child: LocalText(notice!)),
+        if (data == null && notice != null && widget.openAccount != null)
+          TextButton(
+            onPressed: () async {
+              await widget.openAccount!();
+              if (mounted) await load();
+            },
+            child: const LocalText('Erneut anmelden'),
+          ),
+        if (data != null) ...[
+          if (data!['request_deadline_at'] != null)
+            LocalText(
+              localText(
+                context,
+                'Öffentliche Anfragefrist: ${eventDay(data!['request_deadline_at'])} · ${eventTime(data!['request_deadline_at'])}',
+                'Public request deadline: ${eventDay(data!['request_deadline_at'])} · ${eventTime(data!['request_deadline_at'])}',
               ),
-            if (data!['signed_in'] != true)
+            ),
+          if (data!['signed_in'] != true)
+            TextButton(
+              onPressed: widget.openAccount == null
+                  ? null
+                  : () async {
+                      await widget.openAccount!();
+                      if (mounted) await load();
+                    },
+              child: const LocalText('Anmelden'),
+            )
+          else if (data!['ticket_mode'] == 'public')
+            const LocalText(
+              'Die Teilnahme wird nach erfolgreicher Ticketzahlung bestätigt.',
+            )
+          else if (data!['request'] != null &&
+              data!['request']['status'] != 'withdrawn') ...[
+            Text(
+              attendanceStatus(context, data!['request']['status'] as String),
+            ),
+            if (data!['can_withdraw'] == true &&
+                [
+                  'pending',
+                  'approved',
+                  'purchase_eligible',
+                ].contains(data!['request']['status']))
               TextButton(
-                onPressed: widget.openAccount == null
+                onPressed: busy
                     ? null
                     : () async {
-                        await widget.openAccount!();
-                        if (mounted) await load();
+                        setState(() => busy = true);
+                        try {
+                          await widget.api.directory(
+                            'events/${widget.id}/withdraw',
+                            body: {},
+                          );
+                          await load();
+                          widget.onChanged();
+                        } on ApiFailure catch (e) {
+                          if (mounted) setState(() => notice = e.message);
+                        } finally {
+                          if (mounted) setState(() => busy = false);
+                        }
                       },
-                child: const LocalText('Anmelden'),
-              )
-            else if (data!['ticket_mode'] == 'public')
-              const LocalText(
-                'Die Teilnahme wird nach erfolgreicher Ticketzahlung bestätigt.',
-              )
-            else if (data!['request'] != null &&
-                data!['request']['status'] != 'withdrawn') ...[
-              Text(
-                attendanceStatus(context, data!['request']['status'] as String),
-              ),
-              if (data!['can_withdraw'] == true &&
-                  [
-                    'pending',
-                    'approved',
-                    'purchase_eligible',
-                  ].contains(data!['request']['status']))
-                TextButton(
-                  onPressed: busy
-                      ? null
-                      : () async {
-                          setState(() => busy = true);
-                          try {
-                            await widget.api.directory(
-                              'events/${widget.id}/withdraw',
-                              body: {},
-                            );
-                            await load();
-                            widget.onChanged();
-                          } on ApiFailure catch (e) {
-                            if (mounted) setState(() => notice = e.message);
-                          } finally {
-                            if (mounted) setState(() => busy = false);
-                          }
-                        },
-                  child: Text(
-                    localText(
-                      context,
-                      'Teilnahme zurückziehen',
-                      'Withdraw attendance',
-                    ),
-                  ),
-                ),
-              LocalText(
-                localText(
-                  context,
-                  'Eine Zusage schaltet Informationen erst zum festgelegten Zeitpunkt frei.',
-                  'Approval releases details only at the scheduled times.',
-                ),
-              ),
-            ] else if (data!['membership_required'] == true &&
-                data!['is_member'] != true)
-              Text(
-                localText(
-                  context,
-                  'Für diese Veranstaltung ist eine aktive Communitymitgliedschaft nötig.',
-                  'An active community membership is required for this event.',
-                ),
-              )
-            else if (data!['method'] == 'invite' &&
-                data!['personally_invited'] != true)
-              LocalText(
-                localText(
-                  context,
-                  'Zugang nur über persönliche Freigabe des Veranstalters.',
-                  'Access requires a personal organizer invitation.',
-                ),
-              )
-            else ...[
-              if (data!['can_request'] != true)
-                LocalText(
+                child: Text(
                   localText(
                     context,
-                    data!['request_deadline_at'] == null &&
-                            data!['before_start'] == null
-                        ? 'Eine öffentliche Anfragefrist wurde noch nicht festgelegt.'
-                        : 'Anfragen sind derzeit geschlossen.',
-                    data!['request_deadline_at'] == null &&
-                            data!['before_start'] == null
-                        ? 'A public request deadline has not been set yet.'
-                        : 'Requests are currently closed.',
+                    'Teilnahme zurückziehen',
+                    'Withdraw attendance',
                   ),
                 ),
+              ),
+            LocalText(
+              localText(
+                context,
+                'Eine Zusage schaltet Informationen erst zum festgelegten Zeitpunkt frei.',
+                'Approval releases details only at the scheduled times.',
+              ),
+            ),
+          ] else if (data!['membership_required'] == true &&
+              data!['is_member'] != true)
+            Text(
+              localText(
+                context,
+                'Für diese Veranstaltung ist eine aktive Communitymitgliedschaft nötig.',
+                'An active community membership is required for this event.',
+              ),
+            )
+          else if (data!['method'] == 'invite' &&
+              data!['personally_invited'] != true)
+            LocalText(
+              localText(
+                context,
+                'Zugang nur über persönliche Freigabe des Veranstalters.',
+                'Access requires a personal organizer invitation.',
+              ),
+            )
+          else ...[
+            if (data!['can_request'] != true)
               LocalText(
                 localText(
                   context,
-                  'Dein Interesse wird vom Veranstalter geprüft. Eine Anfrage ist noch keine Zusage.',
-                  'The organizer reviews your interest. A request is not an approval.',
+                  data!['request_deadline_at'] == null &&
+                          data!['before_start'] == null
+                      ? 'Eine öffentliche Anfragefrist wurde noch nicht festgelegt.'
+                      : 'Anfragen sind derzeit geschlossen.',
+                  data!['request_deadline_at'] == null &&
+                          data!['before_start'] == null
+                      ? 'A public request deadline has not been set yet.'
+                      : 'Requests are currently closed.',
                 ),
               ),
-              for (final f in data!['form'] as List? ?? [])
-                Padding(
-                  padding: const EdgeInsets.only(top: AccessSpacing.s16),
-                  child: AccessField(
-                    decoration: InputDecoration(
-                      labelText: f['label'] as String,
-                    ),
-                    builder: (d) => TextFormField(
-                      controller: answers[f['key']],
-                      maxLength: 500,
-                      enabled: !busy,
-                      decoration: d,
-                      validator: (v) =>
-                          f['required'] == true && (v ?? '').trim().isEmpty
-                          ? localText(
-                              context,
-                              'Bitte beantworten.',
-                              'Please answer.',
-                            )
-                          : null,
-                    ),
-                  ),
-                ),
-              const SizedBox(height: AccessSpacing.s16),
-              if (data!['minimum_age'] != null)
-                CheckboxListTile(
-                  title: Text(
-                    localText(
-                      context,
-                      'Ich bestätige, mindestens ${data!['minimum_age']} Jahre alt zu sein.',
-                      'I confirm that I am at least ${data!['minimum_age']} years old.',
-                    ),
-                  ),
-                  value: ageAcknowledged,
-                  onChanged: busy
-                      ? null
-                      : (v) => setState(() => ageAcknowledged = v ?? false),
-                ),
-              AccessAction(
-                kind: AccessActionKind.primary,
-                onPressed:
-                    busy ||
-                        (data!['minimum_age'] != null && !ageAcknowledged) ||
-                        data!['can_request'] != true
-                    ? null
-                    : () => run(false),
-                child: const LocalText('Interesse bekunden'),
+            LocalText(
+              localText(
+                context,
+                'Dein Interesse wird vom Veranstalter geprüft. Eine Anfrage ist noch keine Zusage.',
+                'The organizer reviews your interest. A request is not an approval.',
               ),
-            ],
-            if (data!['signed_in'] == true &&
-                widget.api is TicketingApi &&
-                ['public', 'approval'].contains(data!['ticket_mode']))
-              TicketPurchasePanel(
-                api: widget.api as TicketingApi,
-                eventId: widget.id,
-                onChanged: () {
-                  load();
-                  widget.onChanged();
-                },
-              ),
-            if (data!['ticket_mode'] == 'public' &&
-                data!['can_withdraw'] == true)
-              TextButton(
-                onPressed: busy ? null : withdrawTicket,
-                child: const LocalText('Teilnahme zurückziehen'),
-              ),
-            if (data!['can_location'] == true &&
-                widget.api is AccessApi &&
-                ['public', 'approval'].contains(data!['ticket_mode']))
-              OutlinedButton(
-                onPressed: busy ? null : showLocation,
-                child: const LocalText('Geschützte Location abrufen'),
-              ),
-            if (ProductScope.extended && data!['can_visit'] == true) ...[
-              const SizedBox(height: AccessSpacing.s16),
-              OutlinedButton(
-                onPressed: busy ? null : () => run(true),
-                child: const LocalText('Ich war dort'),
-              ),
-            ],
-          ] else
-            TextButton(
-              onPressed: load,
-              child: const LocalText('Erneut versuchen'),
             ),
-        ],
-      ),
+            for (final f in data!['form'] as List? ?? [])
+              Padding(
+                padding: const EdgeInsets.only(top: AccessSpacing.s16),
+                child: AccessField(
+                  decoration: InputDecoration(labelText: f['label'] as String),
+                  builder: (d) => TextFormField(
+                    controller: answers[f['key']],
+                    maxLength: 500,
+                    enabled: !busy,
+                    decoration: d,
+                    validator: (v) =>
+                        f['required'] == true && (v ?? '').trim().isEmpty
+                        ? localText(
+                            context,
+                            'Bitte beantworten.',
+                            'Please answer.',
+                          )
+                        : null,
+                  ),
+                ),
+              ),
+            const SizedBox(height: AccessSpacing.s16),
+            if (data!['minimum_age'] != null)
+              CheckboxListTile(
+                title: Text(
+                  localText(
+                    context,
+                    'Ich bestätige, mindestens ${data!['minimum_age']} Jahre alt zu sein.',
+                    'I confirm that I am at least ${data!['minimum_age']} years old.',
+                  ),
+                ),
+                value: ageAcknowledged,
+                onChanged: busy
+                    ? null
+                    : (v) => setState(() => ageAcknowledged = v ?? false),
+              ),
+            AccessAction(
+              kind: AccessActionKind.primary,
+              onPressed:
+                  busy ||
+                      (data!['minimum_age'] != null && !ageAcknowledged) ||
+                      data!['can_request'] != true
+                  ? null
+                  : () => run(false),
+              child: const LocalText('Interesse bekunden'),
+            ),
+          ],
+          if (data!['signed_in'] == true &&
+              widget.api is TicketingApi &&
+              ['public', 'approval'].contains(data!['ticket_mode']))
+            TicketPurchasePanel(
+              api: widget.api as TicketingApi,
+              eventId: widget.id,
+              onChanged: () {
+                load();
+                widget.onChanged();
+              },
+            ),
+          if (data!['ticket_mode'] == 'public' && data!['can_withdraw'] == true)
+            TextButton(
+              onPressed: busy ? null : withdrawTicket,
+              child: const LocalText('Teilnahme zurückziehen'),
+            ),
+          if (data!['can_location'] == true &&
+              widget.api is AccessApi &&
+              ['public', 'approval'].contains(data!['ticket_mode']))
+            OutlinedButton(
+              onPressed: busy ? null : showLocation,
+              child: const LocalText('Geschützte Location abrufen'),
+            ),
+          if (ProductScope.extended && data!['can_visit'] == true) ...[
+            const SizedBox(height: AccessSpacing.s16),
+            OutlinedButton(
+              onPressed: busy ? null : () => run(true),
+              child: const LocalText('Ich war dort'),
+            ),
+          ],
+        ] else
+          TextButton(
+            onPressed: load,
+            child: const LocalText('Erneut versuchen'),
+          ),
+      ],
     ),
   );
 }

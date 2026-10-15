@@ -38,7 +38,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     const sourceTitle = 'Demo mit geschütztem Ort';
-    final title = sourceTitle.toUpperCase();
+    final title = sourceTitle;
     final fixture = DiscoveryFixture();
     fixture.events.first['title'] = sourceTitle;
     await tester.pumpWidget(
@@ -54,8 +54,8 @@ void main() {
     );
     final boxes = paragraph.getBoxesForSelection(
       TextSelection(
-        baseOffset: title.indexOf('GESCHÜTZTEM'),
-        extentOffset: title.indexOf(' ORT'),
+        baseOffset: title.indexOf('geschütztem'),
+        extentOffset: title.indexOf(' Ort'),
       ),
     );
     expect(
@@ -87,10 +87,10 @@ void main() {
       final controls = tester.getRect(
         find.byKey(const ValueKey('hero-carousel-controls')),
       );
-      expect(controls.bottom, lessThan(title.top));
-      expect(controls.right, closeTo(information.right, 1));
+      expect(controls.top, greaterThanOrEqualTo(title.bottom));
+      expect(controls.right, lessThanOrEqualTo(width));
       expect(title.right, lessThan(information.left));
-      expect(title.bottom, closeTo(information.bottom, 1));
+      expect(title.bottom, lessThanOrEqualTo(information.bottom + 24));
       expect(title.left, greaterThanOrEqualTo(0));
       expect(information.right, lessThanOrEqualTo(width));
       expect(tester.takeException(), isNull);
@@ -99,7 +99,7 @@ void main() {
 
   for (final width in [320.0, 768.0, 1440.0]) {
     for (final scale in [1.0, 2.0]) {
-      testWidgets('Aushang light and dark fit $width at $scale text', (
+      testWidgets('Flyer light and dark fit $width at $scale text', (
         tester,
       ) async {
         tester.view.physicalSize = Size(width, 1000);
@@ -132,11 +132,15 @@ void main() {
           final title = tester.getRect(
             find.byKey(const ValueKey('hero-title-column')),
           );
-          expect(controls.bottom, lessThan(title.top));
+          expect(controls.top, greaterThanOrEqualTo(title.bottom));
           expect(tester.takeException(), isNull);
           if (width < 768) {
+            await tester.tap(find.byTooltip('Menü'));
+            await tester.pumpAndSettle();
             expect(find.text('Mein Zugang'), findsOneWidget);
             expect(find.text('Merkliste'), findsOneWidget);
+            await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+            await tester.pumpAndSettle();
           }
           await tester.ensureVisible(find.byTooltip('Nächste Veranstaltung'));
           await tester.tap(find.byTooltip('Nächste Veranstaltung'));

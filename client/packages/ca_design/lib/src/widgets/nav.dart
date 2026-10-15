@@ -6,6 +6,7 @@ import '../haptics.dart';
 import '../theme.dart';
 import '../tokens.dart';
 import 'marks.dart';
+import 'basics.dart';
 import 'platform.dart';
 
 class CaNavItem {
@@ -115,8 +116,8 @@ class _Item extends StatelessWidget {
           label: Text('${item.badge ?? ''}'),
           backgroundColor: colors.surfaceAccent,
           textColor: colors.textOnAccent,
-          child: Icon(current ? item.selectedIcon : item.icon,
-              size: 24, color: ink),
+          child: CaIcon(current ? item.selectedIcon : item.icon,
+              size: 24, color: ink, plain: !current),
         ),
         SizedBox(height: ios ? 2 : CaSpace.s1),
         CaTape(

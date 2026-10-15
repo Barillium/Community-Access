@@ -1,3 +1,7 @@
+import 'product_scope.dart';
+import 'flyer_design.dart';
+
+import 'access_brand.dart';
 import 'resource_return_browser.dart'
     if (dart.library.js_interop) 'resource_return_browser_web.dart';
 import 'event_interest_panel.dart';
@@ -227,7 +231,7 @@ class _CalendarProgram extends StatelessWidget {
                                           ? null
                                           : Border(
                                               top: BorderSide(
-                                                color: palette.hair,
+                                                color: Colors.transparent,
                                               ),
                                             ),
                                     ),
@@ -246,7 +250,9 @@ class _CalendarProgram extends StatelessWidget {
                                 border: i == 0
                                     ? null
                                     : Border(
-                                        top: BorderSide(color: palette.hair),
+                                        top: BorderSide(
+                                          color: Colors.transparent,
+                                        ),
                                       ),
                               ),
                               child: rowBuilder(group[i]),
@@ -293,8 +299,8 @@ class _CalendarDate extends StatelessWidget {
           '${date.day}'.padLeft(2, '0'),
           style: const TextStyle(
             fontSize: 52,
-            fontWeight: FontWeight.w800,
-            fontVariations: [FontVariation('wdth', 68)],
+            fontWeight: FontWeight.w600,
+            fontVariations: [FontVariation('wdth', 100)],
             height: .9,
           ),
         ),
@@ -323,10 +329,6 @@ class _CalendarEvent extends StatelessWidget {
     builder: (context, constraints) {
       final compact =
           constraints.maxWidth < 600 || AccessLayout.largeText(context);
-      final narrow =
-          constraints.maxWidth < 350 || AccessLayout.largeText(context);
-      final content = event['event_content'] as Map? ?? {};
-      final flyer = content['flyer_data'] as String? ?? '';
       final palette = AushangPalette.of(context);
       final title = event['title'] as String;
       final date = DateTime.tryParse(event['starts_at'] as String? ?? '')
@@ -344,7 +346,7 @@ class _CalendarEvent extends StatelessWidget {
             title,
             role: AccessHeadingRole.card,
             level: 3,
-            uppercase: true,
+            uppercase: false,
           ),
           const SizedBox(height: 12),
           Wrap(
@@ -400,22 +402,6 @@ class _CalendarEvent extends StatelessWidget {
             InterestCount(count: event['interest_count'] as int?),
         ],
       );
-      final picture = SizedBox(
-        width: compact ? 96 : 176,
-        height: compact ? 96 : 116,
-        child: flyer.startsWith('data:image/jpeg;base64,')
-            ? EventFlyer(
-                data: flyer,
-                alt: content['flyer_alt'] as String? ?? title,
-                fit: BoxFit.cover,
-              )
-            : CustomPaint(
-                painter: _MissingFlyer(
-                  fill: palette.sunken,
-                  line: palette.hair,
-                ),
-              ),
-      );
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: Row(
@@ -432,24 +418,24 @@ class _CalendarEvent extends StatelessWidget {
                 ),
                 child: InkWell(
                   onTap: onOpen,
-                  child: narrow
-                      ? Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [picture, const SizedBox(height: 16), meta],
-                        )
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            picture,
-                            const SizedBox(width: 24),
-                            Expanded(child: meta),
-                          ],
-                        ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(child: meta),
+                      const SizedBox(width: 16),
+                      const Padding(
+                        padding: EdgeInsets.only(top: 4),
+                        child: AccessIcon(Icons.arrow_forward),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-            const SizedBox(width: 16),
-            SizedBox(width: 52, child: bookmark),
+            if (ProductScope.extended) ...[
+              const SizedBox(width: 16),
+              SizedBox(width: 52, child: bookmark),
+            ],
           ],
         ),
       );
@@ -531,31 +517,6 @@ class _AccessMark extends CustomPainter {
       old.color != color || old.half != half || old.filled != filled;
 }
 
-class _MissingFlyer extends CustomPainter {
-  final Color fill, line;
-  const _MissingFlyer({required this.fill, required this.line});
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.save();
-    canvas.clipRect(Offset.zero & size);
-    canvas.drawRect(Offset.zero & size, Paint()..color = fill);
-    for (double x = -size.height; x < size.width; x += 9) {
-      canvas.drawLine(
-        Offset(x, size.height),
-        Offset(x + size.height, 0),
-        Paint()
-          ..color = line
-          ..strokeWidth = 1,
-      );
-    }
-    canvas.restore();
-  }
-
-  @override
-  bool shouldRepaint(_MissingFlyer old) => old.fill != fill || old.line != line;
-}
-
-/// Calendar rows retain server-filtered fields and never reveal hidden dates.
 class _ProgramRow extends StatelessWidget {
   final Map<String, dynamic> event;
   final VoidCallback onOpen;
@@ -569,10 +530,10 @@ class _ProgramRow extends StatelessWidget {
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       final palette = AushangPalette.of(context);
-      final compact =
-          constraints.maxWidth < 768 || AccessLayout.largeText(context);
       final content = event['event_content'] as Map? ?? {};
       final flyer = content['flyer_data'] as String? ?? '';
+      final compact =
+          constraints.maxWidth < 768 || AccessLayout.largeText(context);
       final title = event['title'] as String;
       final date = event['starts_at'] is String
           ? DateTime.tryParse(event['starts_at'] as String)?.toLocal()
@@ -646,7 +607,7 @@ class _ProgramRow extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(vertical: 24),
         decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: palette.hair)),
+          border: Border(top: BorderSide(color: Colors.transparent)),
         ),
         child: compact
             ? Row(
@@ -669,8 +630,8 @@ class _ProgramRow extends StatelessWidget {
                           date == null ? '—' : '${date.day}'.padLeft(2, '0'),
                           style: const TextStyle(
                             fontSize: 52,
-                            fontWeight: FontWeight.w800,
-                            fontVariations: [FontVariation('wdth', 68)],
+                            fontWeight: FontWeight.w600,
+                            fontVariations: [FontVariation('wdth', 100)],
                           ),
                         ),
                         if (date != null)
@@ -753,6 +714,7 @@ class ProgramDetailPage extends StatefulWidget {
 }
 
 class _ProgramDetailPageState extends State<ProgramDetailPage> {
+  final _participationKey = GlobalKey(debugLabel: 'event participation');
   Map<String, dynamic>? _data;
   String? _failure;
   bool _busy = false;
@@ -811,9 +773,62 @@ class _ProgramDetailPageState extends State<ProgramDetailPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: accessAppBar(
-      context,
-      widget.kind == 'series' ? 'Veranstaltungsreihe' : 'Veranstaltung',
+    appBar: PreferredSize(
+      preferredSize: const Size.fromHeight(67),
+      child: AccessHeader(
+        child: LayoutBuilder(
+          builder: (context, constraints) => Row(
+            children: [
+              if (constraints.maxWidth < 600 ||
+                  AccessLayout.largeText(context)) ...[
+                IconButton(
+                  tooltip: localText(
+                    context,
+                    'Zurück zum Programm',
+                    'Back to program',
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const AccessIcon(Icons.arrow_back),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Semantics(
+                      label: 'Community Access',
+                      child: ExcludeSemantics(child: AccessBrand(width: 112)),
+                    ),
+                  ),
+                ),
+              ] else ...[
+                Semantics(
+                  label: 'Community Access',
+                  child: ExcludeSemantics(child: AccessBrand(width: 112)),
+                ),
+                const SizedBox(width: 48),
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: FlyerMark(
+                      child: TextButton.icon(
+                        onPressed: () => Navigator.of(context).pop(),
+                        icon: const AccessIcon(Icons.arrow_back),
+                        label: const LocalText('Programm'),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+              const FlyerLanguageButton(),
+              IconButton(
+                tooltip: localText(context, 'Aktualisieren', 'Refresh'),
+                onPressed: _busy ? null : () => _load(page: _page),
+                icon: const AccessIcon(Icons.refresh),
+              ),
+            ],
+          ),
+        ),
+      ),
     ),
     body: SingleChildScrollView(
       child: AccessPageFrame(
@@ -867,15 +882,17 @@ class _ProgramDetailPageState extends State<ProgramDetailPage> {
                     api: widget.api as LegalApi,
                     eventId: widget.id,
                   ),
-                EventInterestPanel(
-                  api: widget.api,
-                  id: widget.id,
-                  openAccount: widget.openAccount == null ? null : _openAccount,
-                  onChanged: () => _load(),
-                ),
-                const SizedBox(height: AccessSpacing.s24),
                 EventEditorialView(
                   event: _data!,
+                  participation: EventInterestPanel(
+                    key: _participationKey,
+                    api: widget.api,
+                    id: widget.id,
+                    openAccount: widget.openAccount == null
+                        ? null
+                        : _openAccount,
+                    onChanged: () => _load(),
+                  ),
                   interestControl:
                       _data!['signed_in'] == true ||
                           _data!['interest_count'] != null

@@ -26,3 +26,7 @@ flutter:
     - family: Archivo
       fonts:
         - asset: fonts/Archivo[wdth,wght].ttf
+
+    - family: CaIcons
+      fonts:
+        - asset: fonts/CaIcons.ttf

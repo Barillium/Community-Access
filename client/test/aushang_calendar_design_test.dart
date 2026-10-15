@@ -27,10 +27,8 @@ void main() {
         );
         await tester.pumpAndSettle();
         final program = find.byType(ProgramList);
-        Finder rowTitle(String title) => find.descendant(
-          of: program,
-          matching: find.text(title.toUpperCase()),
-        );
+        Finder rowTitle(String title) =>
+            find.descendant(of: program, matching: find.text(title));
         expect(rowTitle('Demo Ambientabend'), findsOneWidget);
         expect(rowTitle('Demo Secret Night'), findsOneWidget);
         final semantics = tester.ensureSemantics();
@@ -47,31 +45,21 @@ void main() {
             reason: 'Two events on one day share one date column.',
           );
         }
-        final publicFilter = find
-            .ancestor(
-              of: find.text('Öffentlich'),
-              matching: find.byType(TextButton),
-            )
-            .first;
-        await tester.ensureVisible(publicFilter);
-        await tester.tap(publicFilter);
-        await tester.pumpAndSettle();
-        expect(rowTitle('Demo Ambientabend'), findsOneWidget);
-        expect(rowTitle('Demo Secret Night'), findsNothing);
-        final semiFilter = find
-            .ancestor(
-              of: find.text('Semi-öffentlich'),
-              matching: find.byType(TextButton),
-            )
-            .first;
-        await tester.tap(semiFilter);
-        await tester.pumpAndSettle();
-        expect(rowTitle('Demo Ambientabend'), findsNothing);
-        expect(rowTitle('Demo Secret Night'), findsOneWidget);
+        // Visibility tabs were replaced by the requested date controls.
+        // Keep this suite's grouping, semantics, carousel and search coverage;
+        // detailed period boundaries live in program_date_filter_test.dart.
+        for (final label in [
+          'Alle Termine',
+          'Heute',
+          'Morgen',
+          'Diese Woche',
+        ]) {
+          expect(find.widgetWithText(TextButton, label), findsOneWidget);
+        }
         expect(
           find.descendant(
             of: find.byType(EventCarousel),
-            matching: find.text('DEMO AMBIENTABEND'),
+            matching: find.text('Demo Ambientabend'),
           ),
           findsOneWidget,
           reason: 'A program filter does not replace the carousel selection.',
@@ -83,7 +71,7 @@ void main() {
         await tester.enterText(find.byType(TextField), 'Demo');
         await tester.testTextInput.receiveAction(TextInputAction.search);
         await tester.pumpAndSettle();
-        expect(rowTitle('Demo Ambientabend'), findsNothing);
+        expect(rowTitle('Demo Ambientabend'), findsOneWidget);
         expect(rowTitle('Demo Secret Night'), findsOneWidget);
         expect(api.writes, isEmpty);
         expect(tester.takeException(), isNull);

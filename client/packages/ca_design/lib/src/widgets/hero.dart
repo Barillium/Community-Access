@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../icons.dart';
 import '../theme.dart';
 import '../tokens.dart';
 import 'basics.dart';
@@ -261,7 +262,7 @@ class _PosterCarouselState extends State<PosterCarousel> {
               color: widget.slides[_i].image != null
                   ? CaPrimitive.white
                   : CaColors.of(context).textPrimary,
-              icon: Icon(_paused ? Icons.play_arrow : Icons.pause),
+              icon: Icon(_paused ? CaIcons.play : CaIcons.pause),
               onPressed: () {
                 setState(() => _paused = !_paused);
                 _schedule();

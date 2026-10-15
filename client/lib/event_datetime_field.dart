@@ -192,7 +192,7 @@ class _EventDateTimeFieldState extends State<EventDateTimeField> {
                     tooltip:
                         '${localText(context, 'Datum auswählen', 'Choose date')}: ${localText(context, widget.label)}',
                     onPressed: widget.enabled ? _pickDate : null,
-                    icon: const Icon(Icons.calendar_today_outlined),
+                    icon: const AccessIcon(Icons.calendar_today_outlined),
                   ),
                 ),
               ),
@@ -214,7 +214,7 @@ class _EventDateTimeFieldState extends State<EventDateTimeField> {
                     tooltip:
                         '${localText(context, 'Uhrzeit auswählen', 'Choose time')}: ${localText(context, widget.label)}',
                     onPressed: widget.enabled ? _pickTime : null,
-                    icon: const Icon(Icons.schedule),
+                    icon: const AccessIcon(Icons.schedule),
                   ),
                 ),
               ),

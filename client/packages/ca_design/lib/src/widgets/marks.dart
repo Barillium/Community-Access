@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../tokens.dart';
 
 /// Kreis von Hand um ein Datum oder eine Zahl. Zeichnet sich in 600 ms,
-/// bei reduzierter Bewegung blendet er nur ein. Rein schmückend.
+/// nach 500 ms; bei reduzierter Bewegung steht er sofort fertig da. Rein schmückend.
 class DateCircle extends StatelessWidget {
   const DateCircle({super.key, required this.child});
   final Widget child;
@@ -16,14 +16,20 @@ class DateCircle extends StatelessWidget {
     final color = CaColors.of(context).markerStroke;
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0, end: 1),
-      duration: reduced ? CaDuration.slow : CaDuration.draw,
-      curve: reduced ? Curves.linear : CaEase.standard,
+      duration: reduced ? Duration.zero : const Duration(milliseconds: 1100),
+      curve: Curves.linear,
       child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
           child: child),
       builder: (context, t, child) => CustomPaint(
         foregroundPainter: _HandCircle(
-            color: color, drawn: reduced ? 1 : t, opacity: reduced ? t : 1),
+            color: color,
+            drawn: reduced
+                ? 1
+                : CaEase.standard.transform(
+                    ((t * 1100 - 500) / CaDuration.draw.inMilliseconds)
+                        .clamp(0.0, 1.0)),
+            opacity: 1),
         child: child,
       ),
     );
@@ -94,10 +100,7 @@ class CaTape extends StatelessWidget {
               curve: reduced ? Curves.linear : CaEase.standard,
               builder: (context, t, _) => reduced
                   ? Opacity(opacity: t, child: strip)
-                  : FractionallySizedBox(
-                      alignment: Alignment.centerLeft,
-                      widthFactor: t,
-                      child: strip),
+                  : ClipRect(clipper: _TapeClip(t), child: strip),
             ),
           ),
         ),
@@ -105,4 +108,14 @@ class CaTape extends StatelessWidget {
       ],
     );
   }
+}
+
+class _TapeClip extends CustomClipper<Rect> {
+  const _TapeClip(this.progress);
+  final double progress;
+  @override
+  Rect getClip(Size size) =>
+      Rect.fromLTWH(0, 0, size.width * progress, size.height);
+  @override
+  bool shouldReclip(_TapeClip oldClipper) => oldClipper.progress != progress;
 }

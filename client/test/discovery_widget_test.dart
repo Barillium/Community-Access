@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:community_access_client/access_api.dart';
@@ -95,7 +96,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(EventCarousel),
-          matching: find.text('DEMO AMBIENTABEND'),
+          matching: find.text('Demo Ambientabend'),
         ),
         findsOneWidget,
       );
@@ -111,7 +112,7 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(EventCarousel),
-          matching: find.text('DEMO AMBIENTABEND'),
+          matching: find.text('Demo Ambientabend'),
         ),
         findsNothing,
       );
@@ -125,16 +126,14 @@ void main() {
       expect(
         find.descendant(
           of: find.byType(EventCarousel),
-          matching: find.text('DEMO SECRET NIGHT'),
+          matching: find.text('Demo Secret Night'),
         ),
         findsOneWidget,
       );
       expect(find.text('2 / 2'), findsOneWidget);
-      await tester.tap(find.byTooltip('Sprache wählen'));
+      await tester.tap(find.widgetWithText(TextButton, 'EN'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('English').last);
-      await tester.pumpAndSettle();
-      expect(find.text('Sign in'), findsOneWidget);
+      expect(find.text('My access'), findsOneWidget);
       expect(
         find.descendant(
           of: find.byType(AccessHeader),
@@ -143,7 +142,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.byTooltip('Previous event'), findsOneWidget);
-      expect(find.text('PROGRAM'), findsOneWidget);
+      expect(find.text('Program'), findsWidgets);
       await tester.ensureVisible(find.byTooltip('Previous event'));
       await tester.tap(find.byTooltip('Previous event'));
       await tester.pumpAndSettle();
@@ -189,13 +188,19 @@ void main() {
         CommunityAccessApp(api: api, authOnly: true, showPublicHome: true),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Anmelden'));
+      await tester.tap(find.byTooltip('Menü'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Mein Zugang'));
       await tester.pumpAndSettle();
       api.signed = true;
       await tester.tap(find.text('Zur Hauptseite'));
       await tester.pumpAndSettle();
-      expect(find.text('FÜR DICH'), findsOneWidget);
-      expect(find.text('Dein Konto'), findsOneWidget);
+      expect(find.text('Für dich'), findsOneWidget);
+      await tester.tap(find.byTooltip('Menü'));
+      await tester.pumpAndSettle();
+      expect(find.text('Mein Zugang'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
       expect(find.text('1 / 2'), findsOneWidget);
       expect(tester.takeException(), isNull);
     },

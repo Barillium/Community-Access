@@ -1,17 +1,21 @@
+import 'flyer_design.dart';
+
 import 'product_scope.dart';
+import 'program_date_filter.dart';
+import 'faq_content.dart';
+import 'communities_page.dart';
 import 'app_language.dart';
 import 'access_brand.dart';
 import 'access_account_menu.dart';
 import 'account_registration_page.dart';
 import 'better_auth_api.dart' show AccountApi;
-import 'appearance_scope.dart';
 import 'bookmark_views.dart';
 import 'access_flow_api.dart';
 import 'access_flow_page.dart';
 import 'event_carousel.dart';
 import 'guest_preferences.dart';
 
-import 'dart:ui' show SemanticsRole;
+import 'dart:ui' show FontVariation, SemanticsRole;
 
 import 'package:flutter/material.dart';
 
@@ -22,7 +26,7 @@ import 'directory_pages.dart';
 import 'program_views.dart';
 import 'site_information_page.dart';
 
-enum _Section { events, communities, organizers, venues, about }
+enum _Section { events, communities, organizers, venues, faq }
 
 /// Shared entry renders only the server-filtered public or personal catalog.
 class PublicHomePage extends StatefulWidget {
@@ -54,13 +58,14 @@ class _PublicHomePageState extends State<PublicHomePage> {
   final _scroll = ScrollController();
   String _query = '';
   bool _showSearch = false;
-  String _visibilityFilter = 'all';
+  bool _menuOpen = false;
+  ProgramDateFilter _dateFilter = ProgramDateFilter.all;
   final _searchKey = GlobalKey();
   final _searchFocus = FocusNode();
   Map<String, dynamic>? _program, _home;
   bool get _signedIn => _home?['signed_in'] == true;
   int _homeRequest = 0;
-  final Set<String> _following = {};
+  String? _organizerCommunity;
   String? _eventFailure;
   bool _loadingEvents = false;
   int _eventRequest = 0;
@@ -175,9 +180,16 @@ class _PublicHomePageState extends State<PublicHomePage> {
       _loadingEvents = true;
     });
     try {
+      final range = programDateRange(_dateFilter);
       final data = await api.directory(
         'events',
-        query: {'q': _query, 'page': '$page', 'scope': 'upcoming'},
+        query: {
+          'q': _query,
+          'page': '$page',
+          'scope': 'upcoming',
+          if (range != null) 'from': range.from.toUtc().toIso8601String(),
+          if (range != null) 'before': range.before.toUtc().toIso8601String(),
+        },
       );
       if (mounted && request == _eventRequest) setState(() => _program = data);
     } catch (error) {
@@ -205,9 +217,10 @@ class _PublicHomePageState extends State<PublicHomePage> {
     MaterialPageRoute(builder: (_) => SiteInformationPage(privacy: privacy)),
   );
 
-  void _select(_Section value) {
+  void _select(_Section value, {String? community}) {
     setState(() {
       _section = value;
+      if (value == _Section.organizers) _organizerCommunity = community;
     });
     if (_scroll.hasClients) {
       if (MediaQuery.disableAnimationsOf(context)) {
@@ -254,24 +267,16 @@ class _PublicHomePageState extends State<PublicHomePage> {
     child: _navItems(),
   );
 
-  static const _navigation = {
-    _Section.events: 'Events',
-    _Section.communities: 'Communities',
-    _Section.organizers: 'Veranstalter',
-    _Section.venues: 'Veranstaltungsorte',
-    _Section.about: 'Über',
-  };
-
   static const _desktopNavigation = {
     _Section.events: 'Programm',
+    _Section.communities: 'Communities',
     _Section.venues: 'Orte',
     _Section.organizers: 'Veranstalter',
-    _Section.about: 'So funktioniert’s',
+    _Section.faq: 'FAQ',
   };
 
   Widget _navItems() => Row(
     mainAxisSize: MainAxisSize.min,
-    spacing: AccessSpacing.s8,
     children: [
       for (final item in _desktopNavigation.entries.where(
         (item) => ProductScope.extended || item.key != _Section.venues,
@@ -279,39 +284,14 @@ class _PublicHomePageState extends State<PublicHomePage> {
         TextButton(
           onPressed: () => _select(item.key),
           style: TextButton.styleFrom(
-            foregroundColor: _section == item.key
-                ? AushangPalette.of(context).ink
-                : AushangPalette.of(context).muted,
-            backgroundColor: Colors.transparent,
-            shape: const RoundedRectangleBorder(),
-            side: BorderSide.none,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            minimumSize: const Size(48, 48),
           ),
           child: Semantics(
             selected: _section == item.key,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                if (_section == item.key)
-                  Positioned(
-                    left: -4,
-                    right: -4,
-                    top: 14,
-                    height: 9,
-                    child: Transform.rotate(
-                      angle: -.026,
-                      child: ColoredBox(color: AccessDesign.accent),
-                    ),
-                  ),
-                LocalText(
-                  localText(context, item.value),
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: _section == item.key
-                        ? FontWeight.w600
-                        : FontWeight.w400,
-                  ),
-                ),
-              ],
+            child: FlyerMark(
+              active: _section == item.key,
+              child: LocalText(item.value),
             ),
           ),
         ),
@@ -320,181 +300,136 @@ class _PublicHomePageState extends State<PublicHomePage> {
 
   Widget _header() => AccessHeader(
     child: LayoutBuilder(
-      builder: (context, constraints) {
-        final textStyle = Theme.of(context).textTheme.labelLarge!;
-        double textWidth(String text, {TextStyle? style}) {
-          final painter = TextPainter(
-            text: TextSpan(text: text, style: style ?? textStyle),
-            textDirection: Directionality.of(context),
-            textScaler: MediaQuery.textScalerOf(context),
-          )..layout();
-          final width = painter.width;
-          painter.dispose();
-          return width;
-        }
-
-        final accountLabel = localText(
-          context,
-          _signedIn ? 'Dein Konto' : 'Anmelden',
-        );
-        final brandLabel = constraints.maxWidth >= 600;
-        final brandWidth = brandLabel ? 148.0 : 104.0;
-        final language = LanguageScope.of(context);
-        final languageLabel = language?.value == true ? 'EN' : 'DE';
-        final languageWidth = textWidth(languageLabel) + 72;
-        final accountWidth = textWidth(accountLabel) + 56;
-        final navWidth = _desktopNavigation.values.fold<double>(
-          32,
-          (sum, label) =>
-              sum +
-              textWidth(
-                localText(context, label),
-                style: textStyle.copyWith(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ) +
-              32,
-        );
-        final compact =
-            AccessLayout.largeText(context) ||
-            constraints.maxWidth <
-                brandWidth + navWidth + languageWidth + accountWidth + 80;
-        final iconAccount =
-            compact &&
-            constraints.maxWidth <
-                brandWidth + 48 + languageWidth + accountWidth + 12;
-        final brand = TextButton(
-          onPressed: () => _select(_Section.events),
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: AccessSpacing.s4),
-          ),
-          child: Semantics(
-            label: localText(
-              context,
-              'Community Access · Hauptseite',
-              'Community Access · Home',
-            ),
-            excludeSemantics: true,
-            child: AccessBrand(width: brandLabel ? 140 : 96),
-          ),
-        );
-        final account = iconAccount
-            ? IconButton(
-                onPressed: _openAccount,
-                tooltip: accountLabel,
-                style: IconButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  foregroundColor: AushangPalette.of(context).ink,
-                  minimumSize: const Size(48, 48),
-                ),
-                icon: const AccessIcon(Icons.person_outline),
-              )
-            : AccessAction(
-                onPressed: _openAccount,
-                small: true,
-                child: LocalText(accountLabel),
-              );
-        final switcher = PopupMenuButton<String>(
-          tooltip: localText(context, 'Sprache wählen', 'Choose language'),
-          enabled: language != null || AppearanceScope.of(context) != null,
-          initialValue: languageLabel,
-          onSelected: (value) {
-            if (value == 'DE' || value == 'EN') language?.value = value == 'EN';
-            if (value == 'light' || value == 'dark') {
-              AppearanceScope.of(context)?.value = value == 'dark'
-                  ? ThemeMode.dark
-                  : ThemeMode.light;
-            }
-          },
-          position: PopupMenuPosition.under,
-          itemBuilder: (_) => const [
-            PopupMenuItem(value: 'DE', child: Text('Deutsch')),
-            PopupMenuItem(value: 'EN', child: Text('English')),
-            PopupMenuDivider(),
-            PopupMenuItem(
-              value: 'light',
-              child: LocalText('Helle Darstellung'),
-            ),
-            PopupMenuItem(
-              value: 'dark',
-              child: LocalText('Dunkle Darstellung'),
-            ),
-          ],
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AccessSpacing.s8),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const AccessIcon(Icons.language, size: 18),
-                  const SizedBox(width: 8),
-                  Text(
-                    languageLabel,
-                    style: textStyle.copyWith(
-                      color: AushangPalette.of(context).ink,
-                    ),
-                  ),
-                  const SizedBox(width: AccessSpacing.s4),
-                  const AccessIcon(Icons.keyboard_arrow_down, size: 18),
-                ],
-              ),
-            ),
-          ),
+      builder: (context, c) {
+        final compact = c.maxWidth < 1050 || AccessLayout.largeText(context);
+        final palette = AushangPalette.of(context);
+        final menuWidth = (MediaQuery.sizeOf(context).width - 32).clamp(
+          240.0,
+          420.0,
         );
         final menu = PopupMenuButton<_Section>(
           tooltip: localText(context, 'Menü', 'Menu'),
-          style: IconButton.styleFrom(minimumSize: const Size(48, 48)),
+          icon: AccessIcon(
+            _menuOpen ? Icons.close : Icons.menu,
+            color: FlyerStyle.marker,
+          ),
           position: PopupMenuPosition.under,
-          initialValue: _section,
-          onSelected: _select,
-          icon: const AccessIcon(Icons.menu),
-          constraints: const BoxConstraints(minWidth: 240, maxWidth: 280),
+          offset: const Offset(0, 10),
+          elevation: 0,
+          color: Colors.white,
+          surfaceTintColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          shape: const RoundedRectangleBorder(),
+          menuPadding: const EdgeInsets.symmetric(vertical: 12),
+          constraints: BoxConstraints(minWidth: menuWidth, maxWidth: menuWidth),
+          popUpAnimationStyle: AnimationStyle(
+            duration: MediaQuery.disableAnimationsOf(context)
+                ? Duration.zero
+                : const Duration(milliseconds: 160),
+          ),
+          onOpened: () => setState(() => _menuOpen = true),
+          onCanceled: () => setState(() => _menuOpen = false),
+          onSelected: (value) {
+            setState(() => _menuOpen = false);
+            _select(value);
+          },
           itemBuilder: (_) => [
-            for (final item in _navigation.entries.where(
+            for (final item in _desktopNavigation.entries.where(
               (item) => ProductScope.extended || item.key != _Section.venues,
             ))
               PopupMenuItem(
                 value: item.key,
+                height: 56,
                 child: Semantics(
                   selected: _section == item.key,
-                  child: LocalText(item.value),
+                  child: FlyerMark(
+                    active: _section == item.key,
+                    child: LocalText(
+                      item.value,
+                      style: const TextStyle(
+                        color: FlyerStyle.ink,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
                 ),
               ),
+            PopupMenuItem(
+              height: 64,
+              onTap: () => Future<void>.delayed(
+                Duration.zero,
+                () => _signedIn ? _openAccess() : _openAccount(),
+              ),
+              child: FlyerMark(
+                kind: FlyerMarkKind.circle,
+                child: LocalText(
+                  'Mein Zugang',
+                  style: const TextStyle(color: FlyerStyle.ink, fontSize: 20),
+                ),
+              ),
+            ),
+            if (ProductScope.extended)
+              PopupMenuItem(
+                height: 56,
+                onTap: () =>
+                    Future<void>.delayed(Duration.zero, _openBookmarks),
+                child: const LocalText('Merkliste'),
+              ),
+            PopupMenuItem(
+              height: 56,
+              onTap: () =>
+                  Future<void>.delayed(Duration.zero, _openMobileAccountMenu),
+              child: const LocalText('Konto und Darstellung'),
+            ),
           ],
         );
-        if (MediaQuery.sizeOf(context).width < 768) {
-          return Row(
-            children: [
-              Expanded(
-                child: Align(alignment: Alignment.centerLeft, child: brand),
-              ),
-              menu,
-            ],
-          );
-        }
         return Row(
-          spacing: compact ? AccessSpacing.s4 : AccessSpacing.s8,
           children: [
-            if (compact)
-              Expanded(
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: FittedBox(fit: BoxFit.scaleDown, child: brand),
+            TextButton(
+              onPressed: () => _select(_Section.events),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.zero,
+                minimumSize: const Size(104, 48),
+              ),
+              child: Semantics(
+                label: localText(
+                  context,
+                  'Community Access · Hauptseite',
+                  'Community Access · Home',
+                ),
+                excludeSemantics: true,
+                child: Transform.translate(
+                  offset: const Offset(-4, 0),
+                  child: const AccessBrand(width: 108),
+                ),
+              ),
+            ),
+            const Spacer(),
+            if (!compact) _nav(),
+            if (!compact)
+              IconButton(
+                onPressed: _openSearch,
+                tooltip: localText(context, 'Suche öffnen', 'Open search'),
+                icon: const AccessIcon(Icons.search),
+              ),
+            const FlyerLanguageButton(),
+            if (!compact)
+              TextButton(
+                onPressed: _openAccount,
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  minimumSize: const Size(48, 48),
+                ),
+                child: FlyerMark(
+                  kind: FlyerMarkKind.circle,
+                  child: LocalText(
+                    'Mein Zugang',
+                    style: TextStyle(color: palette.ink),
+                  ),
                 ),
               )
             else
-              brand,
-            if (compact) menu else _nav(),
-            if (!compact) const Spacer(),
-            IconButton(
-              onPressed: _openSearch,
-              tooltip: localText(context, 'Suche öffnen', 'Open search'),
-              icon: const AccessIcon(Icons.search),
-            ),
-            switcher,
-            account,
+              menu,
           ],
         );
       },
@@ -649,121 +584,6 @@ class _PublicHomePageState extends State<PublicHomePage> {
     ),
   );
 
-  Widget _accessSteps(bool compact) {
-    final steps = [
-      (
-        '1',
-        'Einladung erhalten',
-        'Die Moderation teilt eine Einladung über einen bestehenden Kanal. Du beantwortest die Fragen der Community.',
-      ),
-      (
-        '2',
-        'Aufnahme abwarten',
-        'Moderatoren entscheiden manuell über deine Mitgliedschaft.',
-      ),
-      (
-        '3',
-        'Eventteilnahme anfragen',
-        'Erst eine separate Zusage bestätigt deinen Eventplatz.',
-      ),
-    ];
-    Widget step((String, String, String) item) => Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          item.$1,
-          style: const TextStyle(
-            fontFamily: 'Archivo',
-            fontVariations: [FontVariation('wdth', 68)],
-            fontWeight: FontWeight.w800,
-            fontSize: 52,
-            height: 1,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Semantics(
-                headingLevel: 3,
-                child: LocalText(
-                  item.$2,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    height: 1.35,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 4),
-              LocalText(
-                item.$3,
-                style: TextStyle(
-                  color: AushangPalette.of(context).muted,
-                  fontSize: 14,
-                  height: 1.45,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-    return Padding(
-      padding: const EdgeInsets.only(top: 64),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Semantics(
-            headingLevel: 2,
-            child: Text(
-              localText(
-                context,
-                'So kommst du rein',
-                'How to get access',
-              ).toUpperCase(),
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.04,
-                color: AushangPalette.of(context).muted,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            padding: const EdgeInsets.only(top: 16),
-            decoration: BoxDecoration(
-              border: Border(
-                top: BorderSide(color: AushangPalette.of(context).ink),
-              ),
-            ),
-            child: compact
-                ? Column(
-                    children: [
-                      for (final item in steps)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 24),
-                          child: step(item),
-                        ),
-                    ],
-                  )
-                : Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (int i = 0; i < steps.length; i++) ...[
-                        if (i > 0) const SizedBox(width: 24),
-                        Expanded(child: step(steps[i])),
-                      ],
-                    ],
-                  ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _entryPanels(bool compact) {
     final palette = AushangPalette.of(context);
     Widget panel(
@@ -882,16 +702,51 @@ class _PublicHomePageState extends State<PublicHomePage> {
     if (mounted && created != null) await _openAccount();
   }
 
-  List _visibleProgramEvents(List events) => _visibilityFilter == 'all'
-      ? events
-      : events
-            .where(
-              (e) => _visibilityFilter == 'public'
-                  ? eventAccessLabel(Map<String, dynamic>.from(e)) ==
-                        'Öffentlich'
-                  : e['access_mode'] == _visibilityFilter,
-            )
-            .toList();
+  String _dateFilterLabel(ProgramDateFilter filter) => switch (filter) {
+    ProgramDateFilter.all => localText(context, 'Alle Termine', 'All dates'),
+    ProgramDateFilter.today => localText(context, 'Heute', 'Today'),
+    ProgramDateFilter.tomorrow => localText(context, 'Morgen', 'Tomorrow'),
+    ProgramDateFilter.thisWeek => localText(
+      context,
+      'Diese Woche',
+      'This week',
+    ),
+  };
+
+  Widget _dateFilters() => Wrap(
+    spacing: 8,
+    runSpacing: 8,
+    children: [
+      for (final choice in ProgramDateFilter.values)
+        Semantics(
+          selected: _dateFilter == choice,
+          child: TextButton(
+            onPressed: () {
+              if (_dateFilter == choice) return;
+              setState(() => _dateFilter = choice);
+              _loadEvents();
+            },
+            style: TextButton.styleFrom(
+              minimumSize: const Size(48, 48),
+              visualDensity: VisualDensity.standard,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              backgroundColor: _dateFilter == choice
+                  ? FlyerStyle.orange
+                  : AushangPalette.of(context).page,
+              foregroundColor: _dateFilter == choice
+                  ? FlyerStyle.ink
+                  : AushangPalette.of(context).ink,
+              shape: const RoundedRectangleBorder(),
+              side: BorderSide(color: AushangPalette.of(context).ink),
+            ),
+            child: Text(
+              _dateFilterLabel(choice),
+              style: const TextStyle(fontSize: 14),
+            ),
+          ),
+        ),
+    ],
+  );
 
   void _openSearch() {
     setState(() {
@@ -949,7 +804,9 @@ class _PublicHomePageState extends State<PublicHomePage> {
         dates.every(
           (d) => d.year == dates.first.year && d.month == dates.first.month,
         );
-    final title = ProductScope.extended && _signedIn
+    final title = _dateFilter != ProgramDateFilter.all
+        ? _dateFilterLabel(_dateFilter)
+        : ProductScope.extended && _signedIn
         ? localText(context, 'Für dich', 'For you')
         : sameMonth
         ? localText(
@@ -958,58 +815,23 @@ class _PublicHomePageState extends State<PublicHomePage> {
             monthsEn[dates.first.month - 1],
           )
         : localText(context, 'Programm', 'Program');
-    Widget filters() => Wrap(
-      spacing: 0,
-      runSpacing: 8,
-      children: [
-        for (final choice in [
-          ('all', 'Alle', 'All'),
-          ('public', 'Öffentlich', 'Public'),
-          if (ProductScope.extended)
-            ('semi_public', 'Semi-öffentlich', 'Semi-public'),
-        ])
-          Semantics(
-            selected: _visibilityFilter == choice.$1,
-            child: TextButton(
-              onPressed: () => setState(() => _visibilityFilter = choice.$1),
-              style: TextButton.styleFrom(
-                minimumSize: const Size(48, 48),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                backgroundColor: _visibilityFilter == choice.$1
-                    ? AushangPalette.of(context).ink
-                    : AushangPalette.of(context).page,
-                foregroundColor: _visibilityFilter == choice.$1
-                    ? AushangPalette.of(context).page
-                    : AushangPalette.of(context).ink,
-                shape: const RoundedRectangleBorder(),
-                side: BorderSide(color: AushangPalette.of(context).ink),
-              ),
-              child: Text(
-                localText(context, choice.$2, choice.$3),
-                style: const TextStyle(fontSize: 14),
-              ),
-            ),
-          ),
-      ],
-    );
     final heading = Semantics(
       headingLevel: 2,
       child: Text(
-        title.toUpperCase(),
+        title,
         semanticsLabel: title,
         style: TextStyle(
-          fontSize: compact ? 44 : 72,
-          fontWeight: FontWeight.w800,
-          fontVariations: const [FontVariation('wdth', 68)],
-          height: .9,
+          fontSize: compact ? 32 : 42,
+          fontWeight: FontWeight.w600,
+          fontVariations: const [FontVariation('wdth', 100)],
+          height: 1.1,
         ),
       ),
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (!_signedIn) _accessSteps(compact),
-        SizedBox(height: compact ? 96 : 144),
+        SizedBox(height: compact ? 64 : 48),
         if (compact) ...[
           Row(
             children: [
@@ -1022,13 +844,13 @@ class _PublicHomePageState extends State<PublicHomePage> {
             ],
           ),
           const SizedBox(height: 24),
-          filters(),
+          _dateFilters(),
         ] else
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(child: heading),
-              filters(),
+              _dateFilters(),
             ],
           ),
         if (_showSearch || _query.isNotEmpty) _searchForm(),
@@ -1056,8 +878,6 @@ class _PublicHomePageState extends State<PublicHomePage> {
   Widget _legacyEvents(bool compact) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      if (!_signedIn && (_home?['hero'] as List? ?? []).isNotEmpty)
-        _accessSteps(compact),
       _intro(
         _signedIn
             ? localText(
@@ -1082,6 +902,8 @@ class _PublicHomePageState extends State<PublicHomePage> {
             : 'Öffentlich geteilt',
       ),
       const SizedBox(height: 24),
+      _dateFilters(),
+      const SizedBox(height: 24),
       _eventResults(),
       if (ProductScope.extended && _signedIn)
         TextButton(
@@ -1101,9 +923,11 @@ class _PublicHomePageState extends State<PublicHomePage> {
   );
 
   Widget _eventResults() {
-    if (_query.isEmpty && _home != null) {
+    if (_query.isEmpty &&
+        _dateFilter == ProgramDateFilter.all &&
+        _home != null) {
       final all = _home!['events'] as List? ?? [];
-      final events = _visibleProgramEvents(all);
+      final events = all;
       if (events.isNotEmpty) {
         return ProgramList(
           api: widget.directoryApi!,
@@ -1158,7 +982,22 @@ class _PublicHomePageState extends State<PublicHomePage> {
         ],
       );
     }
-    if (_visibleProgramEvents(_program?['events'] as List? ?? []).isEmpty) {
+    if ((_program?['events'] as List? ?? []).isEmpty &&
+        _dateFilter != ProgramDateFilter.all) {
+      return _empty(
+        localText(
+          context,
+          'Keine passenden Veranstaltungen in diesem Zeitraum.',
+          'No matching events in this period.',
+        ),
+        localText(
+          context,
+          'Wähle einen anderen Zeitraum oder zeige alle Termine.',
+          'Choose another period or show all dates.',
+        ),
+      );
+    }
+    if ((_program?['events'] as List? ?? []).isEmpty) {
       return _empty(
         _query.isEmpty
             ? 'Noch keine öffentlichen Events.'
@@ -1175,140 +1014,16 @@ class _PublicHomePageState extends State<PublicHomePage> {
       showHeading: false,
       calendarLayout: (_home?['hero'] as List? ?? []).isNotEmpty,
       openAccount: _openProfileAccount,
-      program: {
-        ..._program!,
-        'events': _visibleProgramEvents(_program?['events'] as List? ?? []),
-      },
+      program: {..._program!, 'events': _program?['events'] as List? ?? []},
       onPage: (page) => _loadEvents(page: page),
       onRefresh: () => _loadEvents(page: _program?['page'] as int? ?? 1),
     );
   }
 
-  Widget _communities(bool compact) => Column(
+  Widget _faq() => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
-      _intro(
-        'Communities entdecken.',
-        'Bestehende Veranstalter bleiben der Mittelpunkt. '
-            'Die Gastgeber bestimmen, welche Informationen sie öffentlich teilen.',
-        compact,
-      ),
-      if (_home != null) ...[
-        for (final c in _home!['communities'] as List? ?? [])
-          AccessSurface(
-            child: ListTile(
-              title: LocalText(c['name'] as String),
-              trailing: !ProductScope.extended
-                  ? null
-                  : TextButton(
-                      onPressed:
-                          !ProductScope.extended || _following.contains(c['id'])
-                          ? null
-                          : () async {
-                              if (!_signedIn) {
-                                await _openProfileAccount();
-                                return;
-                              }
-                              final id = c['id'] as String;
-                              if (_following.contains(id)) return;
-                              setState(() => _following.add(id));
-                              try {
-                                await widget.directoryApi!.directory(
-                                  'follow',
-                                  body: {
-                                    'id': id,
-                                    'following': c['following'] != true,
-                                  },
-                                );
-                                if (mounted) await _loadHome();
-                              } catch (e) {
-                                // Recheck the authoritative status before another attempt:
-                                // a lost response can follow a successful write.
-                                if (mounted) await _loadHome();
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: LocalText(
-                                        e is ApiFailure ? e.message : 'Folgen konnte nicht gespeichert werden. Bitte prüfe den aktuellen Status.',
-                                      ),
-                                    ),
-                                  );
-                                }
-                              } finally {
-                                if (mounted) {
-                                  setState(() => _following.remove(id));
-                                }
-                              }
-                            },
-                      child: LocalText(
-                        c['following'] == true
-                            ? localText(
-                                context,
-                                'Nicht mehr folgen',
-                                'Unfollow',
-                              )
-                            : localText(context, 'Folgen', 'Follow'),
-                      ),
-                    ),
-            ),
-          ),
-      ] else
-        _empty(
-          'Die Communityübersicht ist noch nicht angebunden.',
-          'Ein persönlicher Kontakt und eine Einladung sind der Einstieg in eine Community.',
-        ),
-    ],
-  );
-
-  Widget _about(bool compact) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      _intro(
-        'Entdecken.\nKennenlernen.\nDabei sein.',
-        'Community Access ergänzt bestehende Veranstalter um einen nachvollziehbaren Zugang. '
-            'Bestehende Kommunikationskanäle bleiben bestehen.',
-        compact,
-      ),
-      for (final step in const [
-        (
-          '01',
-          'Einladung erhalten',
-          'Die Moderation teilt eine Einladung über einen bestehenden Kanal.',
-        ),
-        (
-          '02',
-          'Persönlich bewerben',
-          'Du beantwortest die Fragen der Community.',
-        ),
-        (
-          '03',
-          'Aufnahme abwarten',
-          'Moderatoren entscheiden manuell über deine Mitgliedschaft.',
-        ),
-        (
-          '04',
-          'Eventteilnahme anfragen',
-          'Erst eine separate Zusage bestätigt deinen Eventplatz.',
-        ),
-      ]) ...[
-        AccessSurface(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _tag(step.$1),
-              const SizedBox(height: AccessSpacing.s20),
-              _heading(step.$2),
-              const SizedBox(height: AccessSpacing.s16),
-              LocalText(
-                step.$3,
-                style: const TextStyle(height: AccessTypography.readingHeight),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: AccessSpacing.s20),
-      ],
-      const SizedBox(height: AccessSpacing.s12),
+      const FaqContent(),
       Align(
         alignment: Alignment.centerLeft,
         child: FilledButton(
@@ -1409,8 +1124,8 @@ class _PublicHomePageState extends State<PublicHomePage> {
           child: const LocalText('Für Veranstalter'),
         ),
         TextButton(
-          onPressed: () => _select(_Section.about),
-          child: const LocalText('Über Community Access'),
+          onPressed: () => _select(_Section.faq),
+          child: const LocalText('FAQ'),
         ),
         TextButton(
           onPressed: () => Navigator.of(context).push<void>(
@@ -1476,164 +1191,110 @@ class _PublicHomePageState extends State<PublicHomePage> {
     if (mounted && openAccount) await _openAccount();
   }
 
-  Widget _mobileNavigation() {
-    Widget destination(
-      String label,
-      String english,
-      IconData icon,
-      VoidCallback action, {
-      bool selected = false,
-    }) => Expanded(
-      child: TextButton(
-        onPressed: action,
-        style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
-        ),
-        child: Semantics(
-          selected: selected,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AccessIcon(icon),
-              const SizedBox(height: 4),
-              Text(
-                localText(context, label, english),
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 13),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: AushangPalette.of(context).ink)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            destination(
-              'Programm',
-              'Program',
-              Icons.calendar_month,
-              () => _select(_Section.events),
-              selected: _section == _Section.events,
-            ),
-            if (ProductScope.extended)
-              destination(
-                'Merkliste',
-                'Saved',
-                Icons.bookmark_border,
-                _openBookmarks,
-              ),
-            destination(
-              'Mein Zugang',
-              'My access',
-              Icons.door_front_door_outlined,
-              _openAccess,
-            ),
-            destination(
-              'Konto',
-              'Account',
-              Icons.account_circle_outlined,
-              _openMobileAccountMenu,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) => Scaffold(
-    bottomNavigationBar: MediaQuery.sizeOf(context).width < 768
-        ? _mobileNavigation()
-        : null,
     body: SafeArea(
-      child: SingleChildScrollView(
-        controller: _scroll,
-        child: Column(
-          children: [
-            _header(),
-            Semantics(
-              container: true,
-              explicitChildNodes: true,
-              role: SemanticsRole.main,
+      child: Column(
+        children: [
+          _header(),
+          Expanded(
+            child: SingleChildScrollView(
+              controller: _scroll,
               child: Column(
                 children: [
-                  if (_section == _Section.events &&
-                      (_home?['hero'] as List? ?? []).isNotEmpty)
-                    EventCarousel(
-                      events: (_home!['hero'] as List)
-                          .cast<Map<String, dynamic>>(),
-                      onOpen: _openEvent,
-                      bookmarkBuilder: (event) => SizedBox(
-                        width: 52,
-                        child: BookmarkButton(
-                          key: ValueKey('hero-bookmark:${event["id"]}'),
-                          api: widget.directoryApi!,
-                          kind: 'event',
-                          id: event['id'] as String,
-                          signedIn: _signedIn,
-                          compact: true,
-                          openAccount: _openProfileAccount,
+                  Semantics(
+                    container: true,
+                    explicitChildNodes: true,
+                    role: SemanticsRole.main,
+                    child: Column(
+                      children: [
+                        if (_section == _Section.events &&
+                            (_home?['hero'] as List? ?? []).isNotEmpty)
+                          EventCarousel(
+                            events: (_home!['hero'] as List)
+                                .cast<Map<String, dynamic>>(),
+                            onOpen: _openEvent,
+                            onProgram: _openSearch,
+                            onCommunities: () => _select(_Section.communities),
+                            bookmarkBuilder: (event) => SizedBox(
+                              width: 52,
+                              child: BookmarkButton(
+                                key: ValueKey('hero-bookmark:${event["id"]}'),
+                                api: widget.directoryApi!,
+                                kind: 'event',
+                                id: event['id'] as String,
+                                signedIn: _signedIn,
+                                compact: true,
+                                openAccount: _openProfileAccount,
+                              ),
+                            ),
+                          ),
+                        AccessPageFrame(
+                          verticalPadding: false,
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              final compact =
+                                  constraints.maxWidth <
+                                      AccessLayout.twoColumnMinWidth ||
+                                  AccessLayout.largeText(context);
+                              return AccessReveal(
+                                child: switch (_section) {
+                                  _Section.events => _events(compact),
+                                  _Section.communities => CommunitiesPage(
+                                    api: widget.directoryApi,
+                                    openAccount: _openProfileAccount,
+                                    onFaq: () => _select(_Section.faq),
+                                    onOrganizers: (id) => _select(
+                                      _Section.organizers,
+                                      community: id,
+                                    ),
+                                  ),
+                                  _Section.organizers => DirectoryBrowser(
+                                    key: ValueKey(
+                                      'organizers:$_organizerCommunity',
+                                    ),
+                                    initialCommunity: _organizerCommunity,
+                                    api: widget.directoryApi,
+                                    venues: false,
+                                    openAccount: _openProfileAccount,
+                                  ),
+                                  _Section.venues => DirectoryBrowser(
+                                    key: const ValueKey('venues'),
+                                    api: widget.directoryApi,
+                                    venues: true,
+                                    openAccount: _openProfileAccount,
+                                  ),
+                                  _Section.faq => _faq(),
+                                },
+                              );
+                            },
+                          ),
                         ),
-                      ),
+                      ],
                     ),
+                  ),
                   AccessPageFrame(
                     verticalPadding: false,
                     child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        final compact =
+                      builder: (context, constraints) => Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: AccessSpacing.s64),
+                          const Divider(),
+                          _footer(
                             constraints.maxWidth <
-                                AccessLayout.twoColumnMinWidth ||
-                            AccessLayout.largeText(context);
-                        return AccessReveal(
-                          child: switch (_section) {
-                            _Section.events => _events(compact),
-                            _Section.communities => _communities(compact),
-                            _Section.organizers => DirectoryBrowser(
-                              key: const ValueKey('organizers'),
-                              api: widget.directoryApi,
-                              venues: false,
-                              openAccount: _openProfileAccount,
-                            ),
-                            _Section.venues => DirectoryBrowser(
-                              key: const ValueKey('venues'),
-                              api: widget.directoryApi,
-                              venues: true,
-                              openAccount: _openProfileAccount,
-                            ),
-                            _Section.about => _about(compact),
-                          },
-                        );
-                      },
+                                    AccessLayout.twoColumnMinWidth ||
+                                AccessLayout.largeText(context),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            AccessPageFrame(
-              verticalPadding: false,
-              child: LayoutBuilder(
-                builder: (context, constraints) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    const SizedBox(height: AccessSpacing.s64),
-                    const Divider(),
-                    _footer(
-                      constraints.maxWidth < AccessLayout.twoColumnMinWidth ||
-                          AccessLayout.largeText(context),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     ),
   );

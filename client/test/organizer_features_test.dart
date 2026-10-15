@@ -132,12 +132,12 @@ void main() {
     (tester) async {
       final api = FeatureFixture();
       await render(tester, OrganizerManagementPage(api: api));
-      await tester.tap(
-        fieldWithLabel(
-          DropdownButtonFormField<String>,
-          'Veranstalterprofil auswählen',
-        ),
+      final profileChoice = fieldWithLabel(
+        DropdownButtonFormField<String>,
+        'Veranstalterprofil auswählen',
       );
+      await tester.ensureVisible(profileChoice);
+      await tester.tap(profileChoice);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Demo öffentliches Profil').last);
       await tester.pumpAndSettle();

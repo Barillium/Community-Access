@@ -1,4 +1,5 @@
 import 'app_language.dart';
+import 'flyer_design.dart';
 
 import 'package:flutter/material.dart';
 
@@ -18,6 +19,16 @@ const _status = {
 };
 Widget directoryHeading(String title) =>
     AccessHeading(title, level: 1, role: AccessHeadingRole.page);
+Widget publicDirectoryHeading(String title) => FlyerScene(
+  minHeight: 320,
+  padding: 24,
+  child: AccessHeading(
+    title,
+    level: 1,
+    role: AccessHeadingRole.page,
+    color: Colors.white,
+  ),
+);
 Widget directoryNotice(String text) => Semantics(
   liveRegion: true,
   child: Padding(
@@ -53,11 +64,13 @@ String _error(Object error) => error is ApiFailure
 class DirectoryBrowser extends StatefulWidget {
   final DirectoryApi? api;
   final bool venues;
+  final String? initialCommunity;
   final Future<void> Function() openAccount;
   const DirectoryBrowser({
     super.key,
     required this.api,
     required this.venues,
+    this.initialCommunity,
     required this.openAccount,
   });
   @override
@@ -74,6 +87,7 @@ class _DirectoryBrowserState extends State<DirectoryBrowser> {
   @override
   void initState() {
     super.initState();
+    _community = widget.initialCommunity;
     _load();
   }
 
@@ -185,7 +199,7 @@ class _DirectoryBrowserState extends State<DirectoryBrowser> {
     children: [
       Padding(
         padding: const EdgeInsets.symmetric(vertical: AccessSpacing.s48),
-        child: directoryHeading(
+        child: publicDirectoryHeading(
           widget.venues ? 'Veranstaltungsorte.' : 'Veranstalter.',
         ),
       ),
@@ -607,7 +621,7 @@ class _OrganizerDetailPageState extends State<OrganizerDetailPage> {
             if (_busy) const Center(child: CircularProgressIndicator()),
             if (_notice != null) directoryNotice(_notice!),
             if (_access != null) ...[
-              directoryHeading(_access!['name'] as String),
+              publicDirectoryHeading(_access!['name'] as String),
               const SizedBox(height: AccessSpacing.s24),
               if (_profile != null) ...[
                 if (_access!['signed_in'] == true ||
@@ -894,7 +908,7 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            directoryHeading(widget.name),
+            publicDirectoryHeading(widget.name),
             const SizedBox(height: AccessSpacing.s24),
             if (_busy) const Center(child: CircularProgressIndicator()),
             if (_failure != null) directoryNotice(_failure!),

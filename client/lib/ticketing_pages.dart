@@ -1,3 +1,4 @@
+import 'flyer_design.dart';
 import 'product_scope.dart';
 import 'private_ticket_pages.dart';
 import 'access_flow_api.dart';
@@ -342,13 +343,27 @@ class _TicketCheckoutPageState extends State<TicketCheckoutPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const LocalText('Ticketbestellung')),
+    appBar: accessAppBar(context, 'Ticketbestellung'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
         width: AccessPageWidth.form,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const AccessHeading(
+              'Ticketbestellung',
+              role: AccessHeadingRole.page,
+              level: 1,
+            ),
+            const SizedBox(height: 24),
+            if (!identityLost &&
+                (order['event_title'] as String? ?? '').isNotEmpty) ...[
+              Text(
+                order['event_title'] as String,
+                style: AccessTypography.cardTitle,
+              ),
+              const SizedBox(height: 24),
+            ],
             if (order['synthetic'] == true)
               const LocalText(
                 'Synthetische Zahlung · es wird kein Geld bewegt',
@@ -555,75 +570,127 @@ class _MyTicketsPageState extends State<MyTicketsPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const LocalText('Meine Tickets')),
+    appBar: accessAppBar(context, 'Meine Tickets'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const AccessHeading(
+              'Meine Tickets',
+              role: AccessHeadingRole.page,
+              level: 1,
+            ),
+            const SizedBox(height: 24),
+            Text(
+              localText(
+                context,
+                'Dein persönlicher Beleg für bestätigte Teilnahme.',
+                'Your personal record of confirmed attendance.',
+              ),
+            ),
+            const SizedBox(height: 32),
             if (notice != null)
               Semantics(liveRegion: true, child: LocalText(notice!)),
             if (items?.isEmpty == true)
               const LocalText('Du hast noch keine Ticketbestellung.'),
             for (final raw in items ?? [])
-              AccessSurface(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    LocalText(
-                      raw['event_title'] as String? ?? 'Ticketbestellung',
-                    ),
-                    SellerInformation(
-                      seller: raw['seller_snapshot'] == null
-                          ? null
-                          : Map<String, dynamic>.from(
-                              raw['seller_snapshot'] as Map,
-                            ),
-                      declaration: raw['declaration_snapshot'] == null
-                          ? null
-                          : Map<String, dynamic>.from(
-                              raw['declaration_snapshot'] as Map,
-                            ),
-                    ),
-                    if (widget.api is LegalApi)
-                      ReportEventButton(
-                        api: widget.api as LegalApi,
-                        eventId: raw['event_id'] as String,
-                      ),
-                    LocalText(ticketMoney(raw['total_cents'])),
-                    LocalText(
-                      ticketState(Map<String, dynamic>.from(raw as Map)),
-                    ),
-                    if (raw['refunded_cents'] != 0)
-                      LocalText(
-                        'Erstattet: ${ticketMoney(raw['refunded_cents'])}',
-                      ),
-                    if (!widget.receiptsOnly &&
-                        !admissionDenied &&
-                        raw['state'] == 'paid' &&
-                        raw['blocked'] != true)
-                      TextButton(
-                        onPressed: busy
-                            ? null
-                            : () => showTicket(Map<String, dynamic>.from(raw)),
-                        child: const LocalText('Ticket anzeigen'),
-                      ),
-                    if (!widget.receiptsOnly &&
-                        !admissionDenied &&
-                        raw['state'] == 'paid' &&
-                        raw['blocked'] != true &&
-                        raw['native_pretix'] == true &&
-                        widget.api is AccessFlowApi)
-                      TextButton(
-                        onPressed: busy
-                            ? null
-                            : () => showTicket(
-                                Map<String, dynamic>.from(raw),
-                                online: true,
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: FlyerMark(
+                  kind: FlyerMarkKind.frame,
+                  child: AccessSurface(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: AccessHeading(
+                                raw['event_title'] as String? ??
+                                    'Ticketbestellung',
+                                role: AccessHeadingRole.card,
+                                level: 2,
                               ),
-                        child: const LocalText('Online-Einlasscode anzeigen'),
-                      ),
-                  ],
+                            ),
+                            if (!widget.receiptsOnly &&
+                                !admissionDenied &&
+                                raw['state'] == 'paid' &&
+                                raw['blocked'] != true)
+                              IconButton(
+                                tooltip: localText(
+                                  context,
+                                  'Ticket öffnen',
+                                  'Open ticket',
+                                ),
+                                onPressed: busy
+                                    ? null
+                                    : () => showTicket(
+                                        Map<String, dynamic>.from(raw),
+                                      ),
+                                icon: const AccessIcon(Icons.arrow_forward),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+                        SellerInformation(
+                          seller: raw['seller_snapshot'] == null
+                              ? null
+                              : Map<String, dynamic>.from(
+                                  raw['seller_snapshot'] as Map,
+                                ),
+                          declaration: raw['declaration_snapshot'] == null
+                              ? null
+                              : Map<String, dynamic>.from(
+                                  raw['declaration_snapshot'] as Map,
+                                ),
+                        ),
+                        if (widget.api is LegalApi)
+                          ReportEventButton(
+                            api: widget.api as LegalApi,
+                            eventId: raw['event_id'] as String,
+                          ),
+                        LocalText(ticketMoney(raw['total_cents'])),
+                        LocalText(
+                          ticketState(Map<String, dynamic>.from(raw as Map)),
+                        ),
+                        if (raw['refunded_cents'] != 0)
+                          LocalText(
+                            'Erstattet: ${ticketMoney(raw['refunded_cents'])}',
+                          ),
+                        if (!widget.receiptsOnly &&
+                            !admissionDenied &&
+                            raw['state'] == 'paid' &&
+                            raw['blocked'] != true)
+                          TextButton(
+                            onPressed: busy
+                                ? null
+                                : () => showTicket(
+                                    Map<String, dynamic>.from(raw),
+                                  ),
+                            child: const LocalText('Ticket anzeigen'),
+                          ),
+                        if (!widget.receiptsOnly &&
+                            !admissionDenied &&
+                            raw['state'] == 'paid' &&
+                            raw['blocked'] != true &&
+                            raw['native_pretix'] == true &&
+                            widget.api is AccessFlowApi)
+                          TextButton(
+                            onPressed: busy
+                                ? null
+                                : () => showTicket(
+                                    Map<String, dynamic>.from(raw),
+                                    online: true,
+                                  ),
+                            child: const LocalText(
+                              'Online-Einlasscode anzeigen',
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             OutlinedButton(
@@ -770,7 +837,7 @@ class _TicketingManagementPageState extends State<TicketingManagementPage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const LocalText('Tickets verwalten')),
+    appBar: accessAppBar(context, 'Tickets verwalten'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
         child: Column(
@@ -1224,7 +1291,7 @@ class _TicketFeePageState extends State<TicketFeePage> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const LocalText('Plattformprovision')),
+    appBar: accessAppBar(context, 'Plattformprovision'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
         width: AccessPageWidth.form,
