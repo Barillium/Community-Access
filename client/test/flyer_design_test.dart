@@ -18,6 +18,47 @@ void main() {
       ..addFont(rootBundle.load('assets/fonts/Archivo-Italic-Variable.ttf'));
     await font.load();
   });
+  testWidgets('carousel has two manual arrows without counter or rotation', (
+    tester,
+  ) async {
+    final events = DiscoveryFixture().events;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AccessDesign.theme(),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: EventCarousel(events: events, onOpen: (_) {}),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final controls = find.byKey(const ValueKey('hero-carousel-controls'));
+    expect(
+      find.descendant(of: controls, matching: find.byType(IconButton)),
+      findsNWidgets(2),
+    );
+    expect(
+      find.descendant(of: controls, matching: find.byType(Text)),
+      findsNothing,
+    );
+    await tester.pump(const Duration(minutes: 1));
+    expect(find.text('Demo Ambientabend'), findsOneWidget);
+    await tester.tap(find.byTooltip('Nächste Veranstaltung'));
+    await tester.pumpAndSettle();
+    expect(find.text('Demo Secret Night'), findsOneWidget);
+    await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+    await tester.pumpAndSettle();
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pumpAndSettle();
+    expect(find.text('Demo Ambientabend'), findsOneWidget);
+    await tester.ensureVisible(find.byTooltip('Vorherige Veranstaltung'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Vorherige Veranstaltung'));
+    await tester.pumpAndSettle();
+    expect(find.text('Demo Secret Night'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('event surfaces omit visibility labels in both languages', (
     tester,
   ) async {
@@ -135,7 +176,8 @@ void main() {
         final semantics = tester.ensureSemantics();
         expect(find.bySemanticsLabel('Das Programm.'), findsOneWidget);
         semantics.dispose();
-        expect(find.byTooltip('Plakatwechsel starten'), findsOneWidget);
+        expect(find.byTooltip('Plakatwechsel starten'), findsNothing);
+        expect(find.textContaining(RegExp(r'^\d+ / \d+$')), findsNothing);
         final scene = find.byType(FlyerScene).first;
         final rect = tester.getRect(scene);
         expect(rect.width, closeTo(width, 1));
@@ -210,13 +252,25 @@ void main() {
     await tester.tap(find.text('English'));
     await tester.pumpAndSettle();
     expect(find.text('Program.'), findsOneWidget);
-    expect(find.text('2 / 2'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(EventCarousel),
+        matching: find.text('Demo Secret Night'),
+      ),
+      findsOneWidget,
+    );
     await tester.tap(find.byTooltip('Choose language'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Deutsch'));
     await tester.pumpAndSettle();
     expect(find.text('Programm.'), findsOneWidget);
-    expect(find.text('2 / 2'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(EventCarousel),
+        matching: find.text('Demo Secret Night'),
+      ),
+      findsOneWidget,
+    );
     expect(tester.takeException(), isNull);
   });
   testWidgets('language dropdown supports keyboard dismissal and selection', (

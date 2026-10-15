@@ -67,30 +67,30 @@ void main() {
     );
     expect(tester.takeException(), isNull);
   });
-  testWidgets(
-    'poster stays still until started and pause stops future changes',
-    (tester) async {
-      await tester.pumpWidget(
-        host(EventCarousel(events: DiscoveryFixture().events, onOpen: (_) {})),
-      );
-      await tester.pumpAndSettle();
-      expect(find.text('Demo Ambientabend'), findsOneWidget);
-      await tester.pump(const Duration(seconds: 20));
-      expect(find.text('Demo Ambientabend'), findsOneWidget);
-      await tester.ensureVisible(find.byTooltip('Plakatwechsel starten'));
-      await tester.tap(find.byTooltip('Plakatwechsel starten'));
-      await tester.pump(const Duration(seconds: 6));
-      await tester.pumpAndSettle();
-      expect(find.text('Demo Secret Night'), findsOneWidget);
-      await tester.ensureVisible(find.byTooltip('Plakatwechsel pausieren'));
-      await tester.tap(find.byTooltip('Plakatwechsel pausieren'));
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(seconds: 20));
-      expect(find.text('Demo Secret Night'), findsOneWidget);
-      expect(find.byTooltip('Plakatwechsel starten'), findsOneWidget);
-      await tester.pumpWidget(const SizedBox());
-    },
-  );
+  testWidgets('poster only changes manually and retains the selected event', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      host(EventCarousel(events: DiscoveryFixture().events, onOpen: (_) {})),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Demo Ambientabend'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 20));
+    expect(find.text('Demo Ambientabend'), findsOneWidget);
+    await tester.ensureVisible(find.byTooltip('Nächste Veranstaltung'));
+    await tester.tap(find.byTooltip('Nächste Veranstaltung'));
+    await tester.pumpAndSettle();
+    expect(find.text('Demo Secret Night'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 20));
+    expect(find.text('Demo Secret Night'), findsOneWidget);
+    expect(find.byTooltip('Plakatwechsel starten'), findsNothing);
+    expect(find.byTooltip('Plakatwechsel pausieren'), findsNothing);
+    await tester.ensureVisible(find.byTooltip('Vorherige Veranstaltung'));
+    await tester.tap(find.byTooltip('Vorherige Veranstaltung'));
+    await tester.pumpAndSettle();
+    expect(find.text('Demo Ambientabend'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
   testWidgets('reduced motion never rotates and manual selection still works', (
     tester,
   ) async {

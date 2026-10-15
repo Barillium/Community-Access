@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -27,52 +25,15 @@ class EventCarousel extends StatefulWidget {
 
 class _EventCarouselState extends State<EventCarousel> {
   int index = 0;
-  bool _paused = true, _focused = false;
-  Timer? _rotation;
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _schedule();
-  }
-
   @override
   void didUpdateWidget(covariant EventCarousel oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (index >= widget.events.length) index = 0;
-    _schedule();
-  }
-
-  void _schedule() {
-    _rotation?.cancel();
-    if (_paused ||
-        _focused ||
-        widget.events.length < 2 ||
-        MediaQuery.disableAnimationsOf(context) ||
-        !(ModalRoute.of(context)?.isCurrent ?? true) ||
-        !TickerMode.valuesOf(context).enabled) {
-      return;
-    }
-    _rotation = Timer(const Duration(seconds: 6), () {
-      if (!mounted) return;
-      if (!(ModalRoute.of(context)?.isCurrent ?? true) ||
-          !TickerMode.valuesOf(context).enabled) {
-        _schedule();
-        return;
-      }
-      move(1);
-    });
   }
 
   void move(int delta) {
     if (widget.events.length < 2) return;
     setState(() => index = (index + delta) % widget.events.length);
-    _schedule();
-  }
-
-  @override
-  void dispose() {
-    _rotation?.cancel();
-    super.dispose();
   }
 
   @override
@@ -252,10 +213,6 @@ class _EventCarouselState extends State<EventCarousel> {
         const SingleActivator(LogicalKeyboardKey.arrowRight): () => move(1),
       },
       child: Focus(
-        onFocusChange: (v) {
-          _focused = v;
-          _schedule();
-        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -298,7 +255,6 @@ class _EventCarouselState extends State<EventCarousel> {
               ),
               icon: const AccessIcon(Icons.arrow_back),
             ),
-            Text('${index + 1} / ${widget.events.length}'),
             IconButton(
               onPressed: () => move(1),
               tooltip: localText(
@@ -308,22 +264,6 @@ class _EventCarouselState extends State<EventCarousel> {
               ),
               icon: const AccessIcon(Icons.arrow_forward),
             ),
-            if (!MediaQuery.disableAnimationsOf(context))
-              IconButton(
-                onPressed: () {
-                  setState(() => _paused = !_paused);
-                  _schedule();
-                },
-                tooltip: localText(
-                  context,
-                  _paused ? 'Plakatwechsel starten' : 'Plakatwechsel pausieren',
-                  _paused ? 'Start poster rotation' : 'Pause poster rotation',
-                ),
-                icon: AccessIcon(
-                  _paused ? Icons.play_arrow : Icons.pause,
-                  color: FlyerStyle.orange,
-                ),
-              ),
           ],
         ),
       ),

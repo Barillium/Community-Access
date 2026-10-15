@@ -130,7 +130,13 @@ void main() {
         ),
         findsOneWidget,
       );
-      expect(find.text('2 / 2'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(EventCarousel),
+          matching: find.text('Demo Secret Night'),
+        ),
+        findsOneWidget,
+      );
       await tester.tap(find.byTooltip('Sprache auswählen'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('English'));
@@ -148,7 +154,13 @@ void main() {
       await tester.ensureVisible(find.byTooltip('Previous event'));
       await tester.tap(find.byTooltip('Previous event'));
       await tester.pumpAndSettle();
-      expect(find.text('1 / 2'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(EventCarousel),
+          matching: find.text('Demo Ambientabend'),
+        ),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     },
   );
@@ -178,7 +190,13 @@ void main() {
       await tester.ensureVisible(find.byTooltip('Nächste Veranstaltung'));
       await tester.tap(find.byTooltip('Nächste Veranstaltung'));
       await tester.pumpAndSettle();
-      expect(find.text('2 / 2'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(EventCarousel),
+          matching: find.text('Demo Secret Night'),
+        ),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     });
   }
@@ -203,7 +221,13 @@ void main() {
       expect(find.text('Mein Zugang'), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();
-      expect(find.text('1 / 2'), findsOneWidget);
+      expect(
+        find.descendant(
+          of: find.byType(EventCarousel),
+          matching: find.text('Demo Ambientabend'),
+        ),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     },
   );
