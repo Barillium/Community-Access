@@ -195,8 +195,12 @@ void main() {
           );
           if (name == 'Communities') {
             expect(find.text('Öffentliche Communities'), findsOneWidget);
-            expect(find.textContaining('Namensidee:'), findsNWidgets(48));
-            final lastTopic = find.text('Namensidee: Horizontkreis');
+            expect(find.textContaining('Namensidee'), findsNothing);
+            expect(
+              find.text('Clubkultur & elektronische Musik'),
+              findsOneWidget,
+            );
+            final lastTopic = find.text('Reisen & regionale Entdeckung');
             await tester.ensureVisible(lastTopic);
             await tester.pumpAndSettle();
             expect(

@@ -54,6 +54,10 @@ Widget page(CommunityFixture api, {AppLanguage? language}) {
       : LanguageScope(language: language, child: child);
 }
 
+final topicHeadings = find.byWidgetPredicate(
+  (widget) => widget is Semantics && widget.properties.headingLevel == 4,
+);
+
 void main() {
   testWidgets(
     'community navigation filters organizers and direct navigation clears filter',
@@ -74,7 +78,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Öffentliche Communities'), findsOneWidget);
       expect(find.text('Demo Musik'), findsOneWidget);
-      expect(find.textContaining('Namensidee:'), findsNWidgets(48));
+      expect(topicHeadings, findsNWidgets(48));
       if (!ProductScope.extended) expect(find.text('Folgen'), findsNothing);
       final open = find.text('Veranstalter ansehen');
       await tester.ensureVisible(open);
@@ -97,7 +101,7 @@ void main() {
   );
 
   testWidgets(
-    'search distinguishes listed communities from editorial name ideas in both languages',
+    'search distinguishes listed communities from editorial topics in both languages',
     (tester) async {
       final api = CommunityFixture();
       final language = AppLanguage();
@@ -106,12 +110,24 @@ void main() {
       await tester.pumpAndSettle();
       await tester.enterText(find.byType(TextField), 'Nachtschicht');
       await tester.pumpAndSettle();
+      expect(topicHeadings, findsNothing);
+      expect(
+        find.text(
+          'Keine passenden Themen. Versuche einen anderen Suchbegriff.',
+        ),
+        findsOneWidget,
+      );
+      await tester.enterText(find.byType(TextField), 'Clubbing');
+      await tester.pumpAndSettle();
       expect(find.text('Demo Musik'), findsNothing);
-      expect(find.text('Namensidee: Nachtschicht'), findsOneWidget);
-      expect(find.textContaining('Namensidee:'), findsOneWidget);
+      expect(find.text('Clubkultur & elektronische Musik'), findsOneWidget);
+      expect(find.textContaining('Namensidee'), findsNothing);
+      expect(find.textContaining('Nachtschicht'), findsNothing);
+      expect(topicHeadings, findsOneWidget);
       language.value = true;
       await tester.pumpAndSettle();
-      expect(find.text('Name idea: Nachtschicht'), findsOneWidget);
+      expect(find.textContaining('Name idea'), findsNothing);
+      expect(topicHeadings, findsOneWidget);
       expect(find.text('Clubbing & electronic music'), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'no matching fixture');
       await tester.pumpAndSettle();
@@ -123,7 +139,7 @@ void main() {
       await tester.tap(find.byTooltip('Clear search'));
       await tester.pumpAndSettle();
       expect(find.text('Demo Musik'), findsOneWidget);
-      expect(find.textContaining('Name idea:'), findsNWidgets(48));
+      expect(topicHeadings, findsNWidgets(48));
       expect(api.calls.where((c) => c == 'communities'), hasLength(1));
     },
   );
@@ -137,7 +153,7 @@ void main() {
     await tester.pumpWidget(page(api));
     await tester.pump();
     expect(find.text('Communities werden geladen …'), findsOneWidget);
-    expect(find.textContaining('Namensidee:'), findsNWidgets(48));
+    expect(topicHeadings, findsNWidgets(48));
     api.gate!.complete();
     await tester.pumpAndSettle();
     expect(
@@ -169,7 +185,7 @@ void main() {
         findsOneWidget,
       );
       expect(find.text('Veranstalter ansehen'), findsNothing);
-      expect(find.textContaining('Namensidee:'), findsNWidgets(48));
+      expect(topicHeadings, findsNWidgets(48));
       expect(api.bodies, isEmpty);
     },
   );
