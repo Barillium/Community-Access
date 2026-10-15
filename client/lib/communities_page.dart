@@ -109,16 +109,10 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
     }
   }
 
-  Widget _heading(String de, String en) => Semantics(
-    headingLevel: 2,
-    child: Text(
-      localText(context, de, en),
-      style: const TextStyle(
-        fontSize: 28,
-        fontWeight: FontWeight.w700,
-        height: 1.3,
-      ),
-    ),
+  Widget _heading(String de, String en) => AccessHeading(
+    localText(context, de, en),
+    role: AccessHeadingRole.section,
+    level: 2,
   );
 
   @override
@@ -139,7 +133,11 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
             'Finde deinen Kreis. Entdecke öffentliche Communities und Themen für gemeinsame Erlebnisse.',
             'Find your people. Discover public communities and topics for shared experiences.',
           ),
-          style: TextStyle(fontSize: 18, height: 1.5, color: palette.muted),
+          style: TextStyle(
+            fontSize: AccessTypography.leadSize,
+            height: 1.5,
+            color: palette.muted,
+          ),
         ),
         const SizedBox(height: AccessSpacing.s24),
         Text(
@@ -253,16 +251,10 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Semantics(
-                    headingLevel: 3,
-                    child: Text(
-                      item['name'] as String,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w600,
-                        height: 1.4,
-                      ),
-                    ),
+                  AccessHeading(
+                    item['name'] as String,
+                    role: AccessHeadingRole.card,
+                    level: 3,
                   ),
                   const SizedBox(height: AccessSpacing.s12),
                   Wrap(

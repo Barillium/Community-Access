@@ -1,4 +1,6 @@
 import 'flyer_design.dart';
+import 'access_typography.dart';
+export 'access_typography.dart';
 import 'flyer_icons.dart';
 
 import 'package:ca_design/ca_design.dart';
@@ -13,6 +15,7 @@ export 'aushang_forui.dart'
     show AccessAction, AccessActionKind, AccessForuiTheme;
 
 import 'dart:math' as math;
+import 'dart:ui' show SemanticsRole;
 
 import 'package:flutter/material.dart';
 import 'package:forui/forui.dart'
@@ -32,40 +35,6 @@ abstract final class AccessSpacing {
   static const s64 = 64.0;
   static const s80 = 80.0;
   static const s96 = 96.0;
-}
-
-/// Named text roles; responsive headings resolve through AccessHeading.
-abstract final class AccessTypography {
-  static const labelSize = AushangTokens.semanticTypeFine;
-  static const captionSize = AushangTokens.semanticTypeMeta;
-  static const bodySize = AushangTokens.semanticTypeBody;
-  static const leadSize = AushangTokens.semanticTypeLead;
-  static const cardTitleSize = AushangTokens.semanticTypeTitle;
-  static const sectionTitleSize = 38.0;
-  static const pageMin = 38.0;
-  static const pageMax = AushangTokens.semanticTypeSection;
-  static const heroMin = 52.0;
-  static const heroMax = AushangTokens.semanticTypeDisplay;
-  static const headingHeight = 1.0;
-  static const titleHeight = 1.1;
-  static const bodyHeight = 1.5;
-  static const readingHeight = 1.6;
-  static const label = TextStyle(fontSize: labelSize, height: bodyHeight);
-  static const caption = TextStyle(fontSize: captionSize, height: bodyHeight);
-  static const body = TextStyle(fontSize: bodySize, height: bodyHeight);
-  static const lead = TextStyle(fontSize: leadSize, height: readingHeight);
-  static const cardTitle = TextStyle(
-    fontSize: cardTitleSize,
-    height: titleHeight,
-    fontWeight: FontWeight.w600,
-    fontVariations: [FontVariation('wdth', 100)],
-  );
-  static const sectionTitle = TextStyle(
-    fontSize: sectionTitleSize,
-    height: titleHeight,
-    fontWeight: FontWeight.w600,
-    fontVariations: [FontVariation('wdth', 100)],
-  );
 }
 
 /// Theme overrides make shared layout changes possible without page edits.
@@ -126,7 +95,7 @@ abstract final class AccessLayout {
   static const metadataMinWidth = 300.0;
   static const maxContentWidth = double.infinity;
   static const detailWidth = double.infinity;
-  static const readingWidth = 760.0;
+  static const readingWidth = 680.0;
   static const formWidth = 520.0;
   static const metadataWidth = 280.0;
   static const detailSidebarWidth = 360.0;
@@ -405,11 +374,15 @@ AppBar accessAppBar(BuildContext context, String title, {Widget? leading}) {
 /// Owns page gutters once. Nested sections must not add page padding again.
 class AccessPageFrame extends StatelessWidget {
   final Widget child;
+  final String? title;
+  final bool mainLandmark;
   final AccessPageWidth width;
   final bool verticalPadding;
   const AccessPageFrame({
     super.key,
     required this.child,
+    this.title,
+    this.mainLandmark = true,
     this.width = AccessPageWidth.content,
     this.verticalPadding = true,
   });
@@ -426,6 +399,16 @@ class AccessPageFrame extends StatelessWidget {
           ? constraints.maxWidth
           : MediaQuery.sizeOf(context).width;
       final inset = AccessLayout.gutter(context, available);
+      final content = title == null
+          ? child
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AccessHeading(title!, role: AccessHeadingRole.page, level: 1),
+                const SizedBox(height: AccessSpacing.s24),
+                child,
+              ],
+            );
       return Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
@@ -441,7 +424,17 @@ class AccessPageFrame extends StatelessWidget {
                         : inset)
                   : 0,
             ),
-            child: SizedBox(width: double.infinity, child: child),
+            child: SizedBox(
+              width: double.infinity,
+              child: mainLandmark
+                  ? Semantics(
+                      container: true,
+                      explicitChildNodes: true,
+                      role: SemanticsRole.main,
+                      child: content,
+                    )
+                  : content,
+            ),
           ),
         ),
       );
@@ -519,7 +512,7 @@ enum AccessHeadingRole { hero, page, section, card, poster }
 class AccessHeading extends StatelessWidget {
   final String text;
   final AccessHeadingRole role;
-  final int level;
+  final int? level;
   final Color? color;
   final FontWeight weight;
   final double? referenceWidth;
@@ -528,7 +521,7 @@ class AccessHeading extends StatelessWidget {
     this.text, {
     super.key,
     this.role = AccessHeadingRole.section,
-    this.level = 2,
+    this.level,
     this.color,
     this.weight = FontWeight.w600,
     this.referenceWidth,
@@ -543,36 +536,28 @@ class AccessHeading extends StatelessWidget {
               ? constraints.maxWidth
               : MediaQuery.sizeOf(context).width);
       final size = switch (role) {
-        AccessHeadingRole.poster =>
-          MediaQuery.sizeOf(context).width < 768 ? 44.0 : 72.0,
-        AccessHeadingRole.hero => AccessLayout.fluid(
-          width,
-          AccessTypography.heroMin,
-          AccessTypography.heroMax,
-          to: 1200,
-        ),
-        AccessHeadingRole.page => AccessLayout.fluid(
-          width,
-          AccessTypography.pageMin,
-          AccessTypography.pageMax,
-        ),
-        AccessHeadingRole.section => AccessTypography.sectionTitleSize,
-        AccessHeadingRole.card =>
-          uppercase && MediaQuery.sizeOf(context).width < 768
-              ? 22.0
-              : AccessTypography.cardTitleSize,
+        AccessHeadingRole.poster => AccessTypography.page(width),
+        AccessHeadingRole.hero => AccessTypography.hero(width),
+        AccessHeadingRole.page => AccessTypography.page(width),
+        AccessHeadingRole.section => AccessTypography.section(width),
+        AccessHeadingRole.card => AccessTypography.card(width),
       };
+      final headingLevel =
+          level ??
+          switch (role) {
+            AccessHeadingRole.hero ||
+            AccessHeadingRole.page ||
+            AccessHeadingRole.poster => 1,
+            AccessHeadingRole.section => 2,
+            AccessHeadingRole.card => 3,
+          };
       final content = localText(context, text);
       final heading = Text(
         uppercase ? content.toUpperCase() : content,
         semanticsLabel: content,
         style: TextStyle(
           fontSize: size,
-          height: uppercase
-              ? (role == AccessHeadingRole.card ? .98 : .9)
-              : role == AccessHeadingRole.card
-              ? AccessTypography.titleHeight
-              : AccessTypography.headingHeight,
+          height: AccessTypography.titleHeight,
           fontWeight: weight,
           fontVariations: const [FontVariation('wdth', 100)],
           color: color,
@@ -580,7 +565,7 @@ class AccessHeading extends StatelessWidget {
       );
       return Semantics(
         container: true,
-        headingLevel: level,
+        headingLevel: headingLevel,
         child:
             (role == AccessHeadingRole.page || role == AccessHeadingRole.hero)
             ? Align(

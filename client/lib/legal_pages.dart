@@ -162,6 +162,7 @@ class _LegalReportPageState extends State<LegalReportPage> {
     appBar: accessAppBar(context, 'Veranstaltung melden'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
+        title: 'Veranstaltung melden',
         width: AccessPageWidth.form,
         child: Form(
           key: form,
@@ -401,6 +402,7 @@ class _SellerManagementPageState extends State<SellerManagementPage> {
     appBar: accessAppBar(context, 'Verkäuferangaben'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
+        title: 'Verkäuferangaben',
         width: AccessPageWidth.form,
         child: Form(
           key: form,
@@ -576,6 +578,7 @@ class _EventDeclarationPageState extends State<EventDeclarationPage> {
     appBar: accessAppBar(context, 'Veranstalterbestätigung'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
+        title: 'Veranstalterbestätigung',
         width: AccessPageWidth.form,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -757,6 +760,9 @@ class _LegalReviewsPageState extends State<LegalReviewsPage> {
     ),
     body: SingleChildScrollView(
       child: AccessPageFrame(
+        title: widget.team
+            ? 'Veranstaltungsmeldungen prüfen'
+            : 'Meine Veranstaltungsprüfungen',
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -930,6 +936,7 @@ class _LegalReviewDetailPageState extends State<LegalReviewDetailPage> {
     appBar: accessAppBar(context, 'Veranstaltungsprüfung'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
+        title: 'Veranstaltungsprüfung',
         width: AccessPageWidth.form,
         child: Form(
           key: form,

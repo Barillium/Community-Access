@@ -128,6 +128,7 @@ class _AccountComplaintsPageState extends State<AccountComplaintsPage> {
     appBar: AppBar(title: const LocalText('Meine Beschwerden')),
     body: SingleChildScrollView(
       child: AccessPageFrame(
+        title: 'Meine Beschwerden',
         width: AccessPageWidth.form,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

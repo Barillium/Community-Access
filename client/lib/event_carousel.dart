@@ -97,7 +97,7 @@ class _EventCarouselState extends State<EventCarousel> {
               child: Text(
                 event['title'] as String? ?? '',
                 style: const TextStyle(
-                  fontSize: 21,
+                  fontSize: AccessTypography.cardTitleSize,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -171,7 +171,7 @@ class _EventCarouselState extends State<EventCarousel> {
             'Teilnahme wird separat bestätigt.',
             'Attendance is confirmed separately.',
           ),
-          style: const TextStyle(fontSize: 13),
+          style: const TextStyle(fontSize: AccessTypography.labelSize),
         ),
         if (widget.bookmarkBuilder != null) widget.bookmarkBuilder!(event),
       ],
@@ -193,11 +193,15 @@ class _EventCarouselState extends State<EventCarousel> {
                 localText(context, 'Das', 'The'),
                 marked: false,
                 level: null,
-                size: MediaQuery.sizeOf(context).width < 768 ? 52 : 88,
+                size: MediaQuery.sizeOf(context).width < 768
+                    ? AccessTypography.heroMin
+                    : AccessTypography.heroMax,
               ),
               FlyerTitle(
                 localText(context, 'Programm.', 'Program.'),
-                size: MediaQuery.sizeOf(context).width < 768 ? 52 : 88,
+                size: MediaQuery.sizeOf(context).width < 768
+                    ? AccessTypography.heroMin
+                    : AccessTypography.heroMax,
                 italic: true,
                 level: null,
               ),
@@ -211,7 +215,7 @@ class _EventCarouselState extends State<EventCarousel> {
             'Musik, Kunst und Begegnungen.\nFinde deinen nächsten Termin.',
             'Music, art and encounters.\nFind your next event.',
           ),
-          style: const TextStyle(fontSize: 20),
+          style: const TextStyle(fontSize: AccessTypography.leadSize),
         ),
         const SizedBox(height: 32),
         Wrap(
@@ -278,7 +282,10 @@ class _EventCarouselState extends State<EventCarousel> {
   Widget _controls(BuildContext context) => Material(
     color: FlyerStyle.ink.withValues(alpha: .88),
     child: DefaultTextStyle.merge(
-      style: const TextStyle(color: Colors.white, fontSize: 14),
+      style: const TextStyle(
+        color: Colors.white,
+        fontSize: AccessTypography.captionSize,
+      ),
       child: IconTheme(
         data: const IconThemeData(color: FlyerStyle.orange),
         child: Row(
@@ -315,10 +322,10 @@ class _EventCarouselState extends State<EventCarousel> {
                   _paused ? 'Plakatwechsel starten' : 'Plakatwechsel pausieren',
                   _paused ? 'Start poster rotation' : 'Pause poster rotation',
                 ),
-              icon: AccessIcon(
-                _paused ? Icons.play_arrow : Icons.pause,
-                color: FlyerStyle.orange,
-              ),
+                icon: AccessIcon(
+                  _paused ? Icons.play_arrow : Icons.pause,
+                  color: FlyerStyle.orange,
+                ),
               ),
           ],
         ),
@@ -340,7 +347,12 @@ class _EventCarouselState extends State<EventCarousel> {
         children: [
           AccessIcon(icon, size: 18),
           const SizedBox(width: 8),
-          Flexible(child: Text(label, style: const TextStyle(fontSize: 13))),
+          Flexible(
+            child: Text(
+              label,
+              style: const TextStyle(fontSize: AccessTypography.labelSize),
+            ),
+          ),
         ],
       ),
       const SizedBox(height: 10),

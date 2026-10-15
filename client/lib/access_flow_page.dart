@@ -471,7 +471,7 @@ class _AccessFlowPageState extends State<AccessFlowPage> {
         AccessHeading(
           localText(context, 'Bewerbungsstand', 'Application status'),
           level: 3,
-          role: AccessHeadingRole.section,
+          role: AccessHeadingRole.card,
         ),
       for (final a in snapshot?['applications'] as List? ?? [])
         card([
@@ -491,7 +491,7 @@ class _AccessFlowPageState extends State<AccessFlowPage> {
             'Current memberships',
           ),
           level: 3,
-          role: AccessHeadingRole.section,
+          role: AccessHeadingRole.card,
         ),
       for (final m in snapshot?['memberships'] as List? ?? [])
         Text(
@@ -505,7 +505,7 @@ class _AccessFlowPageState extends State<AccessFlowPage> {
             'Reapplication blocked',
           ),
           level: 3,
-          role: AccessHeadingRole.section,
+          role: AccessHeadingRole.card,
         ),
       for (final b in snapshot?['application_blocks'] as List? ?? [])
         card([
@@ -842,6 +842,12 @@ class _AccessFlowPageState extends State<AccessFlowPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const AccessHeading(
+              'Zugang verwalten',
+              role: AccessHeadingRole.page,
+              level: 1,
+            ),
+            const SizedBox(height: AccessSpacing.s24),
             if (busy) const LinearProgressIndicator(),
             if (notice != null)
               Semantics(liveRegion: true, child: LocalText(notice!)),

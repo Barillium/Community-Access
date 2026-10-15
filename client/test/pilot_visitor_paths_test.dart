@@ -154,6 +154,7 @@ void main() {
       expect(siteContactEmail, 'info@communityaccess.de');
       expect(find.text('E-Mail schreiben'), findsOneWidget);
       // The native test stub opens nothing and offers a copyable fallback.
+      await tester.ensureVisible(find.text('E-Mail schreiben'));
       await tester.tap(find.text('E-Mail schreiben'));
       await tester.pumpAndSettle();
       expect(

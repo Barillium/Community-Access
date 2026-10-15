@@ -118,6 +118,7 @@ class _EventFormEditorState extends State<EventFormEditor> {
     appBar: accessAppBar(context, 'Formulare verwalten'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
+        title: 'Formulare verwalten',
         width: AccessPageWidth.form,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

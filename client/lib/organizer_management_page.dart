@@ -258,17 +258,8 @@ class _OrganizerManagementPageState extends State<OrganizerManagementPage> {
       ),
     ),
   );
-  Widget _title(String title) => Semantics(
-    headingLevel: 2,
-    child: LocalText(
-      title,
-      style: const TextStyle(
-        fontSize: AccessTypography.sectionTitleSize,
-        fontWeight: FontWeight.w600,
-        fontVariations: [FontVariation('wdth', 100)],
-      ),
-    ),
-  );
+  Widget _title(String title) =>
+      AccessHeading(title, role: AccessHeadingRole.section, level: 2);
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: accessAppBar(context, 'Gastgeberverwaltung'),

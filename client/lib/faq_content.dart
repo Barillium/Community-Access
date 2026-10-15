@@ -16,17 +16,7 @@ class FaqContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const SizedBox(height: AccessSpacing.s48),
-        Semantics(
-          headingLevel: 1,
-          child: Text(
-            'FAQ',
-            style: TextStyle(
-              fontSize: compact ? 52 : 80,
-              fontWeight: FontWeight.w800,
-              height: 1,
-            ),
-          ),
-        ),
+        const AccessHeading('FAQ', role: AccessHeadingRole.page, level: 1),
         const SizedBox(height: AccessSpacing.s20),
         Text(
           localText(
@@ -34,7 +24,11 @@ class FaqContent extends StatelessWidget {
             'Deine Fragen. Alle wichtigen Antworten zu Zugang, Events und deinem Konto.',
             'Your questions. Everything you need to know about access, events and your account.',
           ),
-          style: TextStyle(color: palette.muted, height: 1.5, fontSize: 18),
+          style: TextStyle(
+            color: palette.muted,
+            height: 1.5,
+            fontSize: AccessTypography.leadSize,
+          ),
         ),
         const SizedBox(height: AccessSpacing.s48),
         for (final group in _groups) ...[
@@ -54,17 +48,10 @@ class _FaqGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = AushangPalette.of(context);
-    final heading = Semantics(
-      headingLevel: 2,
-      child: Text(
-        localText(context, group.de, group.en).toUpperCase(),
-        style: const TextStyle(
-          fontWeight: FontWeight.w600,
-          fontSize: 14,
-          letterSpacing: 1,
-          height: 1.5,
-        ),
-      ),
+    final heading = AccessHeading(
+      localText(context, group.de, group.en),
+      role: AccessHeadingRole.section,
+      level: 2,
     );
     final questions = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -92,7 +79,7 @@ class _FaqGroup extends StatelessWidget {
               localText(context, item.questionDe, item.questionEn),
               style: const TextStyle(
                 fontWeight: FontWeight.w500,
-                fontSize: 18,
+                fontSize: AccessTypography.leadSize,
                 height: 1.4,
               ),
             ),
@@ -102,7 +89,7 @@ class _FaqGroup extends StatelessWidget {
                 style: TextStyle(
                   color: palette.muted,
                   height: 1.6,
-                  fontSize: 16,
+                  fontSize: AccessTypography.bodySize,
                 ),
               ),
             ],

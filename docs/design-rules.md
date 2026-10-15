@@ -105,3 +105,46 @@ Desktop-Inhalte nutzen die verfügbare Breite mit fließendem Rand; vorhandene F
 Event- und Ticketflächen haben keine grauen Kartenrahmen/inneren Trennlinien; eigene orange Markierungen können die Inhalte rahmen. Formularumrandungen und chronologische Ordnungsstriche bleiben funktionale Orientierung. Verwaltung bleibt sachlich. Plakatwechsel sind standardmäßig aus und können gezielt gestartet werden; reduzierte Bewegung, Tastaturfokus und inaktive Routen unterbrechen sie. Keine Pflichtanimation an Überschriften oder Markierungen.
 
 [Tatsächliche Umsetzung und lokale Prüfungen](qa/flyer-20261015/report.md). Die 26 Boards zeigen 13 echte Flutter-Ansichten mit synthetischen Fixtures. Sie ersetzen keine umfassende Geräte-, Rollen-/Zustands-, Screenreader- oder Produktionsabnahme.
+
+
+## Verbindliche Typografie und Seitenstruktur – Audit 15.10.2026
+
+`client/lib/access_typography.dart` ist die maßgebliche Schriftgrößenskala der
+Flyer-Oberfläche. Historische Aushang-Tokens bleiben aus Kompatibilitätsgründen
+bestehen. Neue Seiten verwenden die benannten Rollen über `design_system.dart`.
+
+| Rolle | Basisgröße vor Nutzerskalierung | Verwendung |
+|---|---|---|
+| Hero | 52–88 px | Filmischer Einstieg auf der Startseite |
+| Seitentitel | 38–64 px | Eine H1 je Ansicht; auch in Formularen und Leerzuständen |
+| Abschnitt | 28–32 px | H2 für Inhaltsgruppen |
+| Eintragstitel | 22–24 px | Ereignisse, Profile, untergeordnete Gruppen |
+| Einleitung | 20 px | Kurzer beschreibender Einstieg |
+| Fließtext | 16 px | Absätze, Eingaben und Erläuterungen |
+| Metadaten | 14 px | Datum und ergänzende Status-/Kontextlabels |
+| Feintext | 13 px | Zusätzliche Kontextlabels |
+
+Die Größe richtet sich nach dem verfügbaren Platz. Überschriften dürfen
+mehrzeilig werden; keine automatische Verkleinerung auf beliebige Zwischenwerte,
+keine abgeschnittenen Titel und kein deaktivierter TextScaler. Die Sprache,
+Archivo-Schrift, weißen Header und orangefarbenen Markierungen bleiben bestehen.
+Die Bildherkunftsbeschriftung ist eine getrennte, kleine Bildannotation.
+
+`AccessHeading` trennt visuelle Rolle und semantische Ebene. Standard: Seite/Hero
+H1, Abschnitt H2, Eintrag H3. Direkte Einträge unter einer H1 können ausdrücklich
+H2 sein; Untergruppen unter H2 sind H3. Keine ausgelassene Ebene und keine
+zusätzliche H1 nur wegen eines großen Formularlabels. Eine Toolbar ist Navigation,
+der Seitentitel steht im Inhalt. `AccessPageFrame(title: ...)` setzt ihn ein.
+
+`AccessPageFrame` markiert den Hauptinhalt. Frames innerhalb bereits vorhandener
+Haupt-/Footerbereiche verwenden `mainLandmark:false`, damit keine verschachtelten
+Hauptbereiche entstehen. Reihenfolge: Header/Navigation, Haupttitel und Kontext,
+passende Filter/Aktionen, Inhalt und Untergruppen, weitere Hilfe/Abschluss.
+Lesetexte sind auf 680 px begrenzt; Veranstaltungslisten, Bilder und Arbeitsflächen
+nutzen weiterhin die verfügbare Desktopbreite. Abstände folgen `AccessSpacing`.
+
+Vor Übernahme: Analyse, V1- und erweiterte UI-Regression,
+`test/typography_structure_test.dart`, 320/390/768/1440 px, DE/EN und doppelte
+Schriftgröße prüfen. Neue öffentliche Überschriften verwenden die gemeinsamen
+Rollen. Die Regression verbietet freie numerische Schriftgrößen in den sechs
+zentralen öffentlichen Inhaltskomponenten und prüft 16 repräsentative Ansichten.

@@ -90,7 +90,6 @@ class EventEditorialView extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return LayoutBuilder(
       builder: (context, constraints) {
-        final wide = AccessLayout.columns(context, constraints.maxWidth);
         final facts = <Widget>[
           if (event['request_deadline_at'] != null)
             _EventFact(
@@ -115,7 +114,7 @@ class EventEditorialView extends StatelessWidget {
             if ((content['description'] as String? ?? '').isNotEmpty) ...[
               Text(
                 content['description'] as String,
-                style: const TextStyle(fontSize: 28, height: 1.2),
+                style: AccessTypography.lead,
               ),
               const SizedBox(height: AccessSpacing.s32),
             ],
@@ -208,7 +207,9 @@ class EventEditorialView extends StatelessWidget {
                     title.isEmpty
                         ? localText(context, 'Veranstaltung', 'Event')
                         : title,
-                    size: wide ? 64 : 40,
+                    size: AccessTypography.page(
+                      MediaQuery.sizeOf(context).width,
+                    ),
                     italic: true,
                   ),
                   const SizedBox(height: 24),
@@ -242,7 +243,9 @@ class EventEditorialView extends StatelessWidget {
                     const SizedBox(height: 28),
                     Text(
                       localText(context, 'Veranstalter', 'Organizer'),
-                      style: const TextStyle(fontSize: 13),
+                      style: const TextStyle(
+                        fontSize: AccessTypography.labelSize,
+                      ),
                     ),
                     if (onOrganizer != null)
                       TextButton(
@@ -254,11 +257,18 @@ class EventEditorialView extends StatelessWidget {
                         ),
                         child: Text(
                           organizer,
-                          style: const TextStyle(fontSize: 20),
+                          style: const TextStyle(
+                            fontSize: AccessTypography.leadSize,
+                          ),
                         ),
                       )
                     else
-                      Text(organizer, style: const TextStyle(fontSize: 20)),
+                      Text(
+                        organizer,
+                        style: const TextStyle(
+                          fontSize: AccessTypography.leadSize,
+                        ),
+                      ),
                   ],
                 ],
               ),
@@ -294,9 +304,10 @@ class EventEditorialView extends StatelessWidget {
                     children: [
                       Divider(color: colors.onSurface),
                       const SizedBox(height: 20),
-                      LocalText(
-                        localText(context, 'Dein Stand', 'Your status'),
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      const AccessHeading(
+                        'Dein Stand',
+                        role: AccessHeadingRole.card,
+                        level: 2,
                       ),
                       const SizedBox(height: 16),
                       participation!,
@@ -312,7 +323,7 @@ class EventEditorialView extends StatelessWidget {
             const SizedBox(height: AccessSpacing.s32),
             Divider(color: colors.outlineVariant),
             const SizedBox(height: AccessSpacing.s32),
-            body,
+            AccessContent(width: AccessPageWidth.reading, child: body),
             const SizedBox(height: AccessSpacing.s40),
             Text(
               'Profilzugang und Eventfreigabe bestätigen keine Teilnahme.',
@@ -333,17 +344,8 @@ class _EventHeading extends StatelessWidget {
   final String text;
   const _EventHeading(this.text);
   @override
-  Widget build(BuildContext context) => Semantics(
-    headingLevel: 2,
-    child: Text(
-      text,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w600,
-        height: 1.3,
-      ),
-    ),
-  );
+  Widget build(BuildContext context) =>
+      AccessHeading(text, role: AccessHeadingRole.section, level: 2);
 }
 
 class _EventFact extends StatelessWidget {
@@ -377,7 +379,7 @@ class _EventFact extends StatelessWidget {
               LocalText(
                 value,
                 style: const TextStyle(
-                  fontSize: 16,
+                  fontSize: AccessTypography.bodySize,
                   fontWeight: FontWeight.w500,
                   height: 1.55,
                 ),
@@ -387,7 +389,10 @@ class _EventFact extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
                   detail,
-                  style: const TextStyle(fontSize: 16, height: 1.55),
+                  style: const TextStyle(
+                    fontSize: AccessTypography.bodySize,
+                    height: 1.55,
+                  ),
                 ),
               ),
           ],
@@ -395,7 +400,7 @@ class _EventFact extends StatelessWidget {
         final labelWidget = LocalText(
           label,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: AccessTypography.captionSize,
             color: AushangPalette.of(context).muted,
           ),
         );

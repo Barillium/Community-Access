@@ -1,4 +1,5 @@
 import 'product_scope.dart';
+import 'design_system.dart';
 
 import 'package:flutter/material.dart';
 
@@ -371,6 +372,14 @@ class _PrivateTicketManagementPageState
       padding: const EdgeInsets.all(20),
       children:
           <Widget>[
+                AccessHeading(
+                  ProductScope.extended
+                      ? 'Private Ticketangebote'
+                      : 'Einlassrollen',
+                  role: AccessHeadingRole.page,
+                  level: 1,
+                ),
+                const SizedBox(height: AccessSpacing.s24),
                 if (ready) LocalText(widget.event['title'] as String),
                 const LocalText('Lokaler Test · kein echter Verkauf'),
                 if (notice != null)
@@ -644,6 +653,12 @@ class _OnlineCheckinPageState extends State<OnlineCheckinPage> {
       padding: const EdgeInsets.all(20),
       children:
           <Widget>[
+                const AccessHeading(
+                  'Online-Einlass',
+                  role: AccessHeadingRole.page,
+                  level: 1,
+                ),
+                const SizedBox(height: AccessSpacing.s24),
                 const LocalText(
                   'Lokaler Test. Nur online prüfen. Weitergegebene Screenshots ersetzen die Zuordnung zum Konto nicht.',
                 ),

@@ -545,6 +545,7 @@ class _SeriesEditorState extends State<SeriesEditor> {
     appBar: accessAppBar(context, 'Veranstaltungsreihe bearbeiten'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
+        title: 'Veranstaltungsreihe bearbeiten',
         width: AccessPageWidth.form,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

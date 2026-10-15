@@ -93,6 +93,12 @@ class SiteContactPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const AccessHeading(
+              'Hilfe & Kontakt',
+              role: AccessHeadingRole.page,
+              level: 1,
+            ),
+            const SizedBox(height: AccessSpacing.s24),
             Semantics(
               key: const Key('site-contact-readable'),
               label: siteContactInformation,
@@ -158,6 +164,12 @@ class SiteInformationPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            AccessHeading(
+              privacy ? 'Datenschutz' : 'Betreiber / Impressum',
+              role: AccessHeadingRole.page,
+              level: 1,
+            ),
+            const SizedBox(height: AccessSpacing.s24),
             Semantics(
               label: privacy ? privacyInformation : operatorInformation,
               excludeSemantics: true,

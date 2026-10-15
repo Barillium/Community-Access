@@ -230,6 +230,7 @@ class _GuestPreferencesPageState extends State<GuestPreferencesPage> {
     appBar: accessAppBar(context, 'Meine Präferenzen'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
+        title: 'Meine Präferenzen',
         width: AccessPageWidth.form,
         child: Form(
           key: form,

@@ -600,6 +600,9 @@ class _EventDirectoryEditorState extends State<EventDirectoryEditor> {
       ),
       body: SingleChildScrollView(
         child: AccessPageFrame(
+          title: widget.initialDraft == null
+              ? 'Event bearbeiten'
+              : 'Neuer Evententwurf',
           width: AccessPageWidth.form,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

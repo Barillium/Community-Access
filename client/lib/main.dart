@@ -1169,7 +1169,7 @@ class _GuestPageState extends State<GuestPage> {
           _authenticated
               ? (widget.authOnly ? 'Dein Konto.' : 'Events für dich.')
               : 'Teil einer Community werden.',
-          role: AccessHeadingRole.hero,
+          role: AccessHeadingRole.page,
           referenceWidth: referenceWidth,
           level: 1,
         ),

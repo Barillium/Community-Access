@@ -330,12 +330,10 @@ class _DirectoryBrowserState extends State<DirectoryBrowser> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  AccessHeading(
                     item['name'] as String,
-                    style: const TextStyle(
-                      fontSize: AccessTypography.sectionTitleSize,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    role: AccessHeadingRole.card,
+                    level: 2,
                   ),
                   const SizedBox(height: AccessSpacing.s16),
                   if (!widget.venues) ...[
@@ -919,12 +917,10 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      AccessHeading(
                         e['title'] as String,
-                        style: const TextStyle(
-                          fontSize: AccessTypography.sectionTitleSize,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        role: AccessHeadingRole.card,
+                        level: 2,
                       ),
                       const SizedBox(height: AccessSpacing.s12),
                       Text(e['community'] as String),

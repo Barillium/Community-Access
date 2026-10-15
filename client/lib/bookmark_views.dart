@@ -331,6 +331,7 @@ class _BookmarksPageState extends State<BookmarksPage> {
     appBar: accessAppBar(context, 'Meine Merkliste'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
+        title: 'Meine Merkliste',
         width: AccessPageWidth.content,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

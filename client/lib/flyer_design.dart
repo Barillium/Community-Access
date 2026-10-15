@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import 'app_language.dart';
+import 'access_typography.dart';
 
 /// Approved Kulturplakat/Flyer identity. Illustrative media never supplies event data.
 abstract final class FlyerStyle {
@@ -86,35 +87,28 @@ class FlyerTitle extends StatelessWidget {
   const FlyerTitle(
     this.text, {
     super.key,
-    this.size = 52,
+    this.size,
     this.level = 1,
     this.italic = false,
     this.marked = true,
   });
   final String text;
-  final double size;
+  final double? size;
   final int? level;
   final bool italic, marked;
   @override
   Widget build(BuildContext context) => LayoutBuilder(
     builder: (context, c) {
+      final resolvedSize = size ?? AccessTypography.page(c.maxWidth);
       final style = TextStyle(
         fontFamily: 'Archivo',
         fontVariations: const [FontVariation('wdth', 100)],
-        fontSize: size,
+        fontSize: resolvedSize,
         fontWeight: FontWeight.w600,
         fontStyle: italic ? FontStyle.italic : FontStyle.normal,
         height: 1.06,
         letterSpacing: -.8,
       );
-      final painter = TextPainter(
-        text: TextSpan(text: text, style: style),
-        textDirection: Directionality.of(context),
-      )..layout();
-      final fitted = c.hasBoundedWidth && painter.width > c.maxWidth
-          ? (size * c.maxWidth / painter.width).clamp(28.0, size)
-          : size;
-      painter.dispose();
       return Semantics(
         container: level != null,
         headingLevel: level,
@@ -123,7 +117,7 @@ class FlyerTitle extends StatelessWidget {
           child: Text(
             text,
             textWidthBasis: TextWidthBasis.longestLine,
-            style: style.copyWith(fontSize: fitted),
+            style: style,
           ),
         ),
       );
@@ -328,14 +322,11 @@ class FlyerBanner extends StatelessWidget {
       children: [
         FlyerTitle(
           localText(context, title),
-          size: MediaQuery.sizeOf(context).width < 768 ? 38 : 64,
+          size: AccessTypography.page(MediaQuery.sizeOf(context).width),
         ),
         if (description != null) ...[
           const SizedBox(height: 20),
-          Text(
-            localText(context, description!),
-            style: const TextStyle(fontSize: 20),
-          ),
+          Text(localText(context, description!), style: AccessTypography.lead),
         ],
       ],
     ),

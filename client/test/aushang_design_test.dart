@@ -87,7 +87,7 @@ void main() {
       final controls = tester.getRect(
         find.byKey(const ValueKey('hero-carousel-controls')),
       );
-      expect(controls.top, greaterThanOrEqualTo(title.bottom));
+      expect(controls.bottom, lessThanOrEqualTo(title.top));
       expect(controls.right, lessThanOrEqualTo(width));
       expect(title.right, lessThan(information.left));
       expect(title.bottom, lessThanOrEqualTo(information.bottom + 24));
@@ -132,7 +132,7 @@ void main() {
           final title = tester.getRect(
             find.byKey(const ValueKey('hero-title-column')),
           );
-          expect(controls.top, greaterThanOrEqualTo(title.bottom));
+          expect(controls.bottom, lessThanOrEqualTo(title.top));
           expect(tester.takeException(), isNull);
           if (width < 768) {
             await tester.tap(find.byTooltip('Menü'));

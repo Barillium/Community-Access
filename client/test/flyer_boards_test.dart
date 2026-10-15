@@ -10,6 +10,8 @@ import 'package:community_access_client/main.dart';
 import 'package:community_access_client/design_system.dart';
 import 'package:community_access_client/flyer_design.dart';
 import 'package:community_access_client/app_language.dart';
+import 'package:community_access_client/faq_content.dart';
+import 'package:community_access_client/site_information_page.dart';
 import 'package:community_access_client/directory_pages.dart';
 import 'package:community_access_client/program_views.dart';
 import 'package:community_access_client/event_editorial_view.dart';
@@ -102,6 +104,10 @@ void main() {
     ),
   );
   final cases = <String, Widget Function()>{
+    'faq': () => scroll(const FaqContent()),
+    'kontakt': () => frame(const SiteContactPage()),
+    'datenschutz': () => frame(const SiteInformationPage(privacy: true)),
+    'betreiber': () => frame(const SiteInformationPage(privacy: false)),
     'startseite': () => CommunityAccessApp(
       api: FlyerBoardDiscovery(),
       authOnly: true,

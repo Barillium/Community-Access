@@ -22,12 +22,10 @@ class EventAccessDetails extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       const SizedBox(height: AccessSpacing.s24),
-      const Text(
+      const AccessHeading(
         'Zugänglichkeit und Awareness',
-        style: TextStyle(
-          fontSize: AccessTypography.cardTitleSize,
-          fontWeight: FontWeight.w500,
-        ),
+        role: AccessHeadingRole.section,
+        level: 2,
       ),
       const SizedBox(height: AccessSpacing.s12),
       const Text(

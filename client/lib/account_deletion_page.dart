@@ -81,6 +81,7 @@ class _AccountDeletionPageState extends State<AccountDeletionPage> {
     appBar: accessAppBar(context, 'Konto löschen'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
+        title: 'Konto löschen',
         width: AccessPageWidth.form,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

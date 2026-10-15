@@ -307,7 +307,10 @@ class _CalendarDate extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           localText(context, de[date.weekday - 1], en[date.weekday - 1]),
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          style: const TextStyle(
+            fontSize: AccessTypography.captionSize,
+            fontWeight: FontWeight.w600,
+          ),
         ),
       ],
     );
@@ -356,14 +359,20 @@ class _CalendarEvent extends StatelessWidget {
               if (organizer.isNotEmpty || when.isNotEmpty)
                 Text(
                   [organizer, when].where((s) => s.isNotEmpty).join(' · '),
-                  style: TextStyle(fontSize: 14, color: palette.muted),
+                  style: TextStyle(
+                    fontSize: AccessTypography.captionSize,
+                    color: palette.muted,
+                  ),
                 ),
               if (eventAccessLabel(event).isNotEmpty)
                 EventAccessMark(event: event),
               if ((event['location'] as String? ?? '').isNotEmpty)
                 Text(
                   event['location'] as String,
-                  style: TextStyle(fontSize: 14, color: palette.muted),
+                  style: TextStyle(
+                    fontSize: AccessTypography.captionSize,
+                    color: palette.muted,
+                  ),
                 ),
               if (event['access_mode'] == 'semi_public' &&
                   (event['location'] as String? ?? '').isEmpty)
@@ -379,7 +388,10 @@ class _CalendarEvent extends StatelessWidget {
                           'Ort nach Zusage',
                           'Location after approval',
                         ),
-                        style: TextStyle(fontSize: 14, color: palette.muted),
+                        style: TextStyle(
+                          fontSize: AccessTypography.captionSize,
+                          color: palette.muted,
+                        ),
                       ),
                     ),
                   ],
@@ -389,13 +401,19 @@ class _CalendarEvent extends StatelessWidget {
           for (final reason in event['reasons'] as List? ?? [])
             Padding(
               padding: const EdgeInsets.only(top: 8),
-              child: LocalText(switch (reason) {
-                'bookmark' => 'Auf deiner Merkliste',
-                'community' => 'Aus einer gefolgten Community',
-                'visited_organizer' => 'Veranstalter bereits besucht',
-                'preferences' => 'Passt zu deinen Präferenzen',
-                _ => '',
-              }, style: TextStyle(fontSize: 13, color: palette.muted)),
+              child: LocalText(
+                switch (reason) {
+                  'bookmark' => 'Auf deiner Merkliste',
+                  'community' => 'Aus einer gefolgten Community',
+                  'visited_organizer' => 'Veranstalter bereits besucht',
+                  'preferences' => 'Passt zu deinen Präferenzen',
+                  _ => '',
+                },
+                style: TextStyle(
+                  fontSize: AccessTypography.labelSize,
+                  color: palette.muted,
+                ),
+              ),
             ),
           if (event['status'] == 'cancelled') const LocalText('Abgesagt'),
           if ((event['interest_count'] as int? ?? 0) > 0)
@@ -471,7 +489,7 @@ class EventAccessMark extends StatelessWidget {
           child: LocalText(
             label,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: AccessTypography.captionSize,
               fontWeight: FontWeight.w500,
               color: color,
             ),
@@ -556,22 +574,32 @@ class _ProgramRow extends StatelessWidget {
               if (programDate(event['starts_at']).isNotEmpty)
                 LocalText(
                   programDate(event['starts_at']),
-                  style: TextStyle(fontSize: 14, color: palette.muted),
+                  style: TextStyle(
+                    fontSize: AccessTypography.captionSize,
+                    color: palette.muted,
+                  ),
                 ),
               if ((event['organizer'] as String? ?? '').isNotEmpty)
                 Text(
                   event['organizer'] as String,
-                  style: const TextStyle(fontSize: 14),
+                  style: const TextStyle(
+                    fontSize: AccessTypography.captionSize,
+                  ),
                 ),
               if ((event['location'] as String? ?? '').isNotEmpty)
                 LocalText(
                   event['location'] as String,
-                  style: const TextStyle(fontSize: 14),
+                  style: const TextStyle(
+                    fontSize: AccessTypography.captionSize,
+                  ),
                 ),
               if (eventAccessLabel(event).isNotEmpty)
                 LocalText(
                   eventAccessLabel(event),
-                  style: TextStyle(color: palette.muted, fontSize: 14),
+                  style: TextStyle(
+                    color: palette.muted,
+                    fontSize: AccessTypography.captionSize,
+                  ),
                 ),
             ],
           ),
@@ -669,7 +697,7 @@ class _ProgramRow extends StatelessWidget {
                             ),
                             style: TextStyle(
                               color: palette.muted,
-                              fontSize: 13,
+                              fontSize: AccessTypography.labelSize,
                               letterSpacing: 1.5,
                             ),
                           ),

@@ -1,3 +1,4 @@
+import 'package:community_access_client/design_system.dart';
 import 'package:community_access_client/app_language.dart';
 import 'package:community_access_client/legal_api.dart';
 import 'package:community_access_client/legal_pages.dart';
@@ -258,7 +259,10 @@ void main() {
         }
         await pump(tester, LegalReportPage(api: api), english: english);
         expect(
-          find.text(english ? 'Report event' : 'Veranstaltung melden'),
+          find.widgetWithText(
+            AccessHeading,
+            english ? 'Report event' : 'Veranstaltung melden',
+          ),
           findsOneWidget,
         );
       },

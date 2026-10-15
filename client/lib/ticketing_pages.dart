@@ -840,6 +840,7 @@ class _TicketingManagementPageState extends State<TicketingManagementPage> {
     appBar: accessAppBar(context, 'Tickets verwalten'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
+        title: 'Tickets verwalten',
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -1294,6 +1295,7 @@ class _TicketFeePageState extends State<TicketFeePage> {
     appBar: accessAppBar(context, 'Plattformprovision'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
+        title: 'Plattformprovision',
         width: AccessPageWidth.form,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -15,7 +15,7 @@ import 'access_flow_page.dart';
 import 'event_carousel.dart';
 import 'guest_preferences.dart';
 
-import 'dart:ui' show FontVariation, SemanticsRole;
+import 'dart:ui' show SemanticsRole;
 
 import 'package:flutter/material.dart';
 
@@ -348,7 +348,7 @@ class _PublicHomePageState extends State<PublicHomePage> {
                       item.value,
                       style: const TextStyle(
                         color: FlyerStyle.ink,
-                        fontSize: 20,
+                        fontSize: AccessTypography.leadSize,
                       ),
                     ),
                   ),
@@ -364,7 +364,10 @@ class _PublicHomePageState extends State<PublicHomePage> {
                 kind: FlyerMarkKind.circle,
                 child: LocalText(
                   'Mein Zugang',
-                  style: const TextStyle(color: FlyerStyle.ink, fontSize: 20),
+                  style: const TextStyle(
+                    color: FlyerStyle.ink,
+                    fontSize: AccessTypography.leadSize,
+                  ),
                 ),
               ),
             ),
@@ -599,25 +602,14 @@ class _PublicHomePageState extends State<PublicHomePage> {
         Text(
           localText(context, tag).toUpperCase(),
           style: TextStyle(
-            fontSize: 13,
+            fontSize: AccessTypography.labelSize,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.04,
             color: palette.muted,
           ),
         ),
         const SizedBox(height: 16),
-        Semantics(
-          headingLevel: 2,
-          child: LocalText(
-            title,
-            style: TextStyle(
-              fontSize: compact ? 24 : 28,
-              fontWeight: FontWeight.w600,
-              height: 1.18,
-              letterSpacing: -.56,
-            ),
-          ),
-        ),
+        AccessHeading(title, role: AccessHeadingRole.card, level: 2),
         const SizedBox(height: 16),
         LocalText(copy, style: TextStyle(color: palette.muted, height: 1.55)),
         const SizedBox(height: 24),
@@ -663,27 +655,25 @@ class _PublicHomePageState extends State<PublicHomePage> {
                 host,
               ],
             )
-          : IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(right: 48),
-                      child: guest,
-                    ),
+          : Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 48),
+                    child: guest,
                   ),
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        border: Border(left: BorderSide(color: palette.hair)),
-                      ),
-                      padding: const EdgeInsets.only(left: 48),
-                      child: host,
+                ),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border(left: BorderSide(color: palette.hair)),
                     ),
+                    padding: const EdgeInsets.only(left: 48),
+                    child: host,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
     );
   }
@@ -741,7 +731,7 @@ class _PublicHomePageState extends State<PublicHomePage> {
             ),
             child: Text(
               _dateFilterLabel(choice),
-              style: const TextStyle(fontSize: 14),
+              style: const TextStyle(fontSize: AccessTypography.captionSize),
             ),
           ),
         ),
@@ -815,18 +805,10 @@ class _PublicHomePageState extends State<PublicHomePage> {
             monthsEn[dates.first.month - 1],
           )
         : localText(context, 'Programm', 'Program');
-    final heading = Semantics(
-      headingLevel: 2,
-      child: Text(
-        title,
-        semanticsLabel: title,
-        style: TextStyle(
-          fontSize: compact ? 32 : 42,
-          fontWeight: FontWeight.w600,
-          fontVariations: const [FontVariation('wdth', 100)],
-          height: 1.1,
-        ),
-      ),
+    final heading = AccessHeading(
+      title,
+      role: AccessHeadingRole.section,
+      level: 2,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1078,7 +1060,7 @@ class _PublicHomePageState extends State<PublicHomePage> {
         Text(
           localText(context, title),
           style: const TextStyle(
-            fontSize: 13,
+            fontSize: AccessTypography.labelSize,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.5,
           ),
@@ -1095,7 +1077,7 @@ class _PublicHomePageState extends State<PublicHomePage> {
           const SizedBox(height: 24),
           const LocalText(
             'Community Access · Lokaler synthetischer Prototyp',
-            style: TextStyle(fontSize: 13, height: 1.5),
+            style: TextStyle(fontSize: AccessTypography.labelSize, height: 1.5),
           ),
         ],
       ),
@@ -1230,6 +1212,7 @@ class _PublicHomePageState extends State<PublicHomePage> {
                             ),
                           ),
                         AccessPageFrame(
+                          mainLandmark: false,
                           verticalPadding: false,
                           child: LayoutBuilder(
                             builder: (context, constraints) {
@@ -1274,6 +1257,7 @@ class _PublicHomePageState extends State<PublicHomePage> {
                     ),
                   ),
                   AccessPageFrame(
+                    mainLandmark: false,
                     verticalPadding: false,
                     child: LayoutBuilder(
                       builder: (context, constraints) => Column(

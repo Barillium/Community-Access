@@ -62,6 +62,7 @@ class _VisibilityPreviewPageState extends State<VisibilityPreviewPage> {
     appBar: accessAppBar(context, 'Wer sieht was?'),
     body: SingleChildScrollView(
       child: AccessPageFrame(
+        title: 'Wer sieht was?',
         width: AccessPageWidth.detail,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
