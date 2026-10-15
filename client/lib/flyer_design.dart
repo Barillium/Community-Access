@@ -206,10 +206,11 @@ class FlyerScene extends StatelessWidget {
     this.minHeight = 550,
     this.padding = 32,
     this.mobileImageHeight = 220,
+    this.mobileInformationFirst = false,
   });
   final Widget child;
   final Widget? information, image, topRight;
-  final bool showImage;
+  final bool showImage, mobileInformationFirst;
   final double minHeight, padding, mobileImageHeight;
   Widget _picture(BuildContext context) => Stack(
     fit: StackFit.expand,
@@ -278,8 +279,13 @@ class FlyerScene extends StatelessWidget {
                   ],
                 ),
               ),
+              if (information != null && mobileInformationFirst)
+                Padding(
+                  padding: EdgeInsets.fromLTRB(padding, padding, padding, 0),
+                  child: _information(false),
+                ),
               Padding(padding: EdgeInsets.all(padding), child: text),
-              if (information != null)
+              if (information != null && !mobileInformationFirst)
                 Padding(
                   padding: EdgeInsets.fromLTRB(padding, 0, padding, padding),
                   child: _information(false),

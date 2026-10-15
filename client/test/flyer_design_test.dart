@@ -189,11 +189,27 @@ void main() {
         expect(controlsRect.bottom, lessThan(rect.bottom));
         if (width >= 900 && scale == 1) {
           expect(rect.height, greaterThanOrEqualTo(720));
+          expect(
+            tester
+                .getRect(find.byKey(const ValueKey('hero-title-column')))
+                .right,
+            lessThan(
+              tester
+                  .getRect(
+                    find.byKey(const ValueKey('hero-information-column')),
+                  )
+                  .left,
+            ),
+          );
         } else {
           final titleRect = tester.getRect(
             find.byKey(const ValueKey('hero-title-column')),
           );
-          expect(titleRect.top, greaterThanOrEqualTo(rect.top + 280));
+          final informationRect = tester.getRect(
+            find.byKey(const ValueKey('hero-information-column')),
+          );
+          expect(informationRect.top, greaterThanOrEqualTo(rect.top + 280));
+          expect(informationRect.bottom, lessThanOrEqualTo(titleRect.top));
         }
         await tester.pump(const Duration(seconds: 20));
         expect(

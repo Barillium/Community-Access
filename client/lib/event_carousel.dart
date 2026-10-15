@@ -220,6 +220,7 @@ class _EventCarouselState extends State<EventCarousel> {
               information: information,
               minHeight: 720,
               mobileImageHeight: 280,
+              mobileInformationFirst: true,
               topRight: widget.events.length > 1 ? _controls(context) : null,
               padding: AccessLayout.gutter(
                 context,
