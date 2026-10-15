@@ -3,6 +3,7 @@
   "main": "deploy/development/worker.mjs",
   "compatibility_date": "2026-10-06",
   "workers_dev": true,
+  "preview_urls": false,
   "assets": {
     "directory": "client/build/development-web",
     "binding": "ASSETS",

@@ -418,6 +418,18 @@ class _EventFact extends StatelessWidget {
   );
 }
 
+/// Only the already public, content-addressed catalog media on this origin.
+/// Arbitrary external URLs, credentials, queries and path traversal are rejected.
+Uri? sameOriginEventMedia(String data, Uri base) {
+  if (!RegExp(r'^/event-media/[a-f0-9]{20}\.webp$').hasMatch(data) ||
+      !{'http', 'https'}.contains(base.scheme) ||
+      base.host.isEmpty ||
+      base.userInfo.isNotEmpty) {
+    return null;
+  }
+  return Uri.parse(base.origin).resolve(data);
+}
+
 class EventFlyer extends StatefulWidget {
   final String data, alt;
   final VoidCallback? onOpen;
@@ -457,10 +469,16 @@ class _EventFlyerState extends State<EventFlyer> {
 
   @override
   Widget build(BuildContext context) {
-    final image = _bytes == null
+    final media = sameOriginEventMedia(widget.data, Uri.base);
+    final ImageProvider? provider = media != null
+        ? NetworkImage(media.toString())
+        : _bytes != null
+        ? MemoryImage(_bytes!)
+        : null;
+    final image = provider == null
         ? const Text('Der Flyer konnte nicht geladen werden.')
-        : Image.memory(
-            _bytes!,
+        : Image(
+            image: provider,
             width: double.infinity,
             height: widget.fit == BoxFit.cover ? double.infinity : null,
             fit: widget.fit,

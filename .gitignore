@@ -82,6 +82,7 @@ __pycache__/
 
 # Local JavaScript dependencies; package-lock.json remains versioned.
 node_modules/
+.wrangler/
 
 # Generated metadata from the approved local editable pretix-plugin install.
 pretix-plugin/*.egg-info/

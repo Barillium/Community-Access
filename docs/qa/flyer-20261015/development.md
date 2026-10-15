@@ -22,6 +22,10 @@ Frontend-Vorschau: keine Datenbank, Kontoanlage, Anmeldung, E-Mails, Käufe oder
 echten Zahlungen. Der Worker beantwortet Schreibzugriffe und private APIs mit
 `DEVELOPMENT_PREVIEW_ONLY`. Es gibt keine DNS-/Mail- oder Produktionsänderung.
 Die App verbindet sich ausschließlich mit derselben Development-Adresse.
+Bestehende Plakate unter `/event-media/<Inhaltshash>.webp` werden nur von diesem
+Origin geladen. Beliebige externe Bild-URLs, Querystrings und Pfadwechsel sind
+ausgeschlossen; eingebettete Projektplakate funktionieren weiterhin. Diese
+Anpassung wurde bei der Live-Prüfung der Veranstaltungsdetails erforderlich.
 Suchmaschinenindexierung bleibt deaktiviert. Synthetisches Hero-Motiv ist
 gekennzeichnet. Reale Geräte, Safari und Produktionsabnahme sind nicht belegt.
 
@@ -55,6 +59,8 @@ nicht in Dateien, Befehlsargumente, Build oder Git. Der Health-Endpunkt
 - 15 V1-/Flyer-Prüfungen bestanden.
 - Vier Development-Worker-Prüfungen bestanden: Grenzen, Commitzuordnung,
   Datumsfilter und öffentliche Leerzustände.
+- 21 gezielte Flyer-/Veranstaltungs-/Bildherkunftsprüfungen nach der
+  Live-Korrektur bestanden; Analyse erneut ohne Befund.
 - Quellenprüfung auf typische Zugangstoken-/Schlüssel-Muster ohne Treffer;
   dies ist keine umfassende Geheimnis- oder Sicherheitszertifizierung.
 
