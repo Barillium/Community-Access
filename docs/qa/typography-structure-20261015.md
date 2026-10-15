@@ -17,7 +17,8 @@ Typografiebaustein ersetzt die verstreuten Festlegungen für gemeinsame Textroll
 
 | Priorität | Vorher | Durchgesetzte Korrektur |
 |---|---|---|
-| P1 | Mehrere Formulare, Kontakt-/Informations- und Verwaltungsansichten besaßen nur einen kleinen Toolbar-Titel. | Fehlende sichtbare H1-Titel ergänzt; gemeinsamer Rahmen besitzt ein optionales Titel-Feld. 16 repräsentative Ansichten prüfen genau eine H1. |
+| P1 | Mehrere Formulare, Kontakt-/Informations- und Verwaltungsansichten besaßen nur einen kleinen Toolbar-Titel. | Fehlende sichtbare H1-Titel ergänzt; gemeinsamer Rahmen besitzt ein optionales Titel-Feld. 16 repräsentative Ansichten sowie Lade-, Leer- und Fehlerzustände der Startseite prüfen genau eine H1. |
+| P2 | Ohne geladenen Hero erhielt der Haupttitel der Startseite die kleine Abschnittsrolle. | Seitentitel-Rolle auch beim Laden, bei leerem Programm und bei Fehlern; eigene Zustandsprüfungen. |
 | P2 | Event-Abschnittstitel mit 14 px waren kleiner als 16-px-Fließtext; Beschreibungen mit 28 px dominierten sie. | Abschnitte 28–32 px, Einleitung 20 px; eigener Statusbereich als zugehörige Überschrift. |
 | P2 | FAQ: Titel 80 px/800, Gruppen 14 px, Fragen 18 px; andere Seiten verwendeten andere Titelrampen. | Gemeinsame H1-/H2-Rollen, Fragen 20 px, Antworten 16 px. Gruppen sind sichtbar übergeordnet. |
 | P2 | Communities, Veranstalter- und Veranstaltungslisten verwendeten verschiedene frei definierte Titelgrößen; einige Titel hatten keine Überschriftensemantik. | Gemeinsame Abschnitts-/Eintragstitel und ausdrücklich passende H2-/H3-Ebenen. |
@@ -37,8 +38,9 @@ gestaltet zu werden.
 `client/test/typography_structure_test.dart` sichert:
 
 - streng absteigende Schriftrollen bei 320, 390, 768 und 1440 px;
-- 16 Ansichten mit genau einem Hauptinhaltsbereich, genau einer H1 und ohne übersprungene Überschriftenebene,
-  jeweils 390/1440 px und normaler/doppelter Schrift (64 Kombinationen);
+- 16 Ansichten sowie Leer- und Fehlerzustände der Startseite mit genau einem Hauptinhaltsbereich,
+  genau einer H1 und ohne übersprungene Überschriftenebene, jeweils 390/1440 px
+  und normaler/doppelter Schrift (72 Kombinationen); zwei zusätzliche Ladezustandsprüfungen;
 - lange englische Titel bei 320/768 px und doppelter Schrift ohne Verkleinerung;
 - benannte Schriftrollen statt numerischer `fontSize`-Angaben in sechs zentralen
   öffentlichen Inhaltskomponenten.
@@ -52,7 +54,7 @@ Rahmen und ersetzt keinen vollständigen Navigationsweg.
 
 ## Prüfung und Nachweisgrenzen
 
-Analyse ohne Befund. 406 erweiterte UI-Tests sowie 83 V1-/Hierarchieprüfungen
+Analyse ohne Befund. 416 erweiterte UI-Tests sowie 93 V1-/Hierarchieprüfungen
 bestanden; 34 aktuelle Boards gerendert. Die Übersicht aller Boardpaare und volle
 FAQ-/Eventansichten wurden visuell kontrolliert. Bestehende Prüfungen wurden für
 neue Seitentitel und die bereits beauftragte Carousel-Position korrigiert, mit

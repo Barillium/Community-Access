@@ -459,9 +459,11 @@ class _PublicHomePageState extends State<PublicHomePage> {
                       (_home?['hero'] as List? ?? []).isNotEmpty
                   ? 2
                   : 1,
-              role: _section == _Section.events
+              role:
+                  _section == _Section.events &&
+                      (_home?['hero'] as List? ?? []).isNotEmpty
                   ? AccessHeadingRole.section
-                  : AccessHeadingRole.hero,
+                  : AccessHeadingRole.page,
             ),
             const SizedBox(height: AccessSpacing.s24),
             ConstrainedBox(

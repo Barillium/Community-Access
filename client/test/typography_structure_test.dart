@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:community_access_client/design_system.dart';
 import 'package:community_access_client/app_language.dart';
 import 'package:community_access_client/main.dart';
+import 'package:community_access_client/access_api.dart';
 import 'package:community_access_client/faq_content.dart';
 import 'package:community_access_client/communities_page.dart';
 import 'package:community_access_client/directory_pages.dart';
@@ -42,6 +44,36 @@ class StructureDirectory extends DirectoryFixture {
     }
     return super.directory(path, query: query, body: body);
   }
+}
+
+class EmptyStructureDiscovery extends DiscoveryFixture {
+  EmptyStructureDiscovery({this.catalogFailure = false});
+  final bool catalogFailure;
+  @override
+  Future<Map<String, dynamic>> directory(
+    String path, {
+    Map<String, String>? query,
+    Map<String, dynamic>? body,
+  }) async {
+    if (catalogFailure) throw const ApiFailure('Synthetischer Katalogfehler.');
+    return {
+      'signed_in': false,
+      'hero': [],
+      'events': [],
+      'communities': [],
+      'series': [],
+    };
+  }
+}
+
+class PendingStructureDiscovery extends DiscoveryFixture {
+  final pending = Completer<Map<String, dynamic>>();
+  @override
+  Future<Map<String, dynamic>> directory(
+    String path, {
+    Map<String, String>? query,
+    Map<String, dynamic>? body,
+  }) => pending.future;
 }
 
 List<SemanticsData> headingData(
@@ -110,6 +142,46 @@ void main() {
   Widget content(Widget body) => Scaffold(
     body: SingleChildScrollView(child: AccessPageFrame(child: body)),
   );
+  for (final width in [390.0, 1440.0]) {
+    testWidgets('loading home retains page hierarchy at $width', (
+      tester,
+    ) async {
+      tester.view.physicalSize = Size(width, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      final semantics = tester.ensureSemantics();
+      try {
+        await tester.pumpWidget(
+          CommunityAccessApp(
+            api: PendingStructureDiscovery(),
+            authOnly: true,
+            showPublicHome: true,
+          ),
+        );
+        await tester.pump(const Duration(milliseconds: 50));
+        expect(tester.takeException(), isNull);
+        expect(
+          headingData(tester).where((h) => h.headingLevel == 1),
+          hasLength(1),
+        );
+        final primary = tester.widget<AccessHeading>(
+          find.byWidgetPredicate((w) => w is AccessHeading && w.level == 1),
+        );
+        expect(primary.role, AccessHeadingRole.page);
+        expect(
+          headingData(
+            tester,
+            headingsOnly: false,
+          ).where((data) => data.role == SemanticsRole.main),
+          hasLength(1),
+        );
+      } finally {
+        semantics.dispose();
+        await tester.pumpWidget(const SizedBox.shrink());
+      }
+    });
+  }
   for (final width in [320.0, 768.0]) {
     testWidgets(
       'long English title wraps without shrinking at $width and double text',
@@ -159,6 +231,16 @@ void main() {
     );
   }
   final cases = <String, Widget Function()>{
+    'home-empty': () => CommunityAccessApp(
+      api: EmptyStructureDiscovery(),
+      authOnly: true,
+      showPublicHome: true,
+    ),
+    'home-error': () => CommunityAccessApp(
+      api: EmptyStructureDiscovery(catalogFailure: true),
+      authOnly: true,
+      showPublicHome: true,
+    ),
     'home': () => CommunityAccessApp(
       api: DiscoveryFixture(),
       authOnly: true,
@@ -234,6 +316,14 @@ void main() {
               await tester.pumpAndSettle();
               expect(tester.takeException(), isNull);
               final headings = headingData(tester);
+              if (entry.key == 'home-empty' || entry.key == 'home-error') {
+                final primary = tester.widget<AccessHeading>(
+                  find.byWidgetPredicate(
+                    (w) => w is AccessHeading && w.level == 1,
+                  ),
+                );
+                expect(primary.role, AccessHeadingRole.page);
+              }
               expect(
                 headingData(
                   tester,

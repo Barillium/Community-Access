@@ -147,4 +147,6 @@ Vor Übernahme: Analyse, V1- und erweiterte UI-Regression,
 `test/typography_structure_test.dart`, 320/390/768/1440 px, DE/EN und doppelte
 Schriftgröße prüfen. Neue öffentliche Überschriften verwenden die gemeinsamen
 Rollen. Die Regression verbietet freie numerische Schriftgrößen in den sechs
-zentralen öffentlichen Inhaltskomponenten und prüft 16 repräsentative Ansichten.
+zentralen öffentlichen Inhaltskomponenten und prüft 16 repräsentative Ansichten
+sowie Lade-, Leer- und Fehlerzustände der Startseite. Ohne Hero bleibt der
+Haupttitel in der Seitentitel-Rolle; mit Hero ist die folgende Programmliste H2.
