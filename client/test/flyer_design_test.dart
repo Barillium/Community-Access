@@ -54,6 +54,20 @@ void main() {
         final scene = find.byType(FlyerScene).first;
         final rect = tester.getRect(scene);
         expect(rect.width, closeTo(width, 1));
+        final controls = find.byKey(const ValueKey('hero-carousel-controls'));
+        final controlsRect = tester.getRect(controls);
+        expect(controlsRect.top, closeTo(rect.top + 16, 1));
+        expect(controlsRect.right, lessThanOrEqualTo(rect.right - 16));
+        expect(controlsRect.left, greaterThanOrEqualTo(rect.left));
+        expect(controlsRect.bottom, lessThan(rect.bottom));
+        if (width >= 900 && scale == 1) {
+          expect(rect.height, greaterThanOrEqualTo(720));
+        } else {
+          final titleRect = tester.getRect(
+            find.byKey(const ValueKey('hero-title-column')),
+          );
+          expect(titleRect.top, greaterThanOrEqualTo(rect.top + 280));
+        }
         await tester.pump(const Duration(seconds: 20));
         expect(
           find.descendant(

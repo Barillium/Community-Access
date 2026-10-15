@@ -159,15 +159,17 @@ class FlyerScene extends StatelessWidget {
     super.key,
     required this.child,
     this.information,
+    this.topRight,
     this.image,
     this.showImage = true,
     this.minHeight = 550,
     this.padding = 32,
+    this.mobileImageHeight = 220,
   });
   final Widget child;
-  final Widget? information, image;
+  final Widget? information, image, topRight;
   final bool showImage;
-  final double minHeight, padding;
+  final double minHeight, padding, mobileImageHeight;
   Widget _picture(BuildContext context) => Stack(
     fit: StackFit.expand,
     children: [
@@ -181,7 +183,7 @@ class FlyerScene extends StatelessWidget {
       if (image == null)
         Positioned(
           right: 16,
-          top: 16,
+          top: topRight == null ? 16 : 80,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             color: FlyerStyle.ink,
@@ -224,7 +226,17 @@ class FlyerScene extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SizedBox(height: 220, child: _picture(context)),
+              SizedBox(
+                height: mobileImageHeight,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    _picture(context),
+                    if (topRight != null)
+                      Positioned(top: 16, right: padding, child: topRight!),
+                  ],
+                ),
+              ),
               Padding(padding: EdgeInsets.all(padding), child: text),
               if (information != null)
                 Padding(
@@ -262,6 +274,8 @@ class FlyerScene extends StatelessWidget {
               ),
             ),
           ),
+          if (topRight != null)
+            Positioned(top: 16, right: padding, child: topRight!),
         ],
       );
     },

@@ -260,65 +260,68 @@ class _EventCarouselState extends State<EventCarousel> {
           children: [
             FlyerScene(
               information: information,
+              minHeight: 720,
+              mobileImageHeight: 280,
+              topRight: widget.events.length > 1 ? _controls(context) : null,
               padding: AccessLayout.gutter(
                 context,
                 MediaQuery.sizeOf(context).width,
               ),
               child: title,
             ),
-            if (widget.events.length > 1)
-              Align(
-                alignment: Alignment.centerRight,
-                child: Wrap(
-                  key: const ValueKey('hero-carousel-controls'),
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    IconButton(
-                      onPressed: () => move(-1),
-                      tooltip: localText(
-                        context,
-                        'Vorherige Veranstaltung',
-                        'Previous event',
-                      ),
-                      icon: const AccessIcon(Icons.arrow_back),
-                    ),
-                    Text('${index + 1} / ${widget.events.length}'),
-                    IconButton(
-                      onPressed: () => move(1),
-                      tooltip: localText(
-                        context,
-                        'Nächste Veranstaltung',
-                        'Next event',
-                      ),
-                      icon: const AccessIcon(Icons.arrow_forward),
-                    ),
-                    if (!MediaQuery.disableAnimationsOf(context))
-                      IconButton(
-                        onPressed: () {
-                          setState(() => _paused = !_paused);
-                          _schedule();
-                        },
-                        tooltip: localText(
-                          context,
-                          _paused
-                              ? 'Plakatwechsel starten'
-                              : 'Plakatwechsel pausieren',
-                          _paused
-                              ? 'Start poster rotation'
-                              : 'Pause poster rotation',
-                        ),
-                        icon: AccessIcon(
-                          _paused ? Icons.play_arrow : Icons.pause,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
           ],
         ),
       ),
     );
   }
+
+  Widget _controls(BuildContext context) => Material(
+    color: FlyerStyle.ink.withValues(alpha: .88),
+    child: DefaultTextStyle.merge(
+      style: const TextStyle(color: Colors.white, fontSize: 14),
+      child: IconTheme(
+        data: const IconThemeData(color: FlyerStyle.orange),
+        child: Row(
+          key: const ValueKey('hero-carousel-controls'),
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              onPressed: () => move(-1),
+              tooltip: localText(
+                context,
+                'Vorherige Veranstaltung',
+                'Previous event',
+              ),
+              icon: const AccessIcon(Icons.arrow_back),
+            ),
+            Text('${index + 1} / ${widget.events.length}'),
+            IconButton(
+              onPressed: () => move(1),
+              tooltip: localText(
+                context,
+                'Nächste Veranstaltung',
+                'Next event',
+              ),
+              icon: const AccessIcon(Icons.arrow_forward),
+            ),
+            if (!MediaQuery.disableAnimationsOf(context))
+              IconButton(
+                onPressed: () {
+                  setState(() => _paused = !_paused);
+                  _schedule();
+                },
+                tooltip: localText(
+                  context,
+                  _paused ? 'Plakatwechsel starten' : 'Plakatwechsel pausieren',
+                  _paused ? 'Start poster rotation' : 'Pause poster rotation',
+                ),
+                icon: AccessIcon(_paused ? Icons.play_arrow : Icons.pause),
+              ),
+          ],
+        ),
+      ),
+    ),
+  );
 
   Widget _fact(
     BuildContext context,
