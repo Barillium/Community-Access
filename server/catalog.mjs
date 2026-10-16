@@ -44,7 +44,7 @@ export function createCatalog(pool){
   const {q,page}=searchPage(params);
   const rows=(await pool.query(`WITH visible_events AS (SELECT ${eventColumns(rules)}
    ${joins} WHERE ${publicEvent} AND ${rules.visible})
-   SELECT id,title,status,starts_at,request_deadline_at,location,community,organizer_id,organizer,interest_count
+   SELECT id,title,status,starts_at,request_deadline_at,location,community,communities,ticket_price_cents,access_mode,is_public,ticket_mode,organizer_id,organizer,interest_count
    FROM visible_events WHERE ${eventSearch()}
    ORDER BY starts_at DESC NULLS LAST,id LIMIT 21 OFFSET $3`,[null,q,(page-1)*20])).rows;
   return {events:rows.slice(0,20),series:[],page,has_more:rows.length>20};

@@ -94,6 +94,7 @@ function event(id, title, startsAt, venue, organizer, description, sources, cont
     is_public: true,
     access_mode: "public",
     external: true,
+    communities: [],
     signed_in: false,
     community: {
       "Apollo Aachen": "Apollo",
@@ -153,6 +154,8 @@ var developmentEvents = [
     {
       genres: ["Jazz", "Swing"],
       line_up: ["Joscho Stephan", "Richard Smith", "Rory Hoffman"],
+      ticket_price_label_de: "25 € zzgl. Gebühren · VVK / 30 € · Abendkasse",
+      ticket_price_label_en: "€25 plus fees · advance / €30 · door",
       admission: "Einlass 19:00 Uhr. Vorverkauf 25 \u20AC zzgl. Geb\xFChren; Abendkasse 30 \u20AC."
     }
   ),
@@ -177,7 +180,7 @@ var developmentEvents = [
       instagram("https://www.instagram.com/musikbunker_aachen/p/DeHmAW3I7ZR/"),
       { label: "Instagram \xB7 NUDE", url: "https://www.instagram.com/nudeunderground/reel/DeFH1LtNFuq/" }
     ],
-    { minimum_age: 18, admission: "Einlass ab 23:00 Uhr. Vorverkauf ab 10 \u20AC laut Ank\xFCndigung." }
+    { minimum_age: 18, ticket_price_label_de: "ab 10 € · Vorverkauf laut Ankündigung", ticket_price_label_en: "from €10 · advance, as announced", admission: "Einlass ab 23:00 Uhr. Vorverkauf ab 10 \u20AC laut Ank\xFCndigung." }
   ),
   event(
     "external-2000er-party-20261016",
@@ -203,6 +206,8 @@ var developmentEvents = [
     {
       genres: ["Jazzrock"],
       line_up: ["John Etheridge", "Theo Travis", "Fred Baker", "Asaf Sirkis"],
+      ticket_price_label_de: "25 € zzgl. Gebühren · Vorverkauf",
+      ticket_price_label_en: "€25 plus fees · advance",
       admission: "Einlass 19:00 Uhr. Vorverkauf 25 \u20AC zzgl. Geb\xFChren."
     },
     { seating: "yes" }

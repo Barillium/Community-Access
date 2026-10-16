@@ -2,6 +2,7 @@ import 'package:ca_design/ca_design.dart' show EmbossedLock;
 
 import 'flyer_design.dart';
 import 'event_participation.dart';
+import 'event_hero_metadata.dart';
 
 import 'app_language.dart';
 
@@ -288,6 +289,8 @@ class EventEditorialView extends StatelessWidget {
                           ),
                         ),
                     ],
+                    const SizedBox(height: 28),
+                    EventHeroMetadata(event: event),
                   ],
                 ),
               ),

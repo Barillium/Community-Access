@@ -6,6 +6,7 @@ import 'design_system.dart';
 import 'flyer_design.dart';
 import 'event_editorial_view.dart';
 import 'event_participation.dart';
+import 'event_hero_metadata.dart';
 
 class EventCarousel extends StatefulWidget {
   const EventCarousel({
@@ -112,6 +113,8 @@ class _EventCarouselState extends State<EventCarousel> {
             Text(event['organizer'] as String),
           ),
         ],
+        const SizedBox(height: 24),
+        EventHeroMetadata(event: event),
         const SizedBox(height: 24),
         if ((event['location'] as String? ?? '').isNotEmpty) ...[
           Text(event['location'] as String),

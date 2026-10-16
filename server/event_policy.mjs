@@ -69,6 +69,11 @@ export function eventColumns(rules=eventPolicy(),{content=true,guard=false}={}){
   field(`CASE WHEN ${rules.time} THEN e.starts_at END`,'starts_at'),
   field(`CASE WHEN ${rules.location} THEN e.public_location ELSE '' END`,'location',"''"),
   field("CASE WHEN c.is_public THEN c.name ELSE '' END",'community',"''"),
+  field(`COALESCE((SELECT jsonb_agg(jsonb_build_object('id',listed.id,'name',listed.name) ORDER BY listed.name,listed.id)
+   FROM ca_community listed WHERE listed.is_public AND (listed.id=e.community_id OR EXISTS(
+    SELECT 1 FROM ca_event_community_access linked WHERE linked.event_id=e.id AND linked.community_id=listed.id AND linked.approved))), '[]'::jsonb)`,'communities',"'[]'::jsonb"),
+  field(`CASE WHEN e.ticket_mode IN('public','approval') THEN (SELECT price_cents FROM ca_ticket_config tc
+   WHERE tc.event_id=e.id AND tc.mode=e.ticket_mode) END`,'ticket_price_cents'),
   field(`CASE WHEN ${rules.series} THEN s.id END`,'series_id'),
   field(`CASE WHEN ${rules.series} THEN s.title ELSE '' END`,'series',"''"),
   field(`CASE WHEN ${rules.profile} THEN p.id END`,'organizer_id'),

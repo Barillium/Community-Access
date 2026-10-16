@@ -174,3 +174,7 @@ Rollen. Die Regression verbietet freie numerische Schriftgrößen in den sechs
 zentralen öffentlichen Inhaltskomponenten und prüft 16 repräsentative Ansichten
 sowie Lade-, Leer- und Fehlerzustände der Startseite. Ohne Hero bleibt der
 Haupttitel in der Seitentitel-Rolle; mit Hero ist die folgende Programmliste H2.
+
+### Veranstaltungsdaten in der Hero
+
+Startseiten-Carousel und Veranstaltungsdetail zeigen Ticketpreis und sichtbare, tatsächlich zugeordnete Communities in derselben Metadatengruppe. Fehlende Preise bleiben ausdrücklich unbekannt; Preisuntergrenzen sowie Gebühren- und Vorverkaufshinweise werden erhalten. Externe redaktionelle Kategorien oder aus Veranstalternamen abgeleitete Tags sind keine Communityzuordnungen. Die Lesedarstellung verwendet ausschließlich freigegebene Communitynamen und ändert keine Zugangs- oder Kaufberechtigung.
