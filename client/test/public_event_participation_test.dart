@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:community_access_client/design_system.dart';
 import 'package:community_access_client/event_participation.dart';
+import 'package:community_access_client/flyer_design.dart';
 import 'package:community_access_client/event_interest_panel.dart';
 import 'package:community_access_client/program_views.dart';
 
 import 'directory_widget_test.dart' show DirectoryFixture;
+import 'event_editorial_test.dart' show demoFlyer;
 
 class AttendanceFixture extends DirectoryFixture {
   AttendanceFixture(this.eventData);
@@ -38,6 +40,46 @@ class AttendanceFixture extends DirectoryFixture {
 }
 
 void main() {
+  for (final width in [320.0, 390.0, 768.0, 1440.0]) {
+    testWidgets('event hero reaches header and both edges at $width', (
+      tester,
+    ) async {
+      tester.view.physicalSize = Size(width, 1000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AccessDesign.theme(),
+          home: ProgramDetailPage(
+            api: AttendanceFixture({
+              'access_mode': 'public',
+              'ticket_mode': 'none',
+              'event_content': {
+                'flyer_data': demoFlyer,
+                'flyer_aspect_ratio': 16 / 9,
+                'admission': 'Eintrittsbedingungen des Veranstalters.',
+              },
+            }),
+            kind: 'events',
+            id: 'synthetic-event',
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final hero = tester.getRect(find.byType(FlyerScene));
+      final header = tester.getRect(find.byType(AccessHeader));
+      expect(hero.left, 0);
+      expect(hero.right, width);
+      expect(hero.top, header.bottom);
+      final details = tester.getRect(
+        find.text('Eintrittsbedingungen des Veranstalters.'),
+      );
+      expect(details.left, greaterThan(0));
+      expect(details.right, lessThan(width));
+      expect(tester.takeException(), isNull);
+    });
+  }
   test('public detection does not infer admission from the role or contradictory flags', () {
     expect(
       isPublicEvent({'access_mode': 'private', 'is_public': true}),

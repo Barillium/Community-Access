@@ -769,6 +769,7 @@ class _ProgramDetailPageState extends State<ProgramDetailPage> {
     body: SingleChildScrollView(
       child: AccessPageFrame(
         width: AccessPageWidth.detail,
+        edgeToEdge: widget.kind == 'events' && _data != null,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -784,7 +785,8 @@ class _ProgramDetailPageState extends State<ProgramDetailPage> {
             if (_data != null) ...[
               if (widget.kind == 'series')
                 directoryHeading(_data!['title'] as String),
-              const SizedBox(height: AccessSpacing.s20),
+              if (widget.kind == 'series')
+                const SizedBox(height: AccessSpacing.s20),
               if (widget.kind == 'series') ...[
                 LocalText(_data!['description'] as String),
                 if (_data!['signed_in'] == true ||
@@ -815,6 +817,7 @@ class _ProgramDetailPageState extends State<ProgramDetailPage> {
               ] else ...[
                 EventEditorialView(
                   event: _data!,
+                  edgeToEdge: true,
                   reportAction: widget.api is LegalApi
                       ? ReportEventButton(
                           api: widget.api as LegalApi,
@@ -868,9 +871,15 @@ class _ProgramDetailPageState extends State<ProgramDetailPage> {
               ],
             ],
             const SizedBox(height: AccessSpacing.s24),
-            OutlinedButton(
-              onPressed: _busy ? null : _load,
-              child: const LocalText('Aktualisieren'),
+            AccessPageFrame(
+              mainLandmark: false,
+              width: AccessPageWidth.detail,
+              edgeToEdge: widget.kind != 'events' || _data == null,
+              verticalPadding: false,
+              child: OutlinedButton(
+                onPressed: _busy ? null : _load,
+                child: const LocalText('Aktualisieren'),
+              ),
             ),
           ],
         ),

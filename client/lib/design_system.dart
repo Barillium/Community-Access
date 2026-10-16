@@ -378,6 +378,7 @@ class AccessPageFrame extends StatelessWidget {
   final bool mainLandmark;
   final AccessPageWidth width;
   final bool verticalPadding;
+  final bool edgeToEdge;
   const AccessPageFrame({
     super.key,
     required this.child,
@@ -385,6 +386,7 @@ class AccessPageFrame extends StatelessWidget {
     this.mainLandmark = true,
     this.width = AccessPageWidth.content,
     this.verticalPadding = true,
+    this.edgeToEdge = false,
   });
   @override
   Widget build(BuildContext context) => LayoutBuilder(
@@ -398,7 +400,7 @@ class AccessPageFrame extends StatelessWidget {
       final available = constraints.hasBoundedWidth
           ? constraints.maxWidth
           : MediaQuery.sizeOf(context).width;
-      final inset = AccessLayout.gutter(context, available);
+      final inset = edgeToEdge ? 0.0 : AccessLayout.gutter(context, available);
       final content = title == null
           ? child
           : Column(
@@ -412,7 +414,9 @@ class AccessPageFrame extends StatelessWidget {
       return Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: limit),
+          constraints: BoxConstraints(
+            maxWidth: edgeToEdge ? double.infinity : limit,
+          ),
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               inset,

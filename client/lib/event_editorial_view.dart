@@ -46,6 +46,7 @@ class EventEditorialView extends StatelessWidget {
   final Map<String, dynamic> event;
   final VoidCallback? onOrganizer;
   final Widget? interestControl, participation, reportAction;
+  final bool edgeToEdge;
   const EventEditorialView({
     super.key,
     required this.event,
@@ -53,6 +54,7 @@ class EventEditorialView extends StatelessWidget {
     this.interestControl,
     this.participation,
     this.reportAction,
+    this.edgeToEdge = false,
   });
   @override
   Widget build(BuildContext context) {
@@ -196,167 +198,185 @@ class EventEditorialView extends StatelessWidget {
                   ),
                 ),
               ),
-            FlyerScene(
-              minHeight: 540,
-              showImage: flyer.isNotEmpty,
-              posterAspectRatio: flyerRatio,
-              image: flyer.isEmpty
-                  ? null
-                  : EventFlyer(
-                      data: flyer,
-                      fit: BoxFit.contain,
-                      aspectRatio: flyerRatio,
-                      backgroundColor: FlyerStyle.ink,
-                      alt: content['flyer_alt'] as String? ?? title,
+            Padding(
+              padding: edgeToEdge && flyer.isEmpty
+                  ? EdgeInsets.all(
+                      AccessLayout.gutter(context, constraints.maxWidth),
+                    )
+                  : EdgeInsets.zero,
+              child: FlyerScene(
+                minHeight: 540,
+                showImage: flyer.isNotEmpty,
+                posterAspectRatio: flyerRatio,
+                image: flyer.isEmpty
+                    ? null
+                    : EventFlyer(
+                        data: flyer,
+                        fit: BoxFit.contain,
+                        aspectRatio: flyerRatio,
+                        backgroundColor: FlyerStyle.ink,
+                        alt: content['flyer_alt'] as String? ?? title,
+                      ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FlyerTitle(
+                      title.isEmpty
+                          ? localText(context, 'Veranstaltung', 'Event')
+                          : title,
+                      size: AccessTypography.page(
+                        MediaQuery.sizeOf(context).width,
+                      ),
+                      italic: true,
                     ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  FlyerTitle(
-                    title.isEmpty
-                        ? localText(context, 'Veranstaltung', 'Event')
-                        : title,
-                    size: AccessTypography.page(
-                      MediaQuery.sizeOf(context).width,
-                    ),
-                    italic: true,
-                  ),
-                  const SizedBox(height: 24),
-                  if (startDay.isNotEmpty)
-                    Wrap(
-                      spacing: 24,
-                      runSpacing: 16,
-                      children: [
-                        if (startDate != null)
-                          Text(
-                            localText(
-                              context,
-                              weekdaysDe[startDate.weekday - 1],
-                              weekdaysEn[startDate.weekday - 1],
+                    const SizedBox(height: 24),
+                    if (startDay.isNotEmpty)
+                      Wrap(
+                        spacing: 24,
+                        runSpacing: 16,
+                        children: [
+                          if (startDate != null)
+                            Text(
+                              localText(
+                                context,
+                                weekdaysDe[startDate.weekday - 1],
+                                weekdaysEn[startDate.weekday - 1],
+                              ),
+                            ),
+                          FlyerMark(
+                            kind: FlyerMarkKind.circle,
+                            child: Text(
+                              '${startDate?.day.toString().padLeft(2, '0')}.${startDate?.month.toString().padLeft(2, '0')}.${startDate?.year}',
                             ),
                           ),
-                        FlyerMark(
-                          kind: FlyerMarkKind.circle,
-                          child: Text(
-                            '${startDate?.day.toString().padLeft(2, '0')}.${startDate?.month.toString().padLeft(2, '0')}.${startDate?.year}',
+                          Text(
+                            '${eventTime(event['starts_at'])}${endTime.isEmpty ? '' : ' – $endTime'}${endDay != startDay && endDay.isNotEmpty ? ' · $endDay' : ''}',
                           ),
+                        ],
+                      )
+                    else
+                      const LocalText('Wird bekannt gegeben'),
+                    if (organizer.isNotEmpty) ...[
+                      const SizedBox(height: 28),
+                      Text(
+                        localText(context, 'Veranstalter', 'Organizer'),
+                        style: const TextStyle(
+                          fontSize: AccessTypography.labelSize,
                         ),
-                        Text(
-                          '${eventTime(event['starts_at'])}${endTime.isEmpty ? '' : ' – $endTime'}${endDay != startDay && endDay.isNotEmpty ? ' · $endDay' : ''}',
-                        ),
-                      ],
-                    )
-                  else
-                    const LocalText('Wird bekannt gegeben'),
-                  if (organizer.isNotEmpty) ...[
-                    const SizedBox(height: 28),
-                    Text(
-                      localText(context, 'Veranstalter', 'Organizer'),
-                      style: const TextStyle(
-                        fontSize: AccessTypography.labelSize,
                       ),
-                    ),
-                    if (onOrganizer != null)
-                      TextButton(
-                        onPressed: onOrganizer,
-                        style: TextButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.zero,
-                          alignment: Alignment.centerLeft,
-                        ),
-                        child: Text(
+                      if (onOrganizer != null)
+                        TextButton(
+                          onPressed: onOrganizer,
+                          style: TextButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.zero,
+                            alignment: Alignment.centerLeft,
+                          ),
+                          child: Text(
+                            organizer,
+                            style: const TextStyle(
+                              fontSize: AccessTypography.leadSize,
+                            ),
+                          ),
+                        )
+                      else
+                        Text(
                           organizer,
                           style: const TextStyle(
                             fontSize: AccessTypography.leadSize,
                           ),
                         ),
-                      )
-                    else
-                      Text(
-                        organizer,
-                        style: const TextStyle(
-                          fontSize: AccessTypography.leadSize,
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            AccessPageFrame(
+              mainLandmark: false,
+              width: AccessPageWidth.detail,
+              edgeToEdge: !edgeToEdge,
+              verticalPadding: false,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (reportAction != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: AccessSpacing.s12),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: reportAction!,
+                      ),
+                    ),
+                  const SizedBox(height: 32),
+                  if (event['status'] == 'cancelled')
+                    const Padding(
+                      padding: EdgeInsets.only(top: AccessSpacing.s16),
+                      child: Text(
+                        'Dieses Event ist abgesagt.',
+                        style: TextStyle(
+                          fontSize: AccessTypography.cardTitleSize,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
-                  ],
+                    ),
+                  const SizedBox(height: AccessSpacing.s32),
+                  AccessColumns(
+                    minWidth: 600,
+                    gap: 48,
+                    flex: participation == null ? const [1] : const [5, 4],
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Divider(color: colors.onSurface),
+                          ...facts,
+                        ],
+                      ),
+                      if (participation != null)
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Divider(color: colors.onSurface),
+                            const SizedBox(height: 20),
+                            AccessHeading(
+                              isPublicEvent(event) &&
+                                      [
+                                        'public',
+                                        'approval',
+                                      ].contains(event['ticket_mode'])
+                                  ? 'Tickets'
+                                  : 'Dein Stand',
+                              role: AccessHeadingRole.card,
+                              level: 2,
+                            ),
+                            const SizedBox(height: 16),
+                            participation!,
+                          ],
+                        ),
+                    ],
+                  ),
+                  if (interestControl != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: AccessSpacing.s24),
+                      child: interestControl,
+                    ),
+                  const SizedBox(height: AccessSpacing.s32),
+                  Divider(color: colors.outlineVariant),
+                  const SizedBox(height: AccessSpacing.s32),
+                  AccessContent(width: AccessPageWidth.reading, child: body),
+                  const SizedBox(height: AccessSpacing.s40),
+                  if (!isPublicEvent(event))
+                    Text(
+                      'Profilzugang und Eventfreigabe bestätigen keine Teilnahme.',
+                      style: TextStyle(
+                        color: colors.onSurfaceVariant,
+                        height: AccessTypography.readingHeight,
+                      ),
+                    ),
                 ],
               ),
             ),
-            if (reportAction != null)
-              Padding(
-                padding: const EdgeInsets.only(top: AccessSpacing.s12),
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: reportAction!,
-                ),
-              ),
-            const SizedBox(height: 32),
-            if (event['status'] == 'cancelled')
-              const Padding(
-                padding: EdgeInsets.only(top: AccessSpacing.s16),
-                child: Text(
-                  'Dieses Event ist abgesagt.',
-                  style: TextStyle(
-                    fontSize: AccessTypography.cardTitleSize,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            const SizedBox(height: AccessSpacing.s32),
-            AccessColumns(
-              minWidth: 600,
-              gap: 48,
-              flex: participation == null ? const [1] : const [5, 4],
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Divider(color: colors.onSurface),
-                    ...facts,
-                  ],
-                ),
-                if (participation != null)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Divider(color: colors.onSurface),
-                      const SizedBox(height: 20),
-                      AccessHeading(
-                        isPublicEvent(event) &&
-                                [
-                                  'public',
-                                  'approval',
-                                ].contains(event['ticket_mode'])
-                            ? 'Tickets'
-                            : 'Dein Stand',
-                        role: AccessHeadingRole.card,
-                        level: 2,
-                      ),
-                      const SizedBox(height: 16),
-                      participation!,
-                    ],
-                  ),
-              ],
-            ),
-            if (interestControl != null)
-              Padding(
-                padding: const EdgeInsets.only(top: AccessSpacing.s24),
-                child: interestControl,
-              ),
-            const SizedBox(height: AccessSpacing.s32),
-            Divider(color: colors.outlineVariant),
-            const SizedBox(height: AccessSpacing.s32),
-            AccessContent(width: AccessPageWidth.reading, child: body),
-            const SizedBox(height: AccessSpacing.s40),
-            if (!isPublicEvent(event))
-              Text(
-                'Profilzugang und Eventfreigabe bestätigen keine Teilnahme.',
-                style: TextStyle(
-                  color: colors.onSurfaceVariant,
-                  height: AccessTypography.readingHeight,
-                ),
-              ),
           ],
         );
         return editorial;
