@@ -87,6 +87,11 @@ class EventEditorialView extends StatelessWidget {
     final endDay = eventDay(content['ends_at']);
     final endTime = eventTime(content['ends_at']);
     final flyer = content['flyer_data'] as String? ?? '';
+    final rawRatio = content['flyer_aspect_ratio'];
+    final flyerRatio =
+        rawRatio is num && rawRatio.isFinite && rawRatio >= .1 && rawRatio <= 10
+        ? rawRatio.toDouble()
+        : 3 / 4;
     final colors = Theme.of(context).colorScheme;
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -192,11 +197,14 @@ class EventEditorialView extends StatelessWidget {
             FlyerScene(
               minHeight: 540,
               showImage: flyer.isNotEmpty,
+              posterAspectRatio: flyerRatio,
               image: flyer.isEmpty
                   ? null
                   : EventFlyer(
                       data: flyer,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
+                      aspectRatio: flyerRatio,
+                      backgroundColor: FlyerStyle.ink,
                       alt: content['flyer_alt'] as String? ?? title,
                     ),
               child: Column(
@@ -439,12 +447,16 @@ class EventFlyer extends StatefulWidget {
   final String data, alt;
   final VoidCallback? onOpen;
   final BoxFit fit;
+  final double aspectRatio;
+  final Color? backgroundColor;
   const EventFlyer({
     super.key,
     required this.data,
     required this.alt,
     this.onOpen,
     this.fit = BoxFit.contain,
+    this.aspectRatio = 3 / 4,
+    this.backgroundColor,
   });
   @override
   State<EventFlyer> createState() => _EventFlyerState();
@@ -498,9 +510,11 @@ class _EventFlyerState extends State<EventFlyer> {
       child: widget.fit == BoxFit.cover
           ? image
           : AspectRatio(
-              aspectRatio: 3 / 4,
+              aspectRatio: widget.aspectRatio,
               child: ColoredBox(
-                color: Theme.of(context).colorScheme.surfaceContainerLow,
+                color:
+                    widget.backgroundColor ??
+                    Theme.of(context).colorScheme.surfaceContainerLow,
                 child: image,
               ),
             ),

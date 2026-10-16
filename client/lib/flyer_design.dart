@@ -207,11 +207,13 @@ class FlyerScene extends StatelessWidget {
     this.padding = 32,
     this.mobileImageHeight = 220,
     this.mobileInformationFirst = false,
+    this.posterAspectRatio,
   });
   final Widget child;
   final Widget? information, image, topRight;
   final bool showImage, mobileInformationFirst;
   final double minHeight, padding, mobileImageHeight;
+  final double? posterAspectRatio;
   Widget _picture(BuildContext context) => Stack(
     fit: StackFit.expand,
     children: [
@@ -262,6 +264,26 @@ class FlyerScene extends StatelessWidget {
           child: child,
         ),
       );
+      final poster = image != null && posterAspectRatio != null;
+      final imageHeight = poster
+          ? c.maxWidth / posterAspectRatio!
+          : mobileImageHeight;
+      if (poster && !mobile) {
+        return ColoredBox(
+          color: FlyerStyle.ink,
+          child: Padding(
+            padding: EdgeInsets.all(padding),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(child: text),
+                SizedBox(width: padding * 2),
+                Expanded(child: image!),
+              ],
+            ),
+          ),
+        );
+      }
       if (mobile) {
         return ColoredBox(
           color: FlyerStyle.ink,
@@ -269,7 +291,7 @@ class FlyerScene extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SizedBox(
-                height: mobileImageHeight,
+                height: imageHeight,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
@@ -278,7 +300,7 @@ class FlyerScene extends StatelessWidget {
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      height: mobileImageHeight * .9,
+                      height: imageHeight * (poster ? .18 : .9),
                       child: const IgnorePointer(
                         child: DecoratedBox(
                           decoration: BoxDecoration(

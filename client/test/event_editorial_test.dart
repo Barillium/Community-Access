@@ -4,6 +4,7 @@ import 'package:community_access_client/event_editorial_view.dart';
 import 'package:community_access_client/event_content_fields.dart';
 import 'package:community_access_client/organizer_management_page.dart';
 import 'package:community_access_client/design_system.dart';
+import 'package:community_access_client/flyer_design.dart';
 
 import 'program_widget_test.dart';
 import 'directory_widget_test.dart' show profileId;
@@ -49,6 +50,35 @@ Future<void> render(
 }
 
 void main() {
+  for (final width in [320.0, 390.0, 768.0, 1440.0]) {
+    for (final ratio in [.8, 16 / 9]) {
+      testWidgets(
+        'full poster keeps its ratio without text overlap at $width / $ratio',
+        (tester) async {
+          tester.view.physicalSize = Size(width, 1000);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.resetPhysicalSize);
+          addTearDown(tester.view.resetDevicePixelRatio);
+          final event = demoEvent();
+          event['event_content']['flyer_aspect_ratio'] = ratio;
+          await render(tester, EventEditorialView(event: event));
+          final flyer = tester.getRect(find.byType(EventFlyer));
+          final title = tester.getRect(find.byType(FlyerTitle));
+          expect(flyer.width / flyer.height, closeTo(ratio, .001));
+          expect(flyer.left, greaterThanOrEqualTo(0));
+          expect(flyer.right, lessThanOrEqualTo(width));
+          expect(flyer.overlaps(title), isFalse);
+          expect(tester.widget<Image>(find.byType(Image)).fit, BoxFit.contain);
+          if (width < 900) {
+            expect(flyer.bottom, lessThanOrEqualTo(title.top));
+          } else {
+            expect(title.right, lessThanOrEqualTo(flyer.left));
+          }
+          expect(tester.takeException(), isNull);
+        },
+      );
+    }
+  }
   testWidgets(
     'host age choice stays editable and youth protection is explained without a mandatory default',
     (tester) async {
