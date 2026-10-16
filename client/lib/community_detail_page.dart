@@ -111,9 +111,12 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AccessTopBar(
-      title: Semantics(
-        label: 'Community Access',
-        child: ExcludeSemantics(child: AccessBrand(width: 112)),
+      title: Align(
+        alignment: Alignment.centerLeft,
+        child: Semantics(
+          label: 'Community Access',
+          child: ExcludeSemantics(child: AccessBrand(width: 112)),
+        ),
       ),
       leading: IconButton(
         tooltip: localText(context, 'Zurück', 'Back'),

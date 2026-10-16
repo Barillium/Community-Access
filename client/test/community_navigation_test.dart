@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:community_access_client/access_api.dart';
+import 'package:community_access_client/access_brand.dart';
 import 'package:community_access_client/app_language.dart';
 import 'package:community_access_client/community_detail_page.dart';
 import 'package:community_access_client/design_system.dart';
@@ -124,6 +125,7 @@ void main() {
       await tester.tap(find.text('Im Programm filtern'));
       await tester.pumpAndSettle();
       expect(api.eventQueries.last['community'], communityA);
+      expect(find.text('Veranstaltungen'), findsOneWidget);
       expect(find.text('Demo Ateliertermin'), findsNothing);
       final dropdown = find.byType(DropdownButtonFormField<String>);
       await tester.ensureVisible(dropdown);
@@ -216,6 +218,7 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
+        expect(tester.getSize(find.byType(AccessBrand)).width, 112);
         final field = find.byType(TextField);
         await tester.ensureVisible(field);
         await tester.enterText(field, 'Gemeinsamer');

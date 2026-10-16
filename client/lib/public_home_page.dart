@@ -99,20 +99,18 @@ class _PublicHomePageState extends State<PublicHomePage> {
         widget.directoryApi != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
+          if (target['kind'] == 'community') {
+            _openCommunity(target['id']!);
+            return;
+          }
           Navigator.of(context).push<void>(
             MaterialPageRoute(
-              builder: (_) => target['kind'] == 'community'
-                  ? CommunityDetailPage(
-                      api: widget.directoryApi!,
-                      id: target['id']!,
-                      openAccount: _openProfileAccount,
-                    )
-                  : ProgramDetailPage(
-                      api: widget.directoryApi!,
-                      kind: target['kind'] == 'event' ? 'events' : 'series',
-                      id: target['id']!,
-                      openAccount: _openProfileAccount,
-                    ),
+              builder: (_) => ProgramDetailPage(
+                api: widget.directoryApi!,
+                kind: target['kind'] == 'event' ? 'events' : 'series',
+                id: target['id']!,
+                openAccount: _openProfileAccount,
+              ),
             ),
           );
         }
@@ -1103,7 +1101,7 @@ class _PublicHomePageState extends State<PublicHomePage> {
     }
     return ProgramList(
       api: widget.directoryApi!,
-      showHeading: false,
+      showHeading: _eventCommunity != null,
       calendarLayout: (_home?['hero'] as List? ?? []).isNotEmpty,
       openAccount: _openProfileAccount,
       program: {..._program!, 'events': _program?['events'] as List? ?? []},
