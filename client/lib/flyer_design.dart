@@ -278,19 +278,21 @@ class FlyerScene extends StatelessWidget {
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      height: mobileImageHeight * .55,
+                      height: mobileImageHeight * .9,
                       child: const IgnorePointer(
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              stops: [0, .22, .5, .77, 1],
+                              stops: [0, .16, .35, .55, .73, .88, 1],
                               colors: [
                                 Color(0x00171713),
-                                Color(0x10171713),
-                                Color(0x50171713),
-                                Color(0xb8171713),
+                                Color(0x08171713),
+                                Color(0x20171713),
+                                Color(0x52171713),
+                                Color(0x9c171713),
+                                Color(0xdc171713),
                                 FlyerStyle.ink,
                               ],
                             ),
