@@ -812,13 +812,14 @@ class _ProgramDetailPageState extends State<ProgramDetailPage> {
                   onRefresh: () => _load(page: _page),
                 ),
               ] else ...[
-                if (widget.api is LegalApi)
-                  ReportEventButton(
-                    api: widget.api as LegalApi,
-                    eventId: widget.id,
-                  ),
                 EventEditorialView(
                   event: _data!,
+                  reportAction: widget.api is LegalApi
+                      ? ReportEventButton(
+                          api: widget.api as LegalApi,
+                          eventId: widget.id,
+                        )
+                      : null,
                   participation: EventInterestPanel(
                     key: _participationKey,
                     api: widget.api,

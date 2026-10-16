@@ -44,13 +44,14 @@ String eventTime(dynamic value) {
 class EventEditorialView extends StatelessWidget {
   final Map<String, dynamic> event;
   final VoidCallback? onOrganizer;
-  final Widget? interestControl, participation;
+  final Widget? interestControl, participation, reportAction;
   const EventEditorialView({
     super.key,
     required this.event,
     this.onOrganizer,
     this.interestControl,
     this.participation,
+    this.reportAction,
   });
   @override
   Widget build(BuildContext context) {
@@ -281,6 +282,14 @@ class EventEditorialView extends StatelessWidget {
                 ],
               ),
             ),
+            if (reportAction != null)
+              Padding(
+                padding: const EdgeInsets.only(top: AccessSpacing.s12),
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: reportAction!,
+                ),
+              ),
             const SizedBox(height: 32),
             if (event['status'] == 'cancelled')
               const Padding(
