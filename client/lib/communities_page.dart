@@ -141,233 +141,236 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
     final visible = _items
         .where((c) => (c['name'] as String).toLowerCase().contains(_query))
         .toList();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SizedBox(height: AccessSpacing.s48),
-        const FlyerBanner(title: 'Communities'),
-        const SizedBox(height: AccessSpacing.s20),
-        Text(
-          localText(
-            context,
-            'Finde deinen Kreis. Entdecke öffentliche Communities und Themen für gemeinsame Erlebnisse.',
-            'Find your people. Discover public communities and topics for shared experiences.',
-          ),
-          style: TextStyle(
-            fontSize: AccessTypography.leadSize,
-            height: 1.5,
-            color: palette.muted,
-          ),
-        ),
-        const SizedBox(height: AccessSpacing.s24),
-        Text(
-          localText(
-            context,
-            'Eine Communityzuordnung erteilt keine Mitgliedschaft. Für geschützte Veranstaltungen gelten weiterhin eigene Zugangsregeln.',
-            'A community assignment does not grant membership. Protected events retain their own access rules.',
-          ),
-          style: TextStyle(height: 1.6, color: palette.muted),
-        ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton(
-            onPressed: widget.onFaq,
-            child: Text(
-              localText(
-                context,
-                'Fragen zum Zugang? Zur FAQ',
-                'Questions about access? Visit the FAQ',
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: AccessSpacing.s24),
-        AccessField(
-          decoration: InputDecoration(
-            labelText: localText(
+    return AccessHeroLayout(
+      mainLandmark: false,
+      hero: const FlyerBanner(title: 'Communities'),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            localText(
               context,
-              'Community oder Thema suchen',
-              'Search communities or topics',
+              'Finde deinen Kreis. Entdecke öffentliche Communities und Themen für gemeinsame Erlebnisse.',
+              'Find your people. Discover public communities and topics for shared experiences.',
             ),
-            prefixIcon: const AccessIcon(Icons.search),
-            suffixIcon: _query.isEmpty
-                ? null
-                : IconButton(
-                    tooltip: localText(
-                      context,
-                      'Suche zurücksetzen',
-                      'Clear search',
-                    ),
-                    onPressed: () {
-                      _search.clear();
-                      setState(() => _query = '');
-                    },
-                    icon: const AccessIcon(Icons.close),
-                  ),
+            style: TextStyle(
+              fontSize: AccessTypography.leadSize,
+              height: 1.5,
+              color: palette.muted,
+            ),
           ),
-          builder: (decoration) => TextField(
-            controller: _search,
-            decoration: decoration,
-            maxLength: 180,
-            onChanged: (value) =>
-                setState(() => _query = value.trim().toLowerCase()),
-          ),
-        ),
-        const SizedBox(height: AccessSpacing.s40),
-        _heading('Öffentliche Communities', 'Public communities'),
-        const SizedBox(height: AccessSpacing.s16),
-        if (_loading)
-          Semantics(
-            liveRegion: true,
-            child: Text(
-              localText(
-                context,
-                'Communities werden geladen …',
-                'Loading communities …',
-              ),
+          const SizedBox(height: AccessSpacing.s24),
+          Text(
+            localText(
+              context,
+              'Eine Communityzuordnung erteilt keine Mitgliedschaft. Für geschützte Veranstaltungen gelten weiterhin eigene Zugangsregeln.',
+              'A community assignment does not grant membership. Protected events retain their own access rules.',
             ),
-          )
-        else if (_failed) ...[
-          Semantics(
-            liveRegion: true,
-            child: Text(
-              localText(
-                context,
-                'Öffentliche Communities sind derzeit nicht verfügbar.',
-                'Public communities are currently unavailable.',
-              ),
-            ),
+            style: TextStyle(height: 1.6, color: palette.muted),
           ),
           Align(
             alignment: Alignment.centerLeft,
             child: TextButton(
-              onPressed: _load,
-              child: Text(localText(context, 'Erneut laden', 'Try again')),
+              onPressed: widget.onFaq,
+              child: Text(
+                localText(
+                  context,
+                  'Fragen zum Zugang? Zur FAQ',
+                  'Questions about access? Visit the FAQ',
+                ),
+              ),
             ),
           ),
-        ] else if (visible.isEmpty)
-          Semantics(
-            liveRegion: true,
-            child: Text(
-              localText(
+          const SizedBox(height: AccessSpacing.s24),
+          AccessField(
+            decoration: InputDecoration(
+              labelText: localText(
                 context,
-                _query.isEmpty
-                    ? 'Noch keine öffentlich freigegebenen Communities.'
-                    : 'Keine öffentlichen Communities zu deiner Suche.',
-                _query.isEmpty
-                    ? 'No publicly listed communities yet.'
-                    : 'No public communities match your search.',
+                'Community oder Thema suchen',
+                'Search communities or topics',
               ),
-              style: TextStyle(color: palette.muted, height: 1.6),
-            ),
-          )
-        else
-          for (final item in visible)
-            Container(
-              key: ValueKey('community-card:${item['id']}'),
-              padding: const EdgeInsets.symmetric(vertical: AccessSpacing.s20),
-              decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color: palette.hair)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: TextButton(
-                      onPressed: () => _open(item['id'] as String),
-                      child: FlyerMark(
-                        child: AccessHeading(
-                          item['name'] as String,
-                          role: AccessHeadingRole.card,
-                          level: 3,
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (item['synthetic'] == true)
-                    Text(
-                      localText(
+              prefixIcon: const AccessIcon(Icons.search),
+              suffixIcon: _query.isEmpty
+                  ? null
+                  : IconButton(
+                      tooltip: localText(
                         context,
-                        'Synthetische Beispiel-Community',
-                        'Synthetic example community',
+                        'Suche zurücksetzen',
+                        'Clear search',
                       ),
+                      onPressed: () {
+                        _search.clear();
+                        setState(() => _query = '');
+                      },
+                      icon: const AccessIcon(Icons.close),
                     ),
-                  const SizedBox(height: AccessSpacing.s12),
-                  Wrap(
-                    spacing: AccessSpacing.s12,
-                    runSpacing: AccessSpacing.s8,
-                    children: [
-                      TextButton.icon(
-                        onPressed: () => _open(item['id'] as String),
-                        icon: const AccessIcon(Icons.arrow_forward),
-                        label: Text(
-                          localText(
-                            context,
-                            'Communityprogramm ansehen',
-                            'View community program',
-                          ),
-                        ),
-                      ),
-                      OutlinedButton(
-                        onPressed: () =>
-                            widget.onOrganizers(item['id'] as String),
-                        child: Text(
-                          localText(
-                            context,
-                            'Veranstalter ansehen',
-                            'View organizers',
-                          ),
-                        ),
-                      ),
-                      if (ProductScope.extended)
-                        TextButton(
-                          onPressed: _pending.contains(item['id'])
-                              ? null
-                              : () => _follow(item),
-                          child: Text(
-                            item['following'] == true
-                                ? localText(
-                                    context,
-                                    'Nicht mehr folgen',
-                                    'Unfollow',
-                                  )
-                                : localText(context, 'Folgen', 'Follow'),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: AccessSpacing.s12),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Text(
-                      key: ValueKey('community-count:${item['id']}'),
-                      item['event_count'] is int && item['event_count'] >= 0
-                          ? localText(
-                              context,
-                              '${item['event_count']} ${item['event_count'] == 1 ? 'Veranstaltung' : 'Veranstaltungen'}',
-                              '${item['event_count']} ${item['event_count'] == 1 ? 'event' : 'events'}',
-                            )
-                          : localText(
-                              context,
-                              'Anzahl nicht verfügbar',
-                              'Event count unavailable',
-                            ),
-                      textAlign: TextAlign.right,
-                      style: TextStyle(
-                        fontSize: AccessTypography.captionSize,
-                        color: palette.muted,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ],
+            ),
+            builder: (decoration) => TextField(
+              controller: _search,
+              decoration: decoration,
+              maxLength: 180,
+              onChanged: (value) =>
+                  setState(() => _query = value.trim().toLowerCase()),
+            ),
+          ),
+          const SizedBox(height: AccessSpacing.s40),
+          _heading('Öffentliche Communities', 'Public communities'),
+          const SizedBox(height: AccessSpacing.s16),
+          if (_loading)
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                localText(
+                  context,
+                  'Communities werden geladen …',
+                  'Loading communities …',
+                ),
+              ),
+            )
+          else if (_failed) ...[
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                localText(
+                  context,
+                  'Öffentliche Communities sind derzeit nicht verfügbar.',
+                  'Public communities are currently unavailable.',
+                ),
               ),
             ),
-        const SizedBox(height: AccessSpacing.s64),
-        CommunityTopics(query: _query),
-        const SizedBox(height: AccessSpacing.s48),
-      ],
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                onPressed: _load,
+                child: Text(localText(context, 'Erneut laden', 'Try again')),
+              ),
+            ),
+          ] else if (visible.isEmpty)
+            Semantics(
+              liveRegion: true,
+              child: Text(
+                localText(
+                  context,
+                  _query.isEmpty
+                      ? 'Noch keine öffentlich freigegebenen Communities.'
+                      : 'Keine öffentlichen Communities zu deiner Suche.',
+                  _query.isEmpty
+                      ? 'No publicly listed communities yet.'
+                      : 'No public communities match your search.',
+                ),
+                style: TextStyle(color: palette.muted, height: 1.6),
+              ),
+            )
+          else
+            for (final item in visible)
+              Container(
+                key: ValueKey('community-card:${item['id']}'),
+                padding: const EdgeInsets.symmetric(
+                  vertical: AccessSpacing.s20,
+                ),
+                decoration: BoxDecoration(
+                  border: Border(bottom: BorderSide(color: palette.hair)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(
+                        onPressed: () => _open(item['id'] as String),
+                        child: FlyerMark(
+                          child: AccessHeading(
+                            item['name'] as String,
+                            role: AccessHeadingRole.card,
+                            level: 3,
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (item['synthetic'] == true)
+                      Text(
+                        localText(
+                          context,
+                          'Synthetische Beispiel-Community',
+                          'Synthetic example community',
+                        ),
+                      ),
+                    const SizedBox(height: AccessSpacing.s12),
+                    Wrap(
+                      spacing: AccessSpacing.s12,
+                      runSpacing: AccessSpacing.s8,
+                      children: [
+                        TextButton.icon(
+                          onPressed: () => _open(item['id'] as String),
+                          icon: const AccessIcon(Icons.arrow_forward),
+                          label: Text(
+                            localText(
+                              context,
+                              'Communityprogramm ansehen',
+                              'View community program',
+                            ),
+                          ),
+                        ),
+                        OutlinedButton(
+                          onPressed: () =>
+                              widget.onOrganizers(item['id'] as String),
+                          child: Text(
+                            localText(
+                              context,
+                              'Veranstalter ansehen',
+                              'View organizers',
+                            ),
+                          ),
+                        ),
+                        if (ProductScope.extended)
+                          TextButton(
+                            onPressed: _pending.contains(item['id'])
+                                ? null
+                                : () => _follow(item),
+                            child: Text(
+                              item['following'] == true
+                                  ? localText(
+                                      context,
+                                      'Nicht mehr folgen',
+                                      'Unfollow',
+                                    )
+                                  : localText(context, 'Folgen', 'Follow'),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: AccessSpacing.s12),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Text(
+                        key: ValueKey('community-count:${item['id']}'),
+                        item['event_count'] is int && item['event_count'] >= 0
+                            ? localText(
+                                context,
+                                '${item['event_count']} ${item['event_count'] == 1 ? 'Veranstaltung' : 'Veranstaltungen'}',
+                                '${item['event_count']} ${item['event_count'] == 1 ? 'event' : 'events'}',
+                              )
+                            : localText(
+                                context,
+                                'Anzahl nicht verfügbar',
+                                'Event count unavailable',
+                              ),
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          fontSize: AccessTypography.captionSize,
+                          color: palette.muted,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+          const SizedBox(height: AccessSpacing.s64),
+          CommunityTopics(query: _query),
+          const SizedBox(height: AccessSpacing.s48),
+        ],
+      ),
     );
   }
 }

@@ -180,3 +180,15 @@ Haupttitel in der Seitentitel-Rolle; mit Hero ist die folgende Programmliste H2.
 Startseiten-Carousel und Veranstaltungsdetail zeigen Ticketpreis und sichtbare, tatsächlich zugeordnete Communities in derselben Metadatengruppe. Fehlende Preise bleiben ausdrücklich unbekannt; Preisuntergrenzen sowie Gebühren- und Vorverkaufshinweise werden erhalten. Externe redaktionelle Kategorien oder aus Veranstalternamen abgeleitete Tags sind keine Communityzuordnungen. Die Lesedarstellung verwendet ausschließlich freigegebene Communitynamen und ändert keine Zugangs- oder Kaufberechtigung.
 
 Communitynamen mit freigegebener stabiler ID sind einzeln klickbar und öffnen eine eigene Communityprogrammseite. Eine einzelne orange Markierung bleibt unabhängig von der schwarzen beziehungsweise weißen Schrift. Der globale Communityfilter bietet „Alle Communities“ zum Zurücksetzen und wirkt zusammen mit Textsuche und Zeitraum. Unterseiten und Filter verwenden ausschließlich bereits serverseitig sichtbare Zuordnungen. Die Development-Vorschau kennzeichnet Beispiel-Communities und Beispiel-Veranstaltungen ausdrücklich als synthetisch.
+
+### Randlose Seiten-Heros · 16.10.2026
+
+Bestehende Seiten-Heros beginnen direkt unter dem Header und reichen links und
+rechts über die gesamte verfügbare Ansichtsbreite. Dies gilt neben Startseite und
+Veranstaltungsdetail für Communityübersicht, Communityprogramme, Veranstalter-
+und Ortsverzeichnisse sowie deren Profilseiten. `AccessHeroLayout` trennt die
+Bildbühne vom eingerückten Inhalt: Filter, Listen, Lesetexte und Formulare behalten
+ihre jeweiligen Seitenränder und Breitenbegrenzungen. Eingebettete Seiten
+übernehmen den Hauptbereich ihrer Eltern; Lade- und Fehleransichten ohne Hero
+behalten den normalen Inhaltsrahmen. Der vorhandene Bildzuschnitt, vollständige
+Eventplakate, weiche Übergänge und orange Markierungen bleiben erhalten.

@@ -125,19 +125,18 @@ class _CommunityDetailPageState extends State<CommunityDetailPage> {
       ),
     ),
     body: SingleChildScrollView(
-      child: AccessPageFrame(
+      child: AccessHeroLayout(
+        hero: FlyerBanner(
+          title: _community?['name'] as String? ?? 'Community',
+          description: localText(
+            context,
+            'Ein gemeinsamer Ort im Programm.',
+            'A shared place in the program.',
+          ),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            FlyerBanner(
-              title: _community?['name'] as String? ?? 'Community',
-              description: localText(
-                context,
-                'Ein gemeinsamer Ort im Programm.',
-                'A shared place in the program.',
-              ),
-            ),
-            const SizedBox(height: 24),
             if (_community?['synthetic'] == true)
               Text(
                 localText(

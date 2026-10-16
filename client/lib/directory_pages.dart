@@ -194,220 +194,222 @@ class _DirectoryBrowserState extends State<DirectoryBrowser> {
   }
 
   @override
-  Widget build(BuildContext context) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: AccessSpacing.s48),
-        child: publicDirectoryHeading(
-          widget.venues ? 'Veranstaltungsorte.' : 'Veranstalter.',
-        ),
-      ),
-      Text(
-        widget.venues
-            ? 'Orte öffentlicher Veranstaltungen – von kommenden Events bis zu vergangenen Abenden.'
-            : 'Entdecke Veranstalter und ihre Veranstaltungen.',
-        style: const TextStyle(height: AccessTypography.readingHeight),
-      ),
-      const SizedBox(height: AccessSpacing.s24),
-      AccessSurface(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            AccessField(
-              decoration: InputDecoration(
-                labelText: widget.venues
-                    ? 'Veranstaltungsort suchen'
-                    : 'Veranstalter nach Namen suchen',
-                counterText: '',
-                prefixIcon: const AccessIcon(Icons.search),
-              ),
-              builder: (decoration) => TextField(
-                controller: _search,
-                maxLength: 180,
-                decoration: decoration,
-                textInputAction: TextInputAction.search,
-                onSubmitted: (_) => _load(),
-              ),
-            ),
-            if (!widget.venues) ...[
-              const SizedBox(height: AccessSpacing.s16),
-              AccessField(
-                decoration: const InputDecoration(
-                  labelText: 'Nach Community filtern',
-                ),
-                trailingWidth: AccessSpacing.s40,
-                builder: (decoration) => DropdownButtonFormField<String>(
-                  key: ValueKey(_community),
-                  initialValue: _community,
-                  isExpanded: true,
-                  itemHeight: null,
-                  decoration: decoration,
-                  items: [
-                    const DropdownMenuItem<String>(
-                      value: null,
-                      child: AccessOptionText('Alle Communities'),
-                    ),
-                    if (_community != null &&
-                        !(_data?['communities'] as List? ?? []).any(
-                          (c) => c['id'] == _community,
-                        ))
-                      DropdownMenuItem(
-                        value: _community,
-                        child: AccessOptionText(
-                          localText(context, 'Gewählte Community'),
-                        ),
-                      ),
-                    for (final c in (_data?['communities'] as List? ?? []))
-                      DropdownMenuItem(
-                        value: c['id'] as String,
-                        child: AccessOptionText(c['name'] as String),
-                      ),
-                  ],
-                  onChanged: _busy
-                      ? null
-                      : (value) {
-                          setState(() => _community = value);
-                          _load();
-                        },
-                ),
-              ),
-            ],
-            const SizedBox(height: AccessSpacing.s16),
-            Wrap(
-              spacing: AccessSpacing.s12,
-              runSpacing: AccessSpacing.s8,
-              children: [
-                FilledButton(
-                  onPressed: _busy ? null : () => _load(),
-                  child: const Text('Suchen'),
-                ),
-                TextButton(
-                  onPressed: _busy
-                      ? null
-                      : () {
-                          _search.clear();
-                          setState(() => _community = null);
-                          _load();
-                        },
-                  child: const Text('Zurücksetzen'),
-                ),
-                if (!widget.venues && _data?['signed_in'] != true)
-                  TextButton(
-                    onPressed: () async {
-                      await widget.openAccount();
-                      if (mounted) _load();
-                    },
-                    child: const Text('Anmelden'),
-                  ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      if (_busy)
-        const Padding(
-          padding: EdgeInsets.all(AccessSpacing.s24),
-          child: Center(child: CircularProgressIndicator()),
-        ),
-      if (_failure != null) ...[
-        directoryNotice(_failure!),
-        OutlinedButton(onPressed: _load, child: const Text('Erneut laden')),
-      ],
-      if (!_busy &&
-          _failure == null &&
-          (_data?['items'] as List? ?? []).isEmpty)
-        directoryNotice(
+  Widget build(BuildContext context) => AccessHeroLayout(
+    mainLandmark: false,
+    hero: publicDirectoryHeading(
+      widget.venues ? 'Veranstaltungsorte.' : 'Veranstalter.',
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
           widget.venues
-              ? 'Noch keine öffentlichen Veranstaltungsorte für diese Auswahl.'
-              : 'Keine Veranstalterprofile für diese Auswahl.',
+              ? 'Orte öffentlicher Veranstaltungen – von kommenden Events bis zu vergangenen Abenden.'
+              : 'Entdecke Veranstalter und ihre Veranstaltungen.',
+          style: const TextStyle(height: AccessTypography.readingHeight),
         ),
-      if (!_busy && _failure == null)
-        for (final item in (_data?['items'] as List? ?? []))
-          Padding(
-            padding: const EdgeInsets.only(top: AccessSpacing.s20),
-            child: AccessSurface(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AccessHeading(
-                    item['name'] as String,
-                    role: AccessHeadingRole.card,
-                    level: 2,
+        const SizedBox(height: AccessSpacing.s24),
+        AccessSurface(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              AccessField(
+                decoration: InputDecoration(
+                  labelText: widget.venues
+                      ? 'Veranstaltungsort suchen'
+                      : 'Veranstalter nach Namen suchen',
+                  counterText: '',
+                  prefixIcon: const AccessIcon(Icons.search),
+                ),
+                builder: (decoration) => TextField(
+                  controller: _search,
+                  maxLength: 180,
+                  decoration: decoration,
+                  textInputAction: TextInputAction.search,
+                  onSubmitted: (_) => _load(),
+                ),
+              ),
+              if (!widget.venues) ...[
+                const SizedBox(height: AccessSpacing.s16),
+                AccessField(
+                  decoration: const InputDecoration(
+                    labelText: 'Nach Community filtern',
                   ),
-                  const SizedBox(height: AccessSpacing.s16),
-                  if (!widget.venues) ...[
-                    InterestCount(count: item['interest_count'] as int?),
-                    Text(
-                      item['description'] as String,
-                      maxLines: 3,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: AccessSpacing.s12),
-                    Wrap(
-                      spacing: AccessSpacing.s8,
-                      runSpacing: AccessSpacing.s8,
-                      children: [
-                        for (final c in item['communities'] as List)
-                          directoryCommunityTag(c['name'] as String),
-                      ],
-                    ),
-                  ] else
-                    Text('${item['event_count']} öffentliche Veranstaltungen'),
-                  const SizedBox(height: AccessSpacing.s16),
-                  OutlinedButton(
-                    onPressed: widget.api == null
+                  trailingWidth: AccessSpacing.s40,
+                  builder: (decoration) => DropdownButtonFormField<String>(
+                    key: ValueKey(_community),
+                    initialValue: _community,
+                    isExpanded: true,
+                    itemHeight: null,
+                    decoration: decoration,
+                    items: [
+                      const DropdownMenuItem<String>(
+                        value: null,
+                        child: AccessOptionText('Alle Communities'),
+                      ),
+                      if (_community != null &&
+                          !(_data?['communities'] as List? ?? []).any(
+                            (c) => c['id'] == _community,
+                          ))
+                        DropdownMenuItem(
+                          value: _community,
+                          child: AccessOptionText(
+                            localText(context, 'Gewählte Community'),
+                          ),
+                        ),
+                      for (final c in (_data?['communities'] as List? ?? []))
+                        DropdownMenuItem(
+                          value: c['id'] as String,
+                          child: AccessOptionText(c['name'] as String),
+                        ),
+                    ],
+                    onChanged: _busy
                         ? null
-                        : () async {
-                            if (widget.venues) {
-                              await Navigator.of(context).push<void>(
-                                MaterialPageRoute(
-                                  builder: (_) => VenueDetailPage(
-                                    api: widget.api!,
-                                    name: item['name'] as String,
-                                    openAccount: widget.openAccount,
-                                  ),
-                                ),
-                              );
-                            } else {
-                              await _profile(item['id'] as String);
-                            }
+                        : (value) {
+                            setState(() => _community = value);
+                            _load();
                           },
-                    child: Text(
-                      widget.venues
-                          ? 'Veranstaltungen ansehen'
-                          : 'Profil ansehen',
-                    ),
                   ),
+                ),
+              ],
+              const SizedBox(height: AccessSpacing.s16),
+              Wrap(
+                spacing: AccessSpacing.s12,
+                runSpacing: AccessSpacing.s8,
+                children: [
+                  FilledButton(
+                    onPressed: _busy ? null : () => _load(),
+                    child: const Text('Suchen'),
+                  ),
+                  TextButton(
+                    onPressed: _busy
+                        ? null
+                        : () {
+                            _search.clear();
+                            setState(() => _community = null);
+                            _load();
+                          },
+                    child: const Text('Zurücksetzen'),
+                  ),
+                  if (!widget.venues && _data?['signed_in'] != true)
+                    TextButton(
+                      onPressed: () async {
+                        await widget.openAccount();
+                        if (mounted) _load();
+                      },
+                      child: const Text('Anmelden'),
+                    ),
                 ],
               ),
+            ],
+          ),
+        ),
+        if (_busy)
+          const Padding(
+            padding: EdgeInsets.all(AccessSpacing.s24),
+            child: Center(child: CircularProgressIndicator()),
+          ),
+        if (_failure != null) ...[
+          directoryNotice(_failure!),
+          OutlinedButton(onPressed: _load, child: const Text('Erneut laden')),
+        ],
+        if (!_busy &&
+            _failure == null &&
+            (_data?['items'] as List? ?? []).isEmpty)
+          directoryNotice(
+            widget.venues
+                ? 'Noch keine öffentlichen Veranstaltungsorte für diese Auswahl.'
+                : 'Keine Veranstalterprofile für diese Auswahl.',
+          ),
+        if (!_busy && _failure == null)
+          for (final item in (_data?['items'] as List? ?? []))
+            Padding(
+              padding: const EdgeInsets.only(top: AccessSpacing.s20),
+              child: AccessSurface(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AccessHeading(
+                      item['name'] as String,
+                      role: AccessHeadingRole.card,
+                      level: 2,
+                    ),
+                    const SizedBox(height: AccessSpacing.s16),
+                    if (!widget.venues) ...[
+                      InterestCount(count: item['interest_count'] as int?),
+                      Text(
+                        item['description'] as String,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: AccessSpacing.s12),
+                      Wrap(
+                        spacing: AccessSpacing.s8,
+                        runSpacing: AccessSpacing.s8,
+                        children: [
+                          for (final c in item['communities'] as List)
+                            directoryCommunityTag(c['name'] as String),
+                        ],
+                      ),
+                    ] else
+                      Text(
+                        '${item['event_count']} öffentliche Veranstaltungen',
+                      ),
+                    const SizedBox(height: AccessSpacing.s16),
+                    OutlinedButton(
+                      onPressed: widget.api == null
+                          ? null
+                          : () async {
+                              if (widget.venues) {
+                                await Navigator.of(context).push<void>(
+                                  MaterialPageRoute(
+                                    builder: (_) => VenueDetailPage(
+                                      api: widget.api!,
+                                      name: item['name'] as String,
+                                      openAccount: widget.openAccount,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                await _profile(item['id'] as String);
+                              }
+                            },
+                      child: Text(
+                        widget.venues
+                            ? 'Veranstaltungen ansehen'
+                            : 'Profil ansehen',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        if (!_busy && _failure == null)
+          Wrap(
+            spacing: AccessSpacing.s12,
+            children: [
+              if (_page > 1)
+                TextButton(
+                  onPressed: () => _load(page: _page - 1),
+                  child: const Text('Vorherige Seite'),
+                ),
+              if (_data?['has_more'] == true)
+                TextButton(
+                  onPressed: () => _load(page: _page + 1),
+                  child: const Text('Nächste Seite'),
+                ),
+            ],
+          ),
+        if (!widget.venues && widget.api != null && _data?['signed_in'] == true)
+          Padding(
+            padding: const EdgeInsets.only(top: AccessSpacing.s24),
+            child: OutlinedButton(
+              onPressed: _accessLink,
+              child: const Text('Profilzugang öffnen'),
             ),
           ),
-      if (!_busy && _failure == null)
-        Wrap(
-          spacing: AccessSpacing.s12,
-          children: [
-            if (_page > 1)
-              TextButton(
-                onPressed: () => _load(page: _page - 1),
-                child: const Text('Vorherige Seite'),
-              ),
-            if (_data?['has_more'] == true)
-              TextButton(
-                onPressed: () => _load(page: _page + 1),
-                child: const Text('Nächste Seite'),
-              ),
-          ],
-        ),
-      if (!widget.venues && widget.api != null && _data?['signed_in'] == true)
-        Padding(
-          padding: const EdgeInsets.only(top: AccessSpacing.s24),
-          child: OutlinedButton(
-            onPressed: _accessLink,
-            child: const Text('Profilzugang öffnen'),
-          ),
-        ),
-    ],
+      ],
+    ),
   );
 }
 
@@ -611,7 +613,10 @@ class _OrganizerDetailPageState extends State<OrganizerDetailPage> {
   Widget build(BuildContext context) => Scaffold(
     appBar: accessAppBar(context, 'Veranstalterprofil'),
     body: SingleChildScrollView(
-      child: AccessPageFrame(
+      child: AccessHeroLayout(
+        hero: _access == null
+            ? null
+            : publicDirectoryHeading(_access!['name'] as String),
         width: _profile == null ? AccessPageWidth.form : AccessPageWidth.detail,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -619,8 +624,6 @@ class _OrganizerDetailPageState extends State<OrganizerDetailPage> {
             if (_busy) const Center(child: CircularProgressIndicator()),
             if (_notice != null) directoryNotice(_notice!),
             if (_access != null) ...[
-              publicDirectoryHeading(_access!['name'] as String),
-              const SizedBox(height: AccessSpacing.s24),
               if (_profile != null) ...[
                 if (_access!['signed_in'] == true ||
                     _profile!['interest_count'] != null)
@@ -901,13 +904,12 @@ class _VenueDetailPageState extends State<VenueDetailPage> {
   Widget build(BuildContext context) => Scaffold(
     appBar: accessAppBar(context, 'Veranstaltungsort'),
     body: SingleChildScrollView(
-      child: AccessPageFrame(
+      child: AccessHeroLayout(
+        hero: publicDirectoryHeading(widget.name),
         width: AccessPageWidth.detail,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            publicDirectoryHeading(widget.name),
-            const SizedBox(height: AccessSpacing.s24),
             if (_busy) const Center(child: CircularProgressIndicator()),
             if (_failure != null) directoryNotice(_failure!),
             for (final e in (_data?['events'] as List? ?? []))

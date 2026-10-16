@@ -1323,6 +1323,10 @@ class _PublicHomePageState extends State<PublicHomePage> {
                           ),
                         AccessPageFrame(
                           mainLandmark: false,
+                          edgeToEdge:
+                              _section == _Section.communities ||
+                              _section == _Section.organizers ||
+                              _section == _Section.venues,
                           verticalPadding: false,
                           child: LayoutBuilder(
                             builder: (context, constraints) {

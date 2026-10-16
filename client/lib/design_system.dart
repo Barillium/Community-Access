@@ -446,6 +446,39 @@ class AccessPageFrame extends StatelessWidget {
   );
 }
 
+/// Keeps the page hero flush with the viewport while framing the body separately.
+/// Embedded pages can reuse their parent's main landmark.
+class AccessHeroLayout extends StatelessWidget {
+  const AccessHeroLayout({
+    super.key,
+    this.hero,
+    required this.child,
+    this.width = AccessPageWidth.content,
+    this.mainLandmark = true,
+  });
+  final Widget? hero;
+  final Widget child;
+  final AccessPageWidth width;
+  final bool mainLandmark;
+
+  @override
+  Widget build(BuildContext context) => AccessPageFrame(
+    mainLandmark: mainLandmark,
+    edgeToEdge: hero != null,
+    verticalPadding: hero == null,
+    width: width,
+    child: hero == null
+        ? child
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              hero!,
+              AccessPageFrame(mainLandmark: false, width: width, child: child),
+            ],
+          ),
+  );
+}
+
 class AccessStack extends StatelessWidget {
   final List<Widget> children;
   final double gap;
