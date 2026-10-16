@@ -154,6 +154,7 @@ void main() {
       event['event_content']['flyer_data'] =
           'data:image/webp;base64,${base64Encode(File('assets/images/kulturraum.webp').readAsBytesSync())}';
       event['event_content']['flyer_alt'] = 'Synthetisches Kulturmotiv';
+      event['event_content']['flyer_aspect_ratio'] = 1942 / 809;
       return scroll(
         EventEditorialView(
           event: event,

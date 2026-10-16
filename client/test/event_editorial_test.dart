@@ -62,14 +62,27 @@ void main() {
           final event = demoEvent();
           event['event_content']['flyer_aspect_ratio'] = ratio;
           await render(tester, EventEditorialView(event: event));
-          final flyer = tester.getRect(find.byType(EventFlyer));
+          final originalFlyer = find.byType(EventFlyer).first;
+          final flyer = tester.getRect(originalFlyer);
           final title = tester.getRect(find.byType(FlyerTitle));
           expect(flyer.width / flyer.height, closeTo(ratio, .001));
           expect(flyer.left, greaterThanOrEqualTo(0));
           expect(flyer.right, lessThanOrEqualTo(width));
           expect(flyer.overlaps(title), isFalse);
-          expect(tester.widget<Image>(find.byType(Image)).fit, BoxFit.contain);
+          expect(
+            tester.widget<Image>(find.byType(Image).first).fit,
+            BoxFit.contain,
+          );
           if (width < 900) {
+            final transition = tester.getRect(
+              find.byKey(const ValueKey('poster-transition')),
+            );
+            expect(transition.top, closeTo(flyer.bottom, .001));
+            expect(transition.bottom, lessThanOrEqualTo(title.top));
+            expect(flyer.overlaps(transition), isFalse);
+            final semantics = tester.ensureSemantics();
+            expect(find.bySemanticsLabel('Demo grünes Motiv'), findsOneWidget);
+            semantics.dispose();
             expect(flyer.bottom, lessThanOrEqualTo(title.top));
           } else {
             expect(title.right, lessThanOrEqualTo(flyer.left));

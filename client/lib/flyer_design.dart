@@ -12,6 +12,20 @@ abstract final class FlyerStyle {
   static const orange = Color(0xffff5a1f);
   static const marker = Color(0xffe64a16);
   static const scene = 'assets/images/kulturraum.webp';
+  static const imageFade = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    stops: [0, .16, .35, .55, .73, .88, 1],
+    colors: [
+      Color(0x00171713),
+      Color(0x08171713),
+      Color(0x20171713),
+      Color(0x52171713),
+      Color(0x9c171713),
+      Color(0xdc171713),
+      ink,
+    ],
+  );
   static const textShadows = [
     Shadow(color: Color(0xee000000), blurRadius: 3),
     Shadow(color: Color(0xdd000000), blurRadius: 8),
@@ -291,6 +305,7 @@ class FlyerScene extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SizedBox(
+                key: const ValueKey('hero-image'),
                 height: imageHeight,
                 child: Stack(
                   fit: StackFit.expand,
@@ -305,20 +320,7 @@ class FlyerScene extends StatelessWidget {
                         child: const IgnorePointer(
                           child: DecoratedBox(
                             decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topCenter,
-                                end: Alignment.bottomCenter,
-                                stops: [0, .16, .35, .55, .73, .88, 1],
-                                colors: [
-                                  Color(0x00171713),
-                                  Color(0x08171713),
-                                  Color(0x20171713),
-                                  Color(0x52171713),
-                                  Color(0x9c171713),
-                                  Color(0xdc171713),
-                                  FlyerStyle.ink,
-                                ],
-                              ),
+                              gradient: FlyerStyle.imageFade,
                             ),
                           ),
                         ),
@@ -328,6 +330,7 @@ class FlyerScene extends StatelessWidget {
                   ],
                 ),
               ),
+              if (poster) _posterTransition(c.maxWidth, imageHeight),
               if (information != null && mobileInformationFirst)
                 Padding(
                   padding: EdgeInsets.fromLTRB(padding, padding, padding, 0),
@@ -376,6 +379,51 @@ class FlyerScene extends StatelessWidget {
       );
     },
   );
+  // Extend only the final rendered pixel row below the intact poster.
+  // No part of the original image is covered or repeated as readable content.
+  Widget _posterTransition(double width, double imageHeight) => SizedBox(
+    key: const ValueKey('poster-transition'),
+    height: 72,
+    child: IgnorePointer(
+      child: ExcludeSemantics(
+        child: ClipRect(
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              ImageFiltered(
+                imageFilter: ui.ImageFilter.blur(
+                  sigmaX: 8,
+                  sigmaY: 0,
+                  tileMode: ui.TileMode.clamp,
+                ),
+                child: FittedBox(
+                  fit: BoxFit.fill,
+                  child: ClipRect(
+                    child: SizedBox(
+                      width: width,
+                      height: 1,
+                      child: OverflowBox(
+                        alignment: Alignment.bottomCenter,
+                        minWidth: width,
+                        maxWidth: width,
+                        minHeight: imageHeight,
+                        maxHeight: imageHeight,
+                        child: image!,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const DecoratedBox(
+                decoration: BoxDecoration(gradient: FlyerStyle.imageFade),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+
   Widget _information(bool desktop) => DefaultTextStyle.merge(
     style: const TextStyle(color: Colors.white, height: 1.5),
     child: IconTheme(
