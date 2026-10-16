@@ -68,6 +68,8 @@ Genaue Locations liegen getrennt von öffentlichen Ortsangaben. Abruf erfordert 
 
 ## 5. Events, Konto und Bedienung
 
+Öffentliche Communities besitzen eigene verlinkbare Programmseiten und sind im Veranstaltungsprogramm nach ihrer stabilen ID filterbar. Der Communityfilter lässt sich mit Textsuche und Zeitraum kombinieren. Eine Veranstaltung kann in mehreren ausdrücklich zugeordneten und freigegebenen Communityprogrammen erscheinen; sie bleibt derselbe Veranstaltungseintrag. Zähler und Filter berücksichtigen nur aktuell sichtbare kommende Veranstaltungen. Aus Veranstalternamen oder redaktionellen Themen werden keine Zugehörigkeiten abgeleitet. Eine Communityseite oder ein Filter erteilt weder Mitgliedschaft noch Zugang zu geschützten Events oder genauen Locations. Bestehende Verwaltungs- und Veröffentlichungsfreigaben bleiben maßgeblich.
+
 Veranstalter pflegen Beschreibung, Beginn, Ende, Line-up, Genres, Einlass, optionales Mindestalter, Flyer mit Alternativtext sowie Zugänglichkeits-/Awarenessangaben. Unbekannte Ausstattung bleibt unbekannt. Öffentliche Events benötigen ein öffentliches Profil und ausdrücklich öffentliche Beschreibung, Beginn und Ortsangabe. Geschützte genaue Adressen gehören nicht in öffentliche Texte, Flyer oder Metadaten.
 
 Events beginnen als Entwurf. Veröffentlichung erfordert gültige Veranstalter- und Communityveröffentlichungsrechte sowie Communityfreigabe. Kopien und Folgetermine sind neue Entwürfe ohne kopierte persönliche Freigaben, Anfragen oder Zusagen. Lokale ungespeicherte Entwürfe bleiben ausschließlich im Arbeitsspeicher und werden bei Abmeldung, Kontowechsel oder Sitzungsablauf entfernt. Versionsprüfung verhindert das Überschreiben neuerer Serverstände.

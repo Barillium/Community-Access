@@ -1,3 +1,5 @@
+import {createCommunityPreview} from './community-preview.mjs';
+import {readCatalogFilters} from '../../server/catalog_query.mjs';
 // Recovered from the existing Development Worker on 2026-10-15.
 // Existing public catalog and its dated source attributions are preserved.
 var __defProp = Object.defineProperty;
@@ -224,7 +226,7 @@ var developmentEvents = [
   )
 ].sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at));
 function upcomingDevelopmentEvents(now = Date.now()) {
-  return developmentEvents.filter((item) => Date.parse(item.starts_at) >= now);
+  return [...developmentEvents,...createCommunityPreview(now).events].filter((item) => Date.parse(item.starts_at) >= now).sort((a,b)=>Date.parse(a.starts_at)-Date.parse(b.starts_at));
 }
 __name(upcomingDevelopmentEvents, "upcomingDevelopmentEvents");
 
@@ -260,19 +262,21 @@ var development_worker_default = {
         catalog_label: "Aachen \xB7 12.\u201318. Oktober 2026",
         events,
         hero: events.slice(0, 3),
-        communities: []
+        communities: createCommunityPreview().communities
       });
     }
     if (pathname === "/api/directory/events" && read) {
       const q = (searchParams.get("q") || "").trim().toLocaleLowerCase("de");
       const category = searchParams.get("category") || "";
-      const community = searchParams.get("community") || "";
-      const from = Date.parse(searchParams.get("from") || "");
-      const before = Date.parse(searchParams.get("before") || "");
+      let filters;
+      try {filters=readCatalogFilters(searchParams);}catch {return json({code:'INVALID_QUERY',message:'Ungültiger Community- oder Zeitraumfilter.'},422);}
+      const {community}=filters;
+      const from = Date.parse(filters.from || "");
+      const before = Date.parse(filters.before || "");
       const page = Math.max(1, Number.parseInt(searchParams.get("page") || "1", 10) || 1);
-      const events = upcomingDevelopmentEvents().filter((item) => (!Number.isFinite(from) || Date.parse(item.starts_at) >= from) && (!Number.isFinite(before) || Date.parse(item.starts_at) < before) && (!community || item.community === community) && matchesEventCategory(item, category) && [
+      const events = upcomingDevelopmentEvents().filter((item) => (!Number.isFinite(from) || Date.parse(item.starts_at) >= from) && (!Number.isFinite(before) || Date.parse(item.starts_at) < before) && (!community || item.communities.some(c=>c.id===community)) && matchesEventCategory(item, category) && [
         item.title,
-        item.community,
+        ...item.communities.map(c=>c.name),
         item.organizer,
         item.location,
         item.event_content.description,
@@ -284,7 +288,7 @@ var development_worker_default = {
         signed_in: false,
         events: events.slice((page - 1) * 20, page * 20),
         series: [],
-        communities: [],
+        communities: createCommunityPreview().communities,
         page,
         has_more: events.length > page * 20
       });
@@ -295,7 +299,7 @@ var development_worker_default = {
       return event2 ? json(event2) : json({ code: "NOT_FOUND", message: "Veranstaltung nicht gefunden." }, 404);
     }
     if (pathname === "/api/directory/communities" && read) {
-      return json({ preview: true, signed_in: false, items: [] });
+      return json({ preview: true, signed_in: false, items: createCommunityPreview().communities });
     }
     if (["/api/directory/organizers", "/api/directory/venues"].includes(pathname) && read) {
       return json({ preview: true, organizers: [], venues: [], items: [], communities: [], page: 1, has_more: false });

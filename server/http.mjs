@@ -200,7 +200,7 @@ export function createApp({ auth, mailbox, dashboardEnabled, consumeLink,
         await directory.accessFlow.purge();
         const route = url.pathname.slice('/api/directory/'.length);
         if(!directoryRouteEnabled(route,request.method,body))return json(response,404,{code:'NOT_FOUND'});
-        const allowedQuery = route === 'manage' ? ['profile_id'] : route === 'organizers' ? ['q','community','page'] : route==='events' ? ['q','page','scope'] : route==='venues' ? ['q','page'] : route === 'venue' ? ['name'] : /^(organizers\/[0-9a-f-]{36}\/program|series\/[0-9a-f-]{36})$/.test(route) ? ['page'] : [];
+        const allowedQuery = route === 'manage' ? ['profile_id'] : route === 'organizers' ? ['q','community','page'] : route==='events' ? ['q','page','scope','community','from','before'] : route==='venues' ? ['q','page'] : route === 'venue' ? ['name'] : /^(organizers\/[0-9a-f-]{36}\/program|series\/[0-9a-f-]{36})$/.test(route) ? ['page'] : [];
         if ([...url.searchParams.keys()].some(k => !allowedQuery.includes(k)) ||
             allowedQuery.some(k=>url.searchParams.getAll(k).length>1)) return json(response,400,{code:'INVALID_QUERY'});
         let data;

@@ -178,3 +178,5 @@ Haupttitel in der Seitentitel-Rolle; mit Hero ist die folgende Programmliste H2.
 ### Veranstaltungsdaten in der Hero
 
 Startseiten-Carousel und Veranstaltungsdetail zeigen Ticketpreis und sichtbare, tatsächlich zugeordnete Communities in derselben Metadatengruppe. Fehlende Preise bleiben ausdrücklich unbekannt; Preisuntergrenzen sowie Gebühren- und Vorverkaufshinweise werden erhalten. Externe redaktionelle Kategorien oder aus Veranstalternamen abgeleitete Tags sind keine Communityzuordnungen. Die Lesedarstellung verwendet ausschließlich freigegebene Communitynamen und ändert keine Zugangs- oder Kaufberechtigung.
+
+Communitynamen mit freigegebener stabiler ID sind einzeln klickbar und öffnen eine eigene Communityprogrammseite. Eine einzelne orange Markierung bleibt unabhängig von der schwarzen beziehungsweise weißen Schrift. Der globale Communityfilter bietet „Alle Communities“ zum Zurücksetzen und wirkt zusammen mit Textsuche und Zeitraum. Unterseiten und Filter verwenden ausschließlich bereits serverseitig sichtbare Zuordnungen. Die Development-Vorschau kennzeichnet Beispiel-Communities und Beispiel-Veranstaltungen ausdrücklich als synthetisch.

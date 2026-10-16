@@ -48,6 +48,7 @@ class EventEditorialView extends StatelessWidget {
   final VoidCallback? onOrganizer;
   final Widget? interestControl, participation, reportAction;
   final bool edgeToEdge;
+  final ValueChanged<String>? onCommunity;
   const EventEditorialView({
     super.key,
     required this.event,
@@ -56,6 +57,7 @@ class EventEditorialView extends StatelessWidget {
     this.participation,
     this.reportAction,
     this.edgeToEdge = false,
+    this.onCommunity,
   });
   @override
   Widget build(BuildContext context) {
@@ -290,7 +292,7 @@ class EventEditorialView extends StatelessWidget {
                         ),
                     ],
                     const SizedBox(height: 28),
-                    EventHeroMetadata(event: event),
+                    EventHeroMetadata(event: event, onCommunity: onCommunity),
                   ],
                 ),
               ),

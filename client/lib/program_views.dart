@@ -6,6 +6,7 @@ import 'resource_return_browser.dart'
     if (dart.library.js_interop) 'resource_return_browser_web.dart';
 import 'event_interest_panel.dart';
 import 'event_participation.dart';
+import 'community_detail_page.dart';
 import 'app_language.dart';
 
 import 'package:flutter/material.dart';
@@ -818,6 +819,15 @@ class _ProgramDetailPageState extends State<ProgramDetailPage> {
                 EventEditorialView(
                   event: _data!,
                   edgeToEdge: true,
+                  onCommunity: (id) => Navigator.of(context).push<void>(
+                    MaterialPageRoute(
+                      builder: (_) => CommunityDetailPage(
+                        api: widget.api,
+                        id: id,
+                        openAccount: widget.openAccount,
+                      ),
+                    ),
+                  ),
                   reportAction: widget.api is LegalApi
                       ? ReportEventButton(
                           api: widget.api as LegalApi,

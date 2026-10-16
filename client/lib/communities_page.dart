@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'app_language.dart';
 import 'community_topics.dart';
+import 'community_detail_page.dart';
 import 'design_system.dart';
 import 'directory_api.dart';
 import 'product_scope.dart';
@@ -16,11 +17,13 @@ class CommunitiesPage extends StatefulWidget {
     required this.openAccount,
     required this.onOrganizers,
     required this.onFaq,
+    this.onOpen,
   });
   final DirectoryApi? api;
   final Future<void> Function() openAccount;
   final void Function(String community) onOrganizers;
   final VoidCallback onFaq;
+  final ValueChanged<String>? onOpen;
 
   @override
   State<CommunitiesPage> createState() => _CommunitiesPageState();
@@ -109,6 +112,23 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
     }
   }
 
+  void _open(String id) {
+    if (widget.onOpen != null) {
+      widget.onOpen!(id);
+      return;
+    }
+    if (widget.api == null) return;
+    Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => CommunityDetailPage(
+          api: widget.api!,
+          id: id,
+          openAccount: widget.openAccount,
+        ),
+      ),
+    );
+  }
+
   Widget _heading(String de, String en) => AccessHeading(
     localText(context, de, en),
     role: AccessHeadingRole.section,
@@ -143,8 +163,8 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
         Text(
           localText(
             context,
-            'Öffentlich sichtbar heißt nicht automatisch aufgenommen. Mitgliedschaft und Eventteilnahme werden getrennt freigegeben.',
-            'Public visibility does not mean automatic membership. Community admission and event attendance are approved separately.',
+            'Eine Communityzuordnung erteilt keine Mitgliedschaft. Für geschützte Veranstaltungen gelten weiterhin eigene Zugangsregeln.',
+            'A community assignment does not grant membership. Protected events retain their own access rules.',
           ),
           style: TextStyle(height: 1.6, color: palette.muted),
         ),
@@ -252,16 +272,43 @@ class _CommunitiesPageState extends State<CommunitiesPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  AccessHeading(
-                    item['name'] as String,
-                    role: AccessHeadingRole.card,
-                    level: 3,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: () => _open(item['id'] as String),
+                      child: FlyerMark(
+                        child: AccessHeading(
+                          item['name'] as String,
+                          role: AccessHeadingRole.card,
+                          level: 3,
+                        ),
+                      ),
+                    ),
                   ),
+                  if (item['synthetic'] == true)
+                    Text(
+                      localText(
+                        context,
+                        'Synthetische Beispiel-Community',
+                        'Synthetic example community',
+                      ),
+                    ),
                   const SizedBox(height: AccessSpacing.s12),
                   Wrap(
                     spacing: AccessSpacing.s12,
                     runSpacing: AccessSpacing.s8,
                     children: [
+                      TextButton.icon(
+                        onPressed: () => _open(item['id'] as String),
+                        icon: const AccessIcon(Icons.arrow_forward),
+                        label: Text(
+                          localText(
+                            context,
+                            'Communityprogramm ansehen',
+                            'View community program',
+                          ),
+                        ),
+                      ),
                       OutlinedButton(
                         onPressed: () =>
                             widget.onOrganizers(item['id'] as String),

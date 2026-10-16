@@ -4,6 +4,7 @@ import 'product_scope.dart';
 import 'program_date_filter.dart';
 import 'faq_content.dart';
 import 'communities_page.dart';
+import 'community_detail_page.dart';
 import 'app_language.dart';
 import 'access_brand.dart';
 import 'access_account_menu.dart';
@@ -65,7 +66,8 @@ class _PublicHomePageState extends State<PublicHomePage> {
   Map<String, dynamic>? _program, _home;
   bool get _signedIn => _home?['signed_in'] == true;
   int _homeRequest = 0;
-  String? _organizerCommunity;
+  String? _organizerCommunity, _eventCommunity;
+  final _programKey = GlobalKey();
   String? _eventFailure;
   bool _loadingEvents = false;
   int _eventRequest = 0;
@@ -99,12 +101,18 @@ class _PublicHomePageState extends State<PublicHomePage> {
         if (mounted) {
           Navigator.of(context).push<void>(
             MaterialPageRoute(
-              builder: (_) => ProgramDetailPage(
-                api: widget.directoryApi!,
-                kind: target['kind'] == 'event' ? 'events' : 'series',
-                id: target['id']!,
-                openAccount: _openProfileAccount,
-              ),
+              builder: (_) => target['kind'] == 'community'
+                  ? CommunityDetailPage(
+                      api: widget.directoryApi!,
+                      id: target['id']!,
+                      openAccount: _openProfileAccount,
+                    )
+                  : ProgramDetailPage(
+                      api: widget.directoryApi!,
+                      kind: target['kind'] == 'event' ? 'events' : 'series',
+                      id: target['id']!,
+                      openAccount: _openProfileAccount,
+                    ),
             ),
           );
         }
@@ -167,6 +175,86 @@ class _PublicHomePageState extends State<PublicHomePage> {
     if (mounted) await _loadHome();
   }
 
+  Future<void> _openCommunity(String id) async {
+    final filtered = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => CommunityDetailPage(
+          api: widget.directoryApi!,
+          id: id,
+          openAccount: _openProfileAccount,
+          showGlobalFilter: true,
+        ),
+      ),
+    );
+    if (mounted && filtered == true) _filterCommunity(id);
+  }
+
+  void _filterCommunity(String? id) {
+    setState(() {
+      _eventCommunity = id;
+      _section = _Section.events;
+    });
+    _loadEvents();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final target = _programKey.currentContext;
+      if (mounted && target != null) {
+        Scrollable.ensureVisible(target, alignment: .05);
+      }
+    });
+  }
+
+  Widget _communityFilter() {
+    final items = (_home?['communities'] as List? ?? [])
+        .cast<Map<String, dynamic>>();
+    if (items.isEmpty && _eventCommunity == null) {
+      return const SizedBox.shrink();
+    }
+    final selected = _eventCommunity;
+    return Padding(
+      padding: const EdgeInsets.only(top: 24),
+      child: AccessContent(
+        width: AccessPageWidth.form,
+        child: AccessField(
+          decoration: InputDecoration(
+            labelText: localText(context, 'Community', 'Community'),
+          ),
+          builder: (decoration) => DropdownButtonFormField<String>(
+            key: ValueKey('community-filter:$selected'),
+            initialValue: selected ?? '',
+            isExpanded: true,
+            itemHeight: null,
+            decoration: decoration,
+            items: [
+              DropdownMenuItem(
+                value: '',
+                child: AccessOptionText(
+                  localText(context, 'Alle Communities', 'All communities'),
+                ),
+              ),
+              for (final item in items)
+                DropdownMenuItem(
+                  value: item['id'] as String,
+                  child: AccessOptionText(item['name'] as String),
+                ),
+              if (selected != null && !items.any((c) => c['id'] == selected))
+                DropdownMenuItem(
+                  value: selected,
+                  child: AccessOptionText(
+                    localText(
+                      context,
+                      'Ausgewählte Community',
+                      'Selected community',
+                    ),
+                  ),
+                ),
+            ],
+            onChanged: (value) => _filterCommunity(value == '' ? null : value),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _openProfileAccount() =>
       _openAccount(widget.profileAccountBuilder);
 
@@ -187,6 +275,7 @@ class _PublicHomePageState extends State<PublicHomePage> {
           'q': _query,
           'page': '$page',
           'scope': 'upcoming',
+          'community': ?_eventCommunity,
           if (range != null) 'from': range.from.toUtc().toIso8601String(),
           if (range != null) 'before': range.before.toUtc().toIso8601String(),
         },
@@ -808,8 +897,10 @@ class _PublicHomePageState extends State<PublicHomePage> {
         : localText(context, 'Programm', 'Program');
     final heading = AccessHeading(
       title,
-      role: AccessHeadingRole.section,
-      level: 2,
+      role: _eventCommunity == null
+          ? AccessHeadingRole.section
+          : AccessHeadingRole.page,
+      level: _eventCommunity == null ? 2 : 1,
     );
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -836,6 +927,7 @@ class _PublicHomePageState extends State<PublicHomePage> {
               _dateFilters(),
             ],
           ),
+        _communityFilter(),
         if (_showSearch || _query.isNotEmpty) _searchForm(),
         const SizedBox(height: 24),
         _eventResults(),
@@ -886,6 +978,7 @@ class _PublicHomePageState extends State<PublicHomePage> {
       ),
       const SizedBox(height: 24),
       _dateFilters(),
+      _communityFilter(),
       const SizedBox(height: 24),
       _eventResults(),
       if (ProductScope.extended && _signedIn)
@@ -907,6 +1000,7 @@ class _PublicHomePageState extends State<PublicHomePage> {
 
   Widget _eventResults() {
     if (_query.isEmpty &&
+        _eventCommunity == null &&
         _dateFilter == ProgramDateFilter.all &&
         _home != null) {
       final all = _home!['events'] as List? ?? [];
@@ -963,6 +1057,21 @@ class _PublicHomePageState extends State<PublicHomePage> {
               child: const LocalText('Erneut versuchen'),
             ),
         ],
+      );
+    }
+    if ((_program?['events'] as List? ?? []).isEmpty &&
+        _eventCommunity != null) {
+      return _empty(
+        localText(
+          context,
+          'Keine passenden Veranstaltungen in dieser Community.',
+          'No matching events in this community.',
+        ),
+        localText(
+          context,
+          'Ändere Suche oder Zeitraum oder wähle alle Communities.',
+          'Change the search or date range, or choose all communities.',
+        ),
       );
     }
     if ((_program?['events'] as List? ?? []).isEmpty &&
@@ -1192,11 +1301,13 @@ class _PublicHomePageState extends State<PublicHomePage> {
                     child: Column(
                       children: [
                         if (_section == _Section.events &&
+                            _eventCommunity == null &&
                             (_home?['hero'] as List? ?? []).isNotEmpty)
                           EventCarousel(
                             events: (_home!['hero'] as List)
                                 .cast<Map<String, dynamic>>(),
                             onOpen: _openEvent,
+                            onCommunity: _openCommunity,
                             onProgram: _openSearch,
                             onCommunities: () => _select(_Section.communities),
                             bookmarkBuilder: (event) => SizedBox(
@@ -1223,11 +1334,15 @@ class _PublicHomePageState extends State<PublicHomePage> {
                                   AccessLayout.largeText(context);
                               return AccessReveal(
                                 child: switch (_section) {
-                                  _Section.events => _events(compact),
+                                  _Section.events => KeyedSubtree(
+                                    key: _programKey,
+                                    child: _events(compact),
+                                  ),
                                   _Section.communities => CommunitiesPage(
                                     api: widget.directoryApi,
                                     openAccount: _openProfileAccount,
                                     onFaq: () => _select(_Section.faq),
+                                    onOpen: _openCommunity,
                                     onOrganizers: (id) => _select(
                                       _Section.organizers,
                                       community: id,

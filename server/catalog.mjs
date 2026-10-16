@@ -1,3 +1,4 @@
+import {readCatalogFilters,projectedCatalogFilters} from './catalog_query.mjs';
 import {extendedProduct,productEventScope} from './product_scope.mjs';
 import {assertAccountAction} from './account_policy.mjs';
 import {eventPolicy,eventColumns,eventJoins,publicEvent,eventInterest,ownerCurrent,retainedEvent,eventSearch,rankEvents,eventPublication,previewAudiences} from './event_policy.mjs';
@@ -18,12 +19,13 @@ const joins=eventJoins;
 export function createCatalog(pool){
  function searchPage(params){
   const q=text(params?.get('q')??'',180),page=Number(params?.get('page')??'1');
-  if(!Number.isInteger(page)||page<1||page>10000)fail(422,'INVALID_PAGE');return {q,page};
+  if(!Number.isInteger(page)||page<1||page>10000)fail(422,'INVALID_PAGE');
+  let filters;try{filters=readCatalogFilters(params);}catch{fail(422,'INVALID_QUERY');}return {q,page,...filters};
  }
  async function discover(user,params=null){
-  const {q,page}=searchPage(params);
+  const {q,page,community,from,before}=searchPage(params);
   if(!extendedProduct){
-   const rows=(await pool.query(`WITH visible_events AS (SELECT ${eventColumns(rules)} ${joins} WHERE ${rules.upcoming}) SELECT * FROM visible_events WHERE ${eventSearch()} ORDER BY starts_at ASC NULLS LAST,id LIMIT 21 OFFSET $3`,[user?.id??null,q,params?(page-1)*20:0])).rows;
+   const rows=(await pool.query(`WITH visible_events AS (SELECT ${eventColumns(rules)} ${joins} WHERE ${rules.upcoming}) SELECT * FROM visible_events WHERE ${eventSearch()} AND ${projectedCatalogFilters} ORDER BY starts_at ASC NULLS LAST,id LIMIT 21 OFFSET $6`,[user?.id??null,q,community,from,before,params?(page-1)*20:0])).rows;
    return {events:rows.slice(0,20),series:[],page,has_more:!!params&&rows.length>20,signed_in:!!user};
   }
   const rows=(await pool.query(`WITH visible_events AS (SELECT ${eventColumns(rules)},
@@ -31,7 +33,7 @@ export function createCatalog(pool){
     OR (${rules.profile} AND b.profile_id=p.id) OR (${rules.profile} AND ${rules.series} AND b.series_id=s.id))) AS bookmarked,
    (c.is_public AND EXISTS(SELECT 1 FROM ca_community_follow f WHERE f.user_id=$1 AND f.community_id=c.id)) AS followed,
    (${rules.profile} AND EXISTS(SELECT 1 FROM ca_organizer_visit v WHERE v.user_id=$1 AND v.profile_id=p.id)) AS visited
-   ${joins} WHERE ${rules.upcoming}) SELECT * FROM visible_events WHERE ${eventSearch()}`,[user?.id??null,q])).rows;
+   ${joins} WHERE ${rules.upcoming}) SELECT * FROM visible_events WHERE ${eventSearch()} AND ${projectedCatalogFilters}`,[user?.id??null,q,community,from,before])).rows;
   const preferences=extendedProduct&&user?(await pool.query('SELECT preferences FROM ca_guest_preferences WHERE user_id=$1',[user.id])).rows[0]?.preferences??{}:{};
   const events=rankEvents(rows,preferences,extendedProduct&&!!user);
   return {events:params?events.slice((page-1)*20,page*20):events,series:[],page,
@@ -41,12 +43,12 @@ export function createCatalog(pool){
   const scope=params.get('scope')??'public';
   if(scope==='upcoming')return discover(user,params);
   if(scope!=='public')fail(422,'INVALID_QUERY');
-  const {q,page}=searchPage(params);
+  const {q,page,community,from,before}=searchPage(params);
   const rows=(await pool.query(`WITH visible_events AS (SELECT ${eventColumns(rules)}
    ${joins} WHERE ${publicEvent} AND ${rules.visible})
    SELECT id,title,status,starts_at,request_deadline_at,location,community,communities,ticket_price_cents,access_mode,is_public,ticket_mode,organizer_id,organizer,interest_count
-   FROM visible_events WHERE ${eventSearch()}
-   ORDER BY starts_at DESC NULLS LAST,id LIMIT 21 OFFSET $3`,[null,q,(page-1)*20])).rows;
+   FROM visible_events WHERE ${eventSearch()} AND ${projectedCatalogFilters}
+   ORDER BY starts_at DESC NULLS LAST,id LIMIT 21 OFFSET $6`,[null,q,community,from,before,(page-1)*20])).rows;
   return {events:rows.slice(0,20),series:[],page,has_more:rows.length>20};
  }
  async function transaction(work){const db=await pool.connect();try{await db.query('BEGIN');await db.query(accessWriteLock);await assertAccountAction(db);const out=await work(db);await db.query('COMMIT');return out;}catch(e){await db.query('ROLLBACK');throw e;}finally{db.release();}}

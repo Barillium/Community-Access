@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_language.dart';
 import 'design_system.dart';
+import 'flyer_design.dart';
 
 String eventHeroPrice(BuildContext context, Map<String, dynamic> event) {
   final cents = event['ticket_price_cents'];
@@ -25,20 +26,28 @@ String eventHeroPrice(BuildContext context, Map<String, dynamic> event) {
   return localText(context, 'Noch nicht angegeben', 'Not specified yet');
 }
 
-List<String> eventHeroCommunities(Map<String, dynamic> event) {
+List<Map<String, String>> eventHeroAssignments(Map<String, dynamic> event) {
   final communities = event['communities'];
-  if (communities is List) {
-    final seen = <String>{};
-    return [
-      for (final community in communities)
-        if (community is Map &&
-            community['id'] is String &&
-            (community['id'] as String).isNotEmpty &&
-            community['name'] is String &&
-            (community['name'] as String).trim().isNotEmpty &&
-            seen.add(community['id'] as String))
-          (community['name'] as String).trim(),
-    ];
+  final seen = <String>{};
+  if (communities is! List) return [];
+  return [
+    for (final community in communities)
+      if (community is Map &&
+          community['id'] is String &&
+          (community['id'] as String).isNotEmpty &&
+          community['name'] is String &&
+          (community['name'] as String).trim().isNotEmpty &&
+          seen.add(community['id'] as String))
+        {
+          'id': community['id'] as String,
+          'name': (community['name'] as String).trim(),
+        },
+  ];
+}
+
+List<String> eventHeroCommunities(Map<String, dynamic> event) {
+  if (event['communities'] is List) {
+    return eventHeroAssignments(event).map((c) => c['name']!).toList();
   }
   // Older registered-event responses contain one already masked community.
   // Editorial tags on external entries are not registered assignments.
@@ -51,12 +60,14 @@ List<String> eventHeroCommunities(Map<String, dynamic> event) {
 }
 
 class EventHeroMetadata extends StatelessWidget {
-  const EventHeroMetadata({super.key, required this.event});
+  const EventHeroMetadata({super.key, required this.event, this.onCommunity});
   final Map<String, dynamic> event;
+  final ValueChanged<String>? onCommunity;
 
   @override
   Widget build(BuildContext context) {
     final communities = eventHeroCommunities(event);
+    final assignments = eventHeroAssignments(event);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
@@ -65,20 +76,52 @@ class EventHeroMetadata extends StatelessWidget {
           context,
           Icons.confirmation_number_outlined,
           localText(context, 'Ticketpreis', 'Ticket price'),
-          eventHeroPrice(context, event),
+          Text(eventHeroPrice(context, event)),
         ),
         const SizedBox(height: 20),
         _fact(
           context,
           Icons.groups_outlined,
           localText(context, 'Communities', 'Communities'),
-          communities.isEmpty
-              ? localText(
-                  context,
-                  'Keine Community angegeben',
-                  'No community specified',
+          assignments.isNotEmpty && onCommunity != null
+              ? LayoutBuilder(
+                  builder: (context, c) => Wrap(
+                    spacing: 12,
+                    runSpacing: 8,
+                    children: [
+                      for (final item in assignments)
+                        ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: c.maxWidth),
+                          child: FlyerMark(
+                            child: TextButton(
+                              key: ValueKey('community-link:${item['id']}'),
+                              onPressed: () => onCommunity!(item['id']!),
+                              style: TextButton.styleFrom(
+                                foregroundColor: DefaultTextStyle.of(context)
+                                    .style
+                                    .color,
+                                minimumSize: const Size(48, 48),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 8,
+                                ),
+                              ),
+                              child: Text(item['name']!),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 )
-              : communities.join(' · '),
+              : Text(
+                  communities.isEmpty
+                      ? localText(
+                          context,
+                          'Keine Community angegeben',
+                          'No community specified',
+                        )
+                      : communities.join(' · '),
+                ),
         ),
       ],
     );
@@ -88,7 +131,7 @@ class EventHeroMetadata extends StatelessWidget {
     BuildContext context,
     IconData icon,
     String label,
-    String value,
+    Widget value,
   ) => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     mainAxisSize: MainAxisSize.min,
@@ -106,7 +149,7 @@ class EventHeroMetadata extends StatelessWidget {
         ],
       ),
       const SizedBox(height: 10),
-      Text(value),
+      value,
     ],
   );
 }

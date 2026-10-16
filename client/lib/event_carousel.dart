@@ -16,11 +16,13 @@ class EventCarousel extends StatefulWidget {
     this.bookmarkBuilder,
     this.onProgram,
     this.onCommunities,
+    this.onCommunity,
   });
   final List<Map<String, dynamic>> events;
   final ValueChanged<String> onOpen;
   final Widget Function(Map<String, dynamic>)? bookmarkBuilder;
   final VoidCallback? onProgram, onCommunities;
+  final ValueChanged<String>? onCommunity;
   @override
   State<EventCarousel> createState() => _EventCarouselState();
 }
@@ -114,7 +116,7 @@ class _EventCarouselState extends State<EventCarousel> {
           ),
         ],
         const SizedBox(height: 24),
-        EventHeroMetadata(event: event),
+        EventHeroMetadata(event: event, onCommunity: widget.onCommunity),
         const SizedBox(height: 24),
         if ((event['location'] as String? ?? '').isNotEmpty) ...[
           Text(event['location'] as String),
