@@ -379,43 +379,68 @@ class FlyerScene extends StatelessWidget {
       );
     },
   );
-  // Extend only the final rendered pixel row below the intact poster.
-  // No part of the original image is covered or repeated as readable content.
+  // Preserve the poster and continue its edge with increasing diffusion below it.
+  Widget _posterEdge(double width, double imageHeight) => FittedBox(
+    fit: BoxFit.fill,
+    child: ClipRect(
+      child: SizedBox(
+        width: width,
+        height: 1,
+        child: OverflowBox(
+          alignment: Alignment.bottomCenter,
+          minWidth: width,
+          maxWidth: width,
+          minHeight: imageHeight,
+          maxHeight: imageHeight,
+          child: image!,
+        ),
+      ),
+    ),
+  );
+
   Widget _posterTransition(double width, double imageHeight) => SizedBox(
     key: const ValueKey('poster-transition'),
-    height: 72,
+    height: 48,
     child: IgnorePointer(
       child: ExcludeSemantics(
         child: ClipRect(
           child: Stack(
             fit: StackFit.expand,
             children: [
-              ImageFiltered(
-                imageFilter: ui.ImageFilter.blur(
-                  sigmaX: 8,
-                  sigmaY: 0,
-                  tileMode: ui.TileMode.clamp,
-                ),
-                child: FittedBox(
-                  fit: BoxFit.fill,
-                  child: ClipRect(
-                    child: SizedBox(
-                      width: width,
-                      height: 1,
-                      child: OverflowBox(
-                        alignment: Alignment.bottomCenter,
-                        minWidth: width,
-                        maxWidth: width,
-                        minHeight: imageHeight,
-                        maxHeight: imageHeight,
-                        child: image!,
-                      ),
-                    ),
+              _posterEdge(width, imageHeight),
+              ShaderMask(
+                blendMode: BlendMode.dstIn,
+                shaderCallback: (rect) => const LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Colors.transparent, Colors.white],
+                  stops: [0, .7],
+                ).createShader(rect),
+                child: ImageFiltered(
+                  imageFilter: ui.ImageFilter.blur(
+                    sigmaX: 24,
+                    sigmaY: 0,
+                    tileMode: ui.TileMode.clamp,
                   ),
+                  child: _posterEdge(width, imageHeight),
                 ),
               ),
               const DecoratedBox(
-                decoration: BoxDecoration(gradient: FlyerStyle.imageFade),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    stops: [0, .12, .28, .5, .72, 1],
+                    colors: [
+                      Color(0x00171713),
+                      Color(0x2e171713),
+                      Color(0x75171713),
+                      Color(0xbd171713),
+                      Color(0xeb171713),
+                      FlyerStyle.ink,
+                    ],
+                  ),
+                ),
               ),
             ],
           ),
