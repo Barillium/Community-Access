@@ -2,10 +2,21 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import worker from '../deploy/development/worker.mjs';
 import {readCatalogFilters} from './catalog_query.mjs';
+import {createCommunityPreview} from '../deploy/development/community-preview.mjs';
+import {readFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 const request=async path=>{const response=await worker.fetch(new Request('https://preview.invalid/api/directory/'+path),{});return {status:response.status,data:await response.json()};};
 test('community/date filters validate identifiers and ranges',()=>{
  assert.deepEqual(readCatalogFilters(new URLSearchParams()),{community:null,from:null,before:null});
  for(const query of ['community=Musikbunker','from=tomorrow','from=2026-10-19T00:00:00Z&before=2026-10-18T00:00:00Z'])assert.throws(()=>readCatalogFilters(new URLSearchParams(query)),RangeError);
+});
+test('synthetic flyers use the permitted immutable media route and existing bytes',async()=>{
+ for(const event of createCommunityPreview().events){
+  const path=event.event_content.flyer_data;
+  assert.match(path,/^\/event-media\/[a-f0-9]{20}\.webp$/);
+  const bytes=await readFile(new URL('../deploy/development'+path,import.meta.url));
+  assert.equal(createHash('sha256').update(bytes).digest('hex').slice(0,20),path.split('/').at(-1).split('.')[0]);
+ }
 });
 test('preview community counts match explicit assignments, including overlaps and empty pages',async()=>{
  const {data}=await request('communities');

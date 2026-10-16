@@ -15,7 +15,7 @@ export function createCommunityPreview(now=Date.now()) {
   event_content:{description:'Synthetische Beispielveranstaltung zum Prüfen der Communityprogramme. Keine reale Ankündigung.',
    genres:[],line_up:[],categories,venue_name:'Demo Kulturraum',admission:'Synthetische Eintrittsangabe.',
    ticket_price_label_de:priceDe,ticket_price_label_en:priceEn,
-   flyer_data:'/assets/assets/images/kulturraum.webp',flyer_aspect_ratio:1942/809,
+   flyer_data:'/event-media/246c4d65087e4a8b08c5.webp',flyer_aspect_ratio:1942/809,
    flyer_alt:'Synthetisches Kulturmotiv'},access_details:{},
  });
  const events=[
