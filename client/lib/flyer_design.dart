@@ -414,7 +414,7 @@ class FlyerScene extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [Colors.transparent, Colors.white],
-                  stops: [0, .7],
+                  stops: [0, .12],
                 ).createShader(rect),
                 child: ImageFiltered(
                   imageFilter: ui.ImageFilter.blur(
