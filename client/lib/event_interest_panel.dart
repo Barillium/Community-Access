@@ -226,8 +226,12 @@ class _EventInterestPanelState extends State<EventInterestPanel> {
               child: const LocalText('Anmelden'),
             )
           else if (data!['ticket_mode'] == 'public')
-            const LocalText(
-              'Die Teilnahme wird nach erfolgreicher Ticketzahlung bestätigt.',
+            Text(
+              localText(
+                context,
+                'Eintritt mit gültigem Ticket.',
+                'Admission requires a valid ticket.',
+              ),
             )
           else if (data!['request'] != null &&
               data!['request']['status'] != 'withdrawn') ...[

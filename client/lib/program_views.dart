@@ -5,6 +5,7 @@ import 'access_brand.dart';
 import 'resource_return_browser.dart'
     if (dart.library.js_interop) 'resource_return_browser_web.dart';
 import 'event_interest_panel.dart';
+import 'event_participation.dart';
 import 'app_language.dart';
 
 import 'package:flutter/material.dart';
@@ -820,15 +821,17 @@ class _ProgramDetailPageState extends State<ProgramDetailPage> {
                           eventId: widget.id,
                         )
                       : null,
-                  participation: EventInterestPanel(
-                    key: _participationKey,
-                    api: widget.api,
-                    id: widget.id,
-                    openAccount: widget.openAccount == null
-                        ? null
-                        : _openAccount,
-                    onChanged: () => _load(),
-                  ),
+                  participation: needsParticipationPanel(_data!)
+                      ? EventInterestPanel(
+                          key: _participationKey,
+                          api: widget.api,
+                          id: widget.id,
+                          openAccount: widget.openAccount == null
+                              ? null
+                              : _openAccount,
+                          onChanged: () => _load(),
+                        )
+                      : null,
                   interestControl:
                       _data!['signed_in'] == true ||
                           _data!['interest_count'] != null

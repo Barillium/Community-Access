@@ -1,6 +1,7 @@
 import 'package:ca_design/ca_design.dart' show EmbossedLock;
 
 import 'flyer_design.dart';
+import 'event_participation.dart';
 
 import 'app_language.dart';
 
@@ -321,8 +322,14 @@ class EventEditorialView extends StatelessWidget {
                     children: [
                       Divider(color: colors.onSurface),
                       const SizedBox(height: 20),
-                      const AccessHeading(
-                        'Dein Stand',
+                      AccessHeading(
+                        isPublicEvent(event) &&
+                                [
+                                  'public',
+                                  'approval',
+                                ].contains(event['ticket_mode'])
+                            ? 'Tickets'
+                            : 'Dein Stand',
                         role: AccessHeadingRole.card,
                         level: 2,
                       ),
@@ -342,13 +349,14 @@ class EventEditorialView extends StatelessWidget {
             const SizedBox(height: AccessSpacing.s32),
             AccessContent(width: AccessPageWidth.reading, child: body),
             const SizedBox(height: AccessSpacing.s40),
-            Text(
-              'Profilzugang und Eventfreigabe bestätigen keine Teilnahme.',
-              style: TextStyle(
-                color: colors.onSurfaceVariant,
-                height: AccessTypography.readingHeight,
+            if (!isPublicEvent(event))
+              Text(
+                'Profilzugang und Eventfreigabe bestätigen keine Teilnahme.',
+                style: TextStyle(
+                  color: colors.onSurfaceVariant,
+                  height: AccessTypography.readingHeight,
+                ),
               ),
-            ),
           ],
         );
         return editorial;

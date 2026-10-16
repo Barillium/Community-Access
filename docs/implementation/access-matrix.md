@@ -7,6 +7,7 @@ Alle Rechte sind auf ein konkretes Ziel begrenzt. Aufnahme-, Freigabe-, Ticket- 
 | Aktion | Berechtigt | Zusätzliche Bedingungen |
 | --- | --- | --- |
 | Öffentliche Community/Event lesen | Anonym, Konto | Tatsächlich öffentliche und veröffentlichte Projektion |
+| Öffentliche Veranstaltung ohne Plattform-Ticket besuchen | Keine manuelle Teilnahmefreigabe | Eintrittsbedingungen beachten; keine automatische Freigabe geschützter genauer Locations |
 | Privates Event lesen | Persönlicher Eventgrant oder aktives Mitglied | Aktuelle ungesperrte Quelle; ausdrückliche Communityzuordnung |
 | Veranstalterprofil lesen | Öffentlich oder persönlicher Profilzugang/Eigentümer | Eventgrant genügt nicht |
 | Auftritt, Events, Reihen, Anträge und Freigaben verwalten | Verantwortliches Konto oder angenommener Verwalter dieses Auftritts | Aktuelle Veranstalterzulassung des verantwortlichen Kontos; keine Delegation für fremde Auftritte |

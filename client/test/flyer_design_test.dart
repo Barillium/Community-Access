@@ -112,7 +112,7 @@ void main() {
                   ? 'Attendance is confirmed separately.'
                   : 'Teilnahme wird separat bestätigt.',
             ),
-            findsOneWidget,
+            mode == 'public' ? findsNothing : findsOneWidget,
           );
           expect(
             find.text(english ? 'Not released yet' : 'Noch nicht freigegeben'),

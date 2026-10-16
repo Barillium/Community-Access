@@ -1,6 +1,6 @@
 # Community Access: Produktspezifikation
 
-Stand: 10.10.2026 · Verbindlicher V1-Umfang auf Nutzerauftrag. Lauffähige lokale Version mit ausschließlich synthetischen Daten; keine Produktionsfreigabe.
+Stand: 16.10.2026 · Verbindlicher V1-Umfang auf Nutzerauftrag. Lauffähige lokale Version mit ausschließlich synthetischen Daten; keine Produktionsfreigabe.
 
 ## 1. Ziel und maßgebliche Quellen
 
@@ -51,6 +51,10 @@ Das Projektteam prüft Name, Selbstdarstellung, Veranstaltungstypen und ausdrüc
 Einladungen sind kontogebunden, sieben Tage gültig, widerrufbar und gehasht gespeichert. Erst erfolgreiche Einreichung verbraucht sie atomar; Vorschau und Fehler verbrauchen nichts. Das eingereichte Formular behält seinen Fragenstand. Intime Profile und Fragen nach sexuellen Vorlieben sind ausgeschlossen. Nach freiwilligem Rückzug ist eine neue Bewerbung mit gültiger Einladung möglich; nach Ablehnung oder Mitgliedschaftsentzug bleibt die Wiederbewerbung gesperrt, bis die zuständige Stelle die Sperre ausdrücklich aufhebt.
 
 ### Einzelveranstaltung ohne Ticket
+
+Öffentliche Veranstaltungen ohne Plattform-Ticket benötigen keine manuelle Teilnahmebestätigung. Die öffentliche Veranstaltungsseite zeigt dafür weder Teilnahmeanfrage noch persönlichen Zusagestatus. Eintrittsbedingungen, Mindestalter und veröffentlichte Ortsangaben bleiben sichtbar; geschützte genaue Locations werden dadurch nicht freigegeben. Externe öffentliche Katalogeinträge haben keinen Community-Access-Anfrageweg. Explizit konfigurierte Ticketangebote behalten ihren Kauf- und Zahlungsablauf.
+
+Für Veranstaltungen mit geschütztem Zugang gilt:
 
 **Aktueller Eventzugang → Eventanfrage → separate manuelle Zusage → geschützte genaue Location.**
 

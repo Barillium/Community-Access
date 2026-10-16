@@ -73,7 +73,7 @@ export function eventColumns(rules=eventPolicy(),{content=true,guard=false}={}){
   field(`CASE WHEN ${rules.series} THEN s.title ELSE '' END`,'series',"''"),
   field(`CASE WHEN ${rules.profile} THEN p.id END`,'organizer_id'),
   field(`CASE WHEN ${rules.profile} THEN p.display_name ELSE '' END`,'organizer',"''"),
-  field('e.access_mode','access_mode'),field('e.request_deadline_at','request_deadline_at'),field(eventInterest,'interest_count')];
+  field('e.access_mode','access_mode'),field('e.is_public','is_public'),field('e.ticket_mode','ticket_mode'),field('e.request_deadline_at','request_deadline_at'),field(eventInterest,'interest_count')];
  if(content)columns.push(field(rules.content,'event_content',"'{}'::jsonb"),
   field(`CASE WHEN e.access_mode='semi_public' AND NOT COALESCE(${rules.location},false)
    THEN e.access_details-'access_notes'-'awareness_notes'-'awareness_contact' ELSE e.access_details END`,'access_details',"'{}'::jsonb"));

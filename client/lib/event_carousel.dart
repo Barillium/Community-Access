@@ -5,6 +5,7 @@ import 'app_language.dart';
 import 'design_system.dart';
 import 'flyer_design.dart';
 import 'event_editorial_view.dart';
+import 'event_participation.dart';
 
 class EventCarousel extends StatefulWidget {
   const EventCarousel({
@@ -123,14 +124,15 @@ class _EventCarouselState extends State<EventCarousel> {
           ),
           const SizedBox(height: 12),
         ],
-        Text(
-          localText(
-            context,
-            'Teilnahme wird separat bestätigt.',
-            'Attendance is confirmed separately.',
+        if (!isPublicEvent(event))
+          Text(
+            localText(
+              context,
+              'Teilnahme wird separat bestätigt.',
+              'Attendance is confirmed separately.',
+            ),
+            style: const TextStyle(fontSize: AccessTypography.labelSize),
           ),
-          style: const TextStyle(fontSize: AccessTypography.labelSize),
-        ),
         if (widget.bookmarkBuilder != null) widget.bookmarkBuilder!(event),
       ],
     );
